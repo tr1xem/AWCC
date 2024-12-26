@@ -40,7 +40,7 @@ Should Work in all Dell G15 models and some G16 too
 Feel Free to test and give suggestions!
 # TODO
 - [X] CLI
-- [] GUI
+- [ ] GUI
 
 
 # Credits
