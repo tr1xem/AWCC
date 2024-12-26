@@ -38,6 +38,28 @@ Dell  G15 5530 with USB 187c:0551
 
 Should Work in all Dell G15 models and some G16 too
 Feel Free to test and give suggestions!
+
+# FAQ and TIPS
+
+Q: How do a keybind for Light Toggle ?
+
+Ans : Install it and make a script under `~/.local/share/bin` as follows
+
+```bash
+
+#!/bin/bash
+STATE_FILE="rotate_state.txt"
+VALUES=(0 50 100)
+CURRENT_INDEX=$(cat "$STATE_FILE" 2>/dev/null || echo -1)
+NEXT_INDEX=$(( (CURRENT_INDEX + 1) % ${#VALUES[@]} ))
+echo $NEXT_INDEX > "$STATE_FILE"
+ARG=${VALUES[$NEXT_INDEX]}
+echo "Executing command with argument: $ARG"
+awcc brightness "$ARG"
+notify-send -a "AWCC" "AWCC" "Set brightness to ${ARG}"
+```
+and Bind it to  a key preferrably F5
+
 # TODO
 - [X] CLI
 - [ ] GUI
