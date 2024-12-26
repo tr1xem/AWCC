@@ -82,18 +82,14 @@ int getFanSpeed() {
 	return fan_speed;
 }
 
-void toggleGMode(const char *mode, int threshold) {
+void toggleGMode() {
 	int fan_speed = getFanSpeed();
 
 	printf("Current fan speed: %d RPM\n", fan_speed);
-	printf("Fan speed threshold: %d RPM\n", threshold);
+	printf("Fan speed threshold: %d RPM\n", 3000);
 
-	if (fan_speed > threshold) {
-		if (strcmp(mode, "q") == 0) {
-			quietMode();
-		} else {
-			performanceMode();
-		}
+	if (fan_speed > 3000) {
+		performanceMode();
 	} else {
 		gamingMode();
 	}

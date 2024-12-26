@@ -13,7 +13,7 @@ void gamingMode();
 int getFanSpeed();
 
 // Function to toggle gaming mode based on fan speed
-void toggleGMode(const char *mode, int threshold);
+void toggleGMode();
 
 #endif // FAN_CONTROL_H
 
