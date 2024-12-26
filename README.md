@@ -28,7 +28,7 @@ Fan Controls(Run  As root):
         g       G-Mode
         q       Quite Mode
         p       Performance Mode
-        gt      G-Mode Toggle (use full for setting as keybinds)
+        gt      G-Mode Toggle (useful for setting as keybinds)
 ```
 
 # Device Tested
