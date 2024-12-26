@@ -1,5 +1,5 @@
-#include "include/awcc.h"
-
+#include "include/lights.h"
+#include "include/fans.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -161,6 +161,7 @@ void print_usage(void) {
 	printf("  brightness <value>\tSet brightness\n");
 	printf("  rainbow <duration>\tSet Rainbows Spectrum\n");
 	printf("  wave <color>\tSet Wave Effect\n");
+	printf("  bkf <color>\tSet Back and fourth effect\n");
 	printf("  static <color>\tStatic color\n");
 	printf("  breathe <color>\tIt lives and breathes!\n");
 	printf("  spectrum <duration>\tCycles through all colors\n");
@@ -254,7 +255,7 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 			wave(color);
-		}  else if (!strcmp(argv[1], "bkf")) {
+		} else if (!strcmp(argv[1], "bkf")) {
 
 			uint32_t color = strtol(argv[2], NULL, 16);
 			if (color == 0) {
@@ -263,6 +264,21 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 			back_and_forth(color);
+		}
+
+		else if (strcmp(argv[1], "q") == 0 || strcmp(argv[1], "quiet") == 0) {
+			quietMode();
+		} else if (strcmp(argv[1], "p") == 0 ||
+				   strcmp(argv[1], "performance") == 0) {
+			performanceMode();
+		} else if (strcmp(argv[1], "g") == 0 || strcmp(argv[1], "gmode") == 0) {
+			gamingMode();
+		} else if (strcmp(argv[1], "gt") == 0 && argc >= 3) {
+			int threshold = (argc >= 4)
+								? atoi(argv[3])
+								: 3000; // Default to 3000 RPM if not provided
+			toggleGMode(argv[2], threshold);
+			// Reset lighting after mode switch if required
 		} else {
 			print_usage();
 		}

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "awcc.h"
+#include "lights.h"
 
 // Logging
 static void log_fatal(const char *msg) {
