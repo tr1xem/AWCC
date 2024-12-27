@@ -18,11 +18,12 @@ Usage: awcc [command] [arguments]...
 Light Controls:
         brightness <value>      Set brightness
         rainbow <duration>      Set Rainbows Spectrum
-        wave <color>    Set Wave Effect
-        bkf <color>     Set Back and fourth effect
-        static <color>  Static color
-        breathe <color> It lives and breathes!
+        wave <color>            Set Wave Effect
+        bkf <color>             Set Back and fourth effect
+        static <color>          Static color
+        breathe <color>         It lives and breathes!
         spectrum <duration>     Cycles through all colors
+        defaultblue             Static Default Blue color
 
 Fan Controls(Run  As root):
         g       G-Mode
