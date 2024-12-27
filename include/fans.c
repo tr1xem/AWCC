@@ -6,32 +6,29 @@
 #include <unistd.h>
 
 void checkRoot() {
-	if (geteuid() != 0) {
-		printf("This script must be run as root. Elevating privileges with "
-			   "sudo...\n");
+    if (geteuid() != 0) {
+        printf("This script must be run as root.\n");
 
-		// Get the current executable path
-		char *sudo_path = "/usr/bin/sudo";
-		char **new_argv =
-			(char **)malloc(sizeof(char *) * (2 + 1)); // 2 args + NULL
+        char *pkexec_path = "/usr/bin/pkexec";
+        char **new_argv =
+            (char **)malloc(sizeof(char *) * (2 + 1));
 
-		if (!new_argv) {
-			perror("Memory allocation failed");
-			exit(EXIT_FAILURE);
-		}
+        if (!new_argv) {
+            perror("Memory allocation failed");
+            exit(EXIT_FAILURE);
+        }
 
-		new_argv[0] = sudo_path;		   // `sudo`
-		new_argv[1] = strdup(getenv("_")); // Current program path
-		new_argv[2] = NULL;				   // NULL-terminated
+        new_argv[0] = pkexec_path;
+        new_argv[1] = strdup(getenv("_"));
+        new_argv[2] = NULL;
 
-		// Execute sudo to re-run the program
-		if (execvp(sudo_path, new_argv) == -1) {
-			perror("Failed to elevate privileges with sudo");
-			free(new_argv[1]); // Clean up allocated memory
-			free(new_argv);
-			exit(EXIT_FAILURE);
-		}
-	}
+        if (execvp(pkexec_path, new_argv) == -1) {
+            perror("Failed to elevate privileges with pkexec");
+            free(new_argv[1]);
+            free(new_argv);
+            exit(EXIT_FAILURE);
+        }
+    }
 }
 
 void executeAcpiCall(const char *command) {
@@ -49,7 +46,7 @@ void quietMode() {
 	executeAcpiCall(
 		"\\_SB.AMWW.WMAX 0 0x15 {1, 0xa3, 0x00, 0x00}"); // Quiet mode
 	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
+		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}");
 	printf("Quiet mode activated.\n");
 }
 
@@ -57,14 +54,14 @@ void performanceMode() {
 	executeAcpiCall(
 		"\\_SB.AMWW.WMAX 0 0x15 {1, 0xa1, 0x00, 0x00}"); // Performance mode
 	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
+		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}");
 	printf("Performance mode activated.\n");
 }
 
 void gamingMode() {
 	executeAcpiCall("\\_SB.AMWW.WMAX 0 0x15 {1, 0xab, 0x00, 0x00}"); // GMode
 	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
+		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}");
 	printf("Gaming mode activated.\n");
 }
 
