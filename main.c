@@ -6,6 +6,8 @@
 
 void wave(uint32_t color) {
 	device_acquire();
+
+	send_animation_remove(1);
 	send_animation_config_start(0);
 
 	send_zone_select(1, 1, ZONE_LEFT);
@@ -31,13 +33,16 @@ void wave(uint32_t color) {
 	send_add_action(ACTION_MORPH, 500, 64, 0);
 	send_add_action(ACTION_MORPH, 500, 64, 0);
 	send_add_action(ACTION_MORPH, 500, 64, color);
-
 	send_animation_config_play(0);
+	send_animation_config_save(1);
+	send_animation_set_default(1);
 	device_release();
 }
 
 void rainbow(uint16_t duration) {
 	device_acquire();
+
+	send_animation_remove(1);
 	send_animation_config_start(0);
 
 	send_zone_select(1, 1, ZONE_LEFT);
@@ -77,11 +82,16 @@ void rainbow(uint16_t duration) {
 	send_add_action(ACTION_MORPH, duration, 64, 0x008000);
 
 	send_animation_config_play(0);
+
+	send_animation_config_save(1);
+	send_animation_set_default(1);
 	device_release();
 }
 
 void back_and_forth(uint32_t color) {
 	device_acquire();
+
+	send_animation_remove(1);
 	send_animation_config_start(0);
 
 	send_zone_select(1, 1, ZONE_LEFT);
@@ -117,6 +127,8 @@ void back_and_forth(uint32_t color) {
 	send_add_action(ACTION_MORPH, 500, 64, 0);
 
 	send_animation_config_play(0);
+	send_animation_config_save(1);
+	send_animation_set_default(1);
 	device_release();
 }
 
