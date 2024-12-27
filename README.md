@@ -78,3 +78,6 @@ Replace with -> AMW3
 - @meduk0
 - Arch Wiki
 
+“Intelligence is the ability to avoid doing work, yet getting the work done.”
+
+_~Linus Torvalds_
