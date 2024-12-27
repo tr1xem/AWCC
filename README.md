@@ -59,9 +59,9 @@ notify-send -a "AWCC" "AWCC" "Set brightness to ${ARG}"
 ```
 and Bind it to  a key preferrably F5
 
-Q: I am a amd user the fan cmds dont work
-Ans:
-Use a text editor to find a replace in file named `/include/fans.cpp` and then build
+Q: I am a amd user the fan cmds dont work?
+
+Ans:Use a text editor to find a replace in file named `/include/fans.cpp` and then build
 
 Find -> AMWW
 
