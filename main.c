@@ -9,13 +9,14 @@ void print_usage(void) {
 	printf("Usage: awcc [command] [arguments]...\n");
 	printf("\n");
 	printf("Light Controls:\n");
-	printf("\tbrightness <value>\tSet brightness\n");
-	printf("\trainbow <duration>\tSet Rainbows Spectrum\n");
-	printf("\twave <color>\tSet Wave Effect\n");
-	printf("\tbkf <color>\tSet Back and fourth effect\n");
-	printf("\tstatic <color>\tStatic color\n");
-	printf("\tbreathe <color>\tIt lives and breathes!\n");
-	printf("\tspectrum <duration>\tCycles through all colors\n");
+	printf("\tbrightness <value>  \tSet brightness\n");
+	printf("\trainbow <duration>  \tSet Rainbows Spectrum\n");
+	printf("\twave <color>        \tSet Wave Effect\n");
+	printf("\tbkf <color>         \tSet Back and fourth effect\n");
+	printf("\tstatic <color>      \tStatic color\n");
+	printf("\tbreathe <color>     \tIt lives and breathes!\n");
+	printf("\tspectrum <duration> \tCycles through all colors\n");
+	printf("\tdefaultblue         \tStatic Default Blue color\n");
 	printf("\n");
 	printf("Fan Controls(Run  As root):\n");
 	printf("\tg\tG-Mode\n");
@@ -122,9 +123,9 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 			back_and_forth(color);
-		}
-
-		else if (strcmp(argv[1], "q") == 0 || strcmp(argv[1], "quiet") == 0) {
+		} else if (!strcmp(argv[1], "defaultblue")) {
+			defaultblue(0x00FFFF);
+		} else if (strcmp(argv[1], "q") == 0 || strcmp(argv[1], "quiet") == 0) {
 			quietMode();
 		} else if (strcmp(argv[1], "p") == 0 ||
 				   strcmp(argv[1], "performance") == 0) {
