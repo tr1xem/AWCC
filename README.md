@@ -46,7 +46,6 @@ Q: How do a keybind for Light Toggle ?
 Ans : Install it and make a script under `~/.local/share/bin` as follows
 
 ```bash
-
 #!/bin/bash
 STATE_FILE="rotate_state.txt"
 VALUES=(0 50 100)
@@ -60,6 +59,13 @@ notify-send -a "AWCC" "AWCC" "Set brightness to ${ARG}"
 ```
 and Bind it to  a key preferrably F5
 
+Q: I am a amd user the fan cmds dont work
+Ans:
+Use a text editor to find a replace in file named `/include/fans.cpp` and then build
+
+Find -> AMWW
+
+Replace with -> AMW3
 # TODO
 - [X] CLI
 - [ ] GUI
