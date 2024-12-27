@@ -3,16 +3,14 @@
 
 void executeAcpiCall(const char *command);
 
+void checkRoot(const char *command, char **argv);
 
 void quietMode();
 void performanceMode();
 void gamingMode();
 
-
 int getFanSpeed();
-
 
 void toggleGMode();
 
 #endif
-

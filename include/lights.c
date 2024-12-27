@@ -40,7 +40,8 @@ void device_open(void) {
 		struct libusb_device_descriptor descriptor = {0};
 		if (libusb_get_device_descriptor(devices[i], &descriptor) != 0)
 			log_fatal("get device descriptor");
-		if (descriptor.idVendor == 0x187c && (descriptor.idProduct == 0x0551 || descriptor.idProduct == 0x0550) ) {
+		if (descriptor.idVendor == 0x187c && (descriptor.idProduct == 0x0551 ||
+											  descriptor.idProduct == 0x0550)) {
 			device = devices[i];
 			break;
 		}
