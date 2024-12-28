@@ -10,6 +10,24 @@ cd  AWCC
 make
 make install
 ```
+
+Make a udev rule for it.
+
+```bash
+ /etc/udev/rules.d/99-awcc.rules
+SUBSYSTEM=="usb", ATTRS{idVendor}=="187c", ATTRS{idProduct}=="0551", MODE="0660",GROUP="plugdev"
+
+```
+
+
+Then execute these cmds to add urself in plugdev
+
+
+```bash
+ sudo groupadd plugdev
+ sudo usermod -aG plugdev $USER
+```
+
 # Usage
 ```bash
 Alienware Command Center for  Dell G Series
