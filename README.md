@@ -14,7 +14,7 @@ make install
 Make a udev rule for it.
 
 ```bash
- /etc/udev/rules.d/99-awcc.rules
+# /etc/udev/rules.d/99-awcc.rules
 SUBSYSTEM=="usb", ATTRS{idVendor}=="187c", ATTRS{idProduct}=="0551", MODE="0660",GROUP="plugdev"
 
 ```
