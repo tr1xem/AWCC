@@ -11,7 +11,7 @@ make
 make install
 ```
 
-Make a udev rule for it.
+Make a udev rule for it.(make sure to replace 0551 by 0550 if ur using that)
 
 ```bash
 # /etc/udev/rules.d/99-awcc.rules
