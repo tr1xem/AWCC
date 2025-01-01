@@ -7,8 +7,9 @@
 
 void checkRoot(const char *command, char **argv) {
 	if (geteuid() != 0) {
-		const char *rootCommands[] = {"q", "quiet", "p", "performance",
-									  "g", "gmode", "gt"};
+		const char *rootCommands[] = {"q",		 "quiet", "p",	"performance",
+									  "g",		 "gmode", "gt", "b",
+									  "balance", "bs"};
 		size_t numCommands = sizeof(rootCommands) / sizeof(rootCommands[0]);
 
 		int requiresRoot = 0;
@@ -58,6 +59,19 @@ void performanceMode() {
 	printf("Performance mode activated.\n");
 }
 
+void batteryMode() {
+	executeAcpiCall(
+		"\\_SB.AMWW.WMAX 0 0x15 {1, 0xa5, 0x00, 0x00}"); // Performance mode
+	executeAcpiCall(
+		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
+	printf("Battery Saver mode activated.\n");
+}
+void balanceMode() {
+	executeAcpiCall("\\_SB.AMW3.WMAX 0 0x15 {1, 0xa0, 0x00, 0x00}");
+	executeAcpiCall(
+		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
+	printf("Balance mode activated.\n");
+}
 void gamingMode() {
 	executeAcpiCall("\\_SB.AMWW.WMAX 0 0x15 {1, 0xab, 0x00, 0x00}"); // GMode
 	executeAcpiCall(
@@ -99,7 +113,7 @@ void toggleGMode() {
 	printf("Fan speed threshold: %d RPM\n", 3000);
 
 	if (fan_speed > 3000) {
-		performanceMode();
+		balanceMode();
 	} else {
 		gamingMode();
 	}

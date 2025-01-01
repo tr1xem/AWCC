@@ -22,6 +22,8 @@ void print_usage(void) {
 	printf("\tg\tG-Mode\n");
 	printf("\tq\tQuite Mode\n");
 	printf("\tp\tPerformance Mode\n");
+	printf("\tb\tBalance Mode\n");
+	printf("\tbs\tBattery Saver Mode\n");
 	printf("\tgt\tG-Mode Toggle (useful for setting as keybinds)\n");
 }
 
@@ -127,6 +129,14 @@ int main(int argc, char **argv) {
 			defaultblue(0x00FFFF);
 		} else if (strcmp(argv[1], "q") == 0 || strcmp(argv[1], "quiet") == 0) {
 			quietMode();
+		}   else if (strcmp(argv[1], "bs") == 0 ||
+				   strcmp(argv[1], "battery") == 0) {
+
+			batteryMode();
+		} else if (strcmp(argv[1], "b") == 0 ||
+				   strcmp(argv[1], "balance") == 0) {
+
+			balanceMode();
 		} else if (strcmp(argv[1], "p") == 0 ||
 				   strcmp(argv[1], "performance") == 0) {
 
