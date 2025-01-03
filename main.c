@@ -18,7 +18,7 @@ void print_usage(void) {
 	printf("\tspectrum <duration> \tCycles through all colors\n");
 	printf("\tdefaultblue         \tStatic Default Blue color\n");
 	printf("\n");
-	printf("Fan Controls(Run  As root):\n");
+	printf("Fan Controls(Run As root):\n");
 	printf("\tg\tG-Mode\n");
 	printf("\tq\tQuite Mode\n");
 	printf("\tp\tPerformance Mode\n");

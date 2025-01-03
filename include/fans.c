@@ -1,9 +1,10 @@
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#define default_mode performanceMode()
 
 void checkRoot(const char *command, char **argv) {
 	if (geteuid() != 0) {
@@ -61,13 +62,14 @@ void performanceMode() {
 
 void batteryMode() {
 	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x15 {1, 0xa5, 0x00, 0x00}"); // Performance mode
+		"\\_SB.AMWW.WMAX 0 0x15 {1, 0xa5, 0x00, 0x00}"); // Battery mode
 	executeAcpiCall(
 		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
 	printf("Battery Saver mode activated.\n");
 }
 void balanceMode() {
-	executeAcpiCall("\\_SB.AMW3.WMAX 0 0x15 {1, 0xa0, 0x00, 0x00}");
+	executeAcpiCall(
+		"\\_SB.AMWW.WMAX 0 0x15 {1, 0xa0, 0x00, 0x00}"); // Balanced mode
 	executeAcpiCall(
 		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
 	printf("Balance mode activated.\n");
@@ -113,7 +115,7 @@ void toggleGMode() {
 	printf("Fan speed threshold: %d RPM\n", 3000);
 
 	if (fan_speed > 3000) {
-		balanceMode();
+		default_mode;
 	} else {
 		gamingMode();
 	}
