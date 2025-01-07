@@ -4,6 +4,8 @@ Alienware Command Center for Dell G series with keybords USB 187c:0550 and USB 1
 
 # Building  And  Installation
 
+-  Dependencies : libnotify
+
 ```bash
 git clone https://github.com/tr1xem/AWCC
 cd  AWCC
@@ -74,7 +76,6 @@ echo $NEXT_INDEX > "$STATE_FILE"
 ARG=${VALUES[$NEXT_INDEX]}
 echo "Executing command with argument: $ARG"
 awcc brightness "$ARG"
-notify-send -a "AWCC" "AWCC" "Set brightness to ${ARG}"
 ```
 and Bind it to  a key preferrably F5
 

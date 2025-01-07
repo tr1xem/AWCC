@@ -4,7 +4,7 @@
 void executeAcpiCall(const char *command);
 
 void checkRoot(const char *command, char **argv);
-
+void send_notification(const char *app_name, const char *message);
 void quietMode();
 void performanceMode();
 void gamingMode();

@@ -1,3 +1,4 @@
+#include <libnotify/notify.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,6 +6,21 @@
 #include <unistd.h>
 
 #define default_mode performanceMode()
+void send_notification(const char *app_name, const char *message) {
+	if (!notify_init(app_name)) {
+		fprintf(stderr, "Failed to initialize notifications.\n");
+		return;
+	}
+
+	NotifyNotification *notification =
+		notify_notification_new(app_name, message, NULL);
+	if (!notify_notification_show(notification, NULL)) {
+		fprintf(stderr, "Failed to send notification.\n");
+	}
+
+	g_object_unref(G_OBJECT(notification));
+	notify_uninit();
+}
 
 void checkRoot(const char *command, char **argv) {
 	if (geteuid() != 0) {
@@ -114,7 +130,7 @@ void toggleGMode() {
 	printf("Current fan speed: %d RPM\n", fan_speed);
 	printf("Fan speed threshold: %d RPM\n", 3000);
 
-	if (fan_speed > 3000) {
+	if (fan_speed > 3800) {
 		default_mode;
 	} else {
 		gamingMode();
