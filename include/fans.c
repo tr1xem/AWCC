@@ -1,3 +1,4 @@
+#include <libnotify/notification.h>
 #include <libnotify/notify.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -11,9 +12,9 @@ void send_notification(const char *app_name, const char *message) {
 		fprintf(stderr, "Failed to initialize notifications.\n");
 		return;
 	}
-
 	NotifyNotification *notification =
 		notify_notification_new(app_name, message, NULL);
+
 	if (!notify_notification_show(notification, NULL)) {
 		fprintf(stderr, "Failed to send notification.\n");
 	}
@@ -66,6 +67,9 @@ void quietMode() {
 	executeAcpiCall(
 		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
 	printf("Quiet mode activated.\n");
+    char *args[] = {"/bin/bash", "/usr/bin/powersave", NULL};
+    execvp(args[0], args);
+    perror("execvp failed");
 }
 
 void performanceMode() {
@@ -74,6 +78,9 @@ void performanceMode() {
 	executeAcpiCall(
 		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
 	printf("Performance mode activated.\n");
+    char *args[] = {"/bin/bash", "/usr/bin/powersave", NULL};
+    execvp(args[0], args);
+    perror("execvp failed");
 }
 
 void batteryMode() {
@@ -82,6 +89,9 @@ void batteryMode() {
 	executeAcpiCall(
 		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
 	printf("Battery Saver mode activated.\n");
+    char *args[] = {"/bin/bash", "/usr/bin/powersave", NULL};
+    execvp(args[0], args);
+    perror("execvp failed");
 }
 void balanceMode() {
 	executeAcpiCall(
@@ -89,12 +99,18 @@ void balanceMode() {
 	executeAcpiCall(
 		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
 	printf("Balance mode activated.\n");
+    char *args[] = {"/bin/bash", "/usr/bin/powersave", NULL};
+    execvp(args[0], args);
+    perror("execvp failed");
 }
 void gamingMode() {
 	executeAcpiCall("\\_SB.AMWW.WMAX 0 0x15 {1, 0xab, 0x00, 0x00}"); // GMode
 	executeAcpiCall(
 		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
 	printf("Gaming mode activated.\n");
+    char *args[] = {"/bin/bash", "/usr/bin/gamemode", NULL};
+    execvp(args[0], args);
+    perror("execvp failed");
 }
 
 int getFanSpeed() {
@@ -128,11 +144,12 @@ void toggleGMode() {
 	int fan_speed = getFanSpeed();
 
 	printf("Current fan speed: %d RPM\n", fan_speed);
-	printf("Fan speed threshold: %d RPM\n", 3000);
+	printf("Fan speed threshold: %d RPM\n", 3800);
 
 	if (fan_speed > 3800) {
 		default_mode;
 	} else {
 		gamingMode();
+
 	}
 }
