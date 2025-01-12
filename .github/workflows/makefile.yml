@@ -31,8 +31,8 @@ jobs:
     #
     # - name: Run distcheck
     #   run: make distcheck
-    - name: Run tests (if applicable)
-      run: |
-        # Run your tests or any post-build actions here
-        echo "Running tests..."
-        ./awcc
+    # - name: Run tests (if applicable)
+    #   run: |
+    #     # Run your tests or any post-build actions here
+    #     echo "Running tests..."
+    #     ./awcc
