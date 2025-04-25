@@ -166,9 +166,11 @@ void toggleGMode() {
 	if (strstr(response, "0x0")) {
 		printf("G-Mode is currently OFF. Enabling Gaming Mode...\n");
 		gamingMode();
+		executeAcpiCall("\\_SB.AMWW.WMAX 0 0x25 {0x01, 0x01, 0x00, 0x00}");
 	} else if (strstr(response, "0x1")) {
-		printf("G-Mode is currently ON. Reverting to Performance Mode...\n");
+		printf("G-Mode is currently ON. Reverting to Default Mode...\n");
 		default_mode;
+		executeAcpiCall("\\_SB.AMWW.WMAX 0 0x25 {0x01, 0x00, 0x00, 0x00}");
 	} else {
 		fprintf(stderr, "Unable to determine G-Mode status. Response: %s\n",
 				response);
