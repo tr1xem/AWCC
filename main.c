@@ -41,9 +41,7 @@ int main(int argc, char **argv) {
 				device_close();
 				return 1;
 			}
-			device_acquire();
-			send_set_dim(value, 4, ZONE_ALL);
-			device_release();
+			brightness(value);
 			char message[256]; // Make sure the buffer is large enough
 			sprintf(message, "Set Brightness to %d%%", atoi(argv[2]));
 			/* send_notification("Alienware Command Centre", message); */
@@ -54,14 +52,7 @@ int main(int argc, char **argv) {
 				device_close();
 				return 1;
 			}
-			device_acquire();
-			send_animation_remove(1);
-			send_animation_config_start(1);
-			send_zone_select(1, 4, ZONE_ALL);
-			send_add_action(ACTION_COLOR, 1, 2, color);
-			send_animation_config_save(1);
-			send_animation_set_default(1);
-			device_release();
+			static_color(color);
 		} else if (!strcmp(argv[1], "spectrum") && argc >= 3) {
 			uint16_t duration = strtol(argv[2], NULL, 10);
 			if (duration == 0) {
@@ -69,20 +60,7 @@ int main(int argc, char **argv) {
 				device_close();
 				return 1;
 			}
-			device_acquire();
-			send_animation_remove(1);
-			send_animation_config_start(1);
-			send_zone_select(1, 4, ZONE_ALL);
-			send_add_action(ACTION_MORPH, duration, 64, 0xFF0000);
-			send_add_action(ACTION_MORPH, duration, 64, 0xFFa500);
-			send_add_action(ACTION_MORPH, duration, 64, 0xFFFF00);
-			send_add_action(ACTION_MORPH, duration, 64, 0x008000);
-			send_add_action(ACTION_MORPH, duration, 64, 0x00BFFF);
-			send_add_action(ACTION_MORPH, duration, 64, 0x0000FF);
-			send_add_action(ACTION_MORPH, duration, 64, 0x800080);
-			send_animation_config_save(1);
-			send_animation_set_default(1);
-			device_release();
+			spectrum(duration);
 		} else if (!strcmp(argv[1], "breathe") && argc >= 3) {
 			uint32_t color = strtol(argv[2], NULL, 16);
 			if (color == 0) {
@@ -90,18 +68,7 @@ int main(int argc, char **argv) {
 				device_close();
 				return 1;
 			}
-			device_acquire();
-			send_animation_remove(1);
-			send_animation_config_start(1);
-			send_zone_select(1, 4, ZONE_ALL);
-			send_add_action(ACTION_MORPH, 500, 64, color);
-			send_add_action(ACTION_MORPH, 2000, 64, color);
-			send_add_action(ACTION_MORPH, 500, 64, 0);
-			send_add_action(ACTION_MORPH, 2000, 64, 0);
-			send_animation_config_play(0);
-			send_animation_config_save(1);
-			send_animation_set_default(1);
-			device_release();
+			breathe(color);
 		} else if (!strcmp(argv[1], "rainbow") && argc >= 3) {
 			uint16_t duration = strtol(argv[2], NULL, 10);
 			if (duration == 0) {
