@@ -126,7 +126,6 @@ void quietMode() {
 	executeAcpiCall(
 		"\\_SB.AMWW.WMAX 0 0x15 {0x01, 0xa3, 0x00, 0x00}"); // Quiet mode
 	printf("Quiet mode activated.\n");
-	perror("execvp failed");
 }
 
 void performanceMode() {
@@ -135,7 +134,6 @@ void performanceMode() {
 	executeAcpiCall(
 		"\\_SB.AMWW.WMAX 0 0x15 {0x01, 0xa1, 0x00, 0x00}"); // Performance mode
 	printf("Performance mode activated.\n");
-	perror("execvp failed");
 }
 
 void batteryMode() {
@@ -144,7 +142,6 @@ void batteryMode() {
 	executeAcpiCall(
 		"\\_SB.AMWW.WMAX 0 0x15 {0x01, 0xa5, 0x00, 0x00}"); // Battery mode
 	printf("Battery Saver mode activated.\n");
-	perror("execvp failed");
 }
 void balanceMode() {
 	if (check_current_mode("0xa0"))

@@ -44,7 +44,6 @@ int main(int argc, char **argv) {
 			brightness(value);
 			char message[256]; // Make sure the buffer is large enough
 			sprintf(message, "Set Brightness to %d%%", atoi(argv[2]));
-			/* send_notification("Alienware Command Centre", message); */
 		} else if (!strcmp(argv[1], "static")) {
 			uint32_t color = strtol(argv[2], NULL, 16);
 			if (color == 0) {
