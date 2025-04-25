@@ -4,6 +4,7 @@ SOURCE := $(wildcard *.c ./include/*.c)
 INCLUDE := ./include
 PKG_CONFIG := $(shell which pkg-config)
 
+# Compiler and linker flags
 CFLAGS := -Wall -Wextra -I$(INCLUDE)
 LDFLAGS := -lusb-1.0
 ifeq ($(PKG_CONFIG),)
