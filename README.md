@@ -45,10 +45,13 @@ Light Controls:
         spectrum <duration>     Cycles through all colors
         defaultblue             Static Default Blue color
 
-Fan Controls(Run  As root):
+Fan Controls(Run As root):
+        qm      Query Current Mode
         g       G-Mode
         q       Quite Mode
         p       Performance Mode
+        b       Balance Mode
+        bs      Battery Saver Mode
         gt      G-Mode Toggle (useful for setting as keybinds)
 ```
 
