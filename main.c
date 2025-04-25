@@ -19,6 +19,7 @@ void print_usage(void) {
 	printf("\tdefaultblue         \tStatic Default Blue color\n");
 	printf("\n");
 	printf("Fan Controls(Run As root):\n");
+	printf("\tqm\tQuery Current Mode\n");
 	printf("\tg\tG-Mode\n");
 	printf("\tq\tQuite Mode\n");
 	printf("\tp\tPerformance Mode\n");
@@ -40,12 +41,9 @@ int main(int argc, char **argv) {
 				device_close();
 				return 1;
 			}
-			device_acquire();
-			send_set_dim(value, 4, ZONE_ALL);
-			device_release();
+			brightness(value);
 			char message[256]; // Make sure the buffer is large enough
 			sprintf(message, "Set Brightness to %d%%", atoi(argv[2]));
-			send_notification("Alienware Command Centre", message);
 		} else if (!strcmp(argv[1], "static")) {
 			uint32_t color = strtol(argv[2], NULL, 16);
 			if (color == 0) {
@@ -53,14 +51,7 @@ int main(int argc, char **argv) {
 				device_close();
 				return 1;
 			}
-			device_acquire();
-			send_animation_remove(1);
-			send_animation_config_start(1);
-			send_zone_select(1, 4, ZONE_ALL);
-			send_add_action(ACTION_COLOR, 1, 2, color);
-			send_animation_config_save(1);
-			send_animation_set_default(1);
-			device_release();
+			static_color(color);
 		} else if (!strcmp(argv[1], "spectrum") && argc >= 3) {
 			uint16_t duration = strtol(argv[2], NULL, 10);
 			if (duration == 0) {
@@ -68,20 +59,7 @@ int main(int argc, char **argv) {
 				device_close();
 				return 1;
 			}
-			device_acquire();
-			send_animation_remove(1);
-			send_animation_config_start(1);
-			send_zone_select(1, 4, ZONE_ALL);
-			send_add_action(ACTION_MORPH, duration, 64, 0xFF0000);
-			send_add_action(ACTION_MORPH, duration, 64, 0xFFa500);
-			send_add_action(ACTION_MORPH, duration, 64, 0xFFFF00);
-			send_add_action(ACTION_MORPH, duration, 64, 0x008000);
-			send_add_action(ACTION_MORPH, duration, 64, 0x00BFFF);
-			send_add_action(ACTION_MORPH, duration, 64, 0x0000FF);
-			send_add_action(ACTION_MORPH, duration, 64, 0x800080);
-			send_animation_config_save(1);
-			send_animation_set_default(1);
-			device_release();
+			spectrum(duration);
 		} else if (!strcmp(argv[1], "breathe") && argc >= 3) {
 			uint32_t color = strtol(argv[2], NULL, 16);
 			if (color == 0) {
@@ -89,18 +67,7 @@ int main(int argc, char **argv) {
 				device_close();
 				return 1;
 			}
-			device_acquire();
-			send_animation_remove(1);
-			send_animation_config_start(1);
-			send_zone_select(1, 4, ZONE_ALL);
-			send_add_action(ACTION_MORPH, 500, 64, color);
-			send_add_action(ACTION_MORPH, 2000, 64, color);
-			send_add_action(ACTION_MORPH, 500, 64, 0);
-			send_add_action(ACTION_MORPH, 2000, 64, 0);
-			send_animation_config_play(0);
-			send_animation_config_save(1);
-			send_animation_set_default(1);
-			device_release();
+			breathe(color);
 		} else if (!strcmp(argv[1], "rainbow") && argc >= 3) {
 			uint16_t duration = strtol(argv[2], NULL, 10);
 			if (duration == 0) {
@@ -131,54 +98,39 @@ int main(int argc, char **argv) {
 			defaultblue(0x00FFFF);
 
 			// Fan control
+		} else if (strcmp(argv[1], "qm") == 0 ||
+				   strcmp(argv[1], "query") == 0) {
+
+			checkRoot(argv[1], argv);
+			printCurrentMode();
 		} else if (strcmp(argv[1], "q") == 0 || strcmp(argv[1], "quiet") == 0) {
 
-			send_notification("Alienware Command Centre",
-							  "Quiet mode activated");
 			checkRoot(argv[1], argv);
 			quietMode();
 		} else if (strcmp(argv[1], "bs") == 0 ||
 				   strcmp(argv[1], "battery") == 0) {
 
-			send_notification("Alienware Command Centre",
-							  "Battery Saver mode activated");
 			checkRoot(argv[1], argv);
 			batteryMode();
 		} else if (strcmp(argv[1], "b") == 0 ||
 				   strcmp(argv[1], "balance") == 0) {
 
-			send_notification("Alienware Command Centre",
-							  "Balance mode activated");
 			checkRoot(argv[1], argv);
 			balanceMode();
 		} else if (strcmp(argv[1], "p") == 0 ||
 				   strcmp(argv[1], "performance") == 0) {
-
-			send_notification("Alienware Command Centre",
-							  "Performance mode activated");
 
 			checkRoot(argv[1], argv);
 			performanceMode();
 
 		} else if (strcmp(argv[1], "g") == 0 || strcmp(argv[1], "gmode") == 0) {
 
-			send_notification("Alienware Command Centre", "G-Mode activated");
 			checkRoot(argv[1], argv);
 			gamingMode();
 		} else if (strcmp(argv[1], "gt") == 0) {
-			int fan_speed = getFanSpeed();
-
-			if (fan_speed > 3800) {
-				send_notification("Alienware Command Centre",
-								  "Turning off G-Mode");
-			} else {
-				send_notification("Alienware Command Centre",
-								  "Turning on G-Mode");
-			}
-
 			checkRoot(argv[1], argv);
 			toggleGMode();
-		}else {
+		} else {
 			print_usage();
 		}
 	} else {

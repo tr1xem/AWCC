@@ -10,8 +10,8 @@ void performanceMode();
 void gamingMode();
 void balanceMode();
 void batteryMode();
-int getFanSpeed();
 
+void printCurrentMode();
 void toggleGMode();
 
 #endif

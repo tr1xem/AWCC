@@ -1,3 +1,5 @@
+#include <ctype.h>
+#include <libnotify/notification.h>
 #include <libnotify/notify.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -6,27 +8,12 @@
 #include <unistd.h>
 
 #define default_mode performanceMode()
-void send_notification(const char *app_name, const char *message) {
-	if (!notify_init(app_name)) {
-		fprintf(stderr, "Failed to initialize notifications.\n");
-		return;
-	}
-
-	NotifyNotification *notification =
-		notify_notification_new(app_name, message, NULL);
-	if (!notify_notification_show(notification, NULL)) {
-		fprintf(stderr, "Failed to send notification.\n");
-	}
-
-	g_object_unref(G_OBJECT(notification));
-	notify_uninit();
-}
 
 void checkRoot(const char *command, char **argv) {
 	if (geteuid() != 0) {
 		const char *rootCommands[] = {"q",		 "quiet", "p",	"performance",
 									  "g",		 "gmode", "gt", "b",
-									  "balance", "bs"};
+									  "balance", "bs",	  "qm", "query"};
 		size_t numCommands = sizeof(rootCommands) / sizeof(rootCommands[0]);
 
 		int requiresRoot = 0;
@@ -60,79 +47,130 @@ void executeAcpiCall(const char *command) {
 	fclose(acpi_file);
 }
 
+const char *getModeNameFromHex(const char *hex) {
+	if (strcmp(hex, "0xa0") == 0)
+		return "Balanced";
+	if (strcmp(hex, "0xa1") == 0)
+		return "Performance";
+	if (strcmp(hex, "0xa3") == 0)
+		return "Quiet";
+	if (strcmp(hex, "0xa5") == 0)
+		return "Battery Saver";
+	if (strcmp(hex, "0xab") == 0)
+		return "Gaming";
+	if (strcmp(hex, "0x0") == 0)
+		return "Manual";
+	return "Unknown";
+}
+
+char *readAcpiResponse() {
+	FILE *fp = fopen("/proc/acpi/call", "r");
+	if (!fp) {
+		perror("Unable to read /proc/acpi/call");
+		exit(EXIT_FAILURE);
+	}
+	static char buffer[128];
+	fgets(buffer, sizeof(buffer), fp);
+	fclose(fp);
+
+	// Normalize string to lowercase
+	for (char *p = buffer; *p; ++p)
+		*p = tolower(*p);
+	return buffer;
+}
+
+int check_current_mode(const char *desired_hex) {
+	executeAcpiCall("\\_SB.AMWW.WMAX 0 0x14 {0x0b, 0x00, 0x00, 0x00}");
+
+	usleep(100000); // Allow time for ACPI response
+
+	char *response = readAcpiResponse();
+
+	if (strstr(response, desired_hex)) {
+		printf("You're already in %s mode (%s).\n",
+			   getModeNameFromHex(desired_hex), desired_hex);
+		return 1;
+	} else {
+		printf("Switching to %s mode...\n", getModeNameFromHex(desired_hex));
+		return 0;
+	}
+}
+
+void printCurrentMode() {
+	executeAcpiCall("\\_SB.AMWW.WMAX 0 0x14 {0x0b, 0x00, 0x00, 0x00}");
+	usleep(100000); // wait for ACPI response
+
+	char *response = readAcpiResponse();
+
+	// Find the relevant hex value in response
+	if (strstr(response, "0xa0")) {
+		printf("Current mode: Balanced\n");
+	} else if (strstr(response, "0xa1")) {
+		printf("Current mode: Performance\n");
+	} else if (strstr(response, "0xa3")) {
+		printf("Current mode: Quiet\n");
+	} else if (strstr(response, "0xa5")) {
+		printf("Current mode: Battery Saver\n");
+	} else if (strstr(response, "0xab")) {
+		printf("Current mode: Gaming (G-Mode)\n");
+	} else if (strstr(response, "0x0")) {
+		printf("Current mode: Manual\n");
+	} else {
+		printf("Current mode: Unknown (%s)\n", response);
+	}
+}
+
 void quietMode() {
+	if (check_current_mode("0xa3"))
+		return;
 	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x15 {1, 0xa3, 0x00, 0x00}"); // Quiet mode
-	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
+		"\\_SB.AMWW.WMAX 0 0x15 {0x01, 0xa3, 0x00, 0x00}"); // Quiet mode
 	printf("Quiet mode activated.\n");
 }
 
 void performanceMode() {
+	if (check_current_mode("0xa1"))
+		return;
 	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x15 {1, 0xa1, 0x00, 0x00}"); // Performance mode
-	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
+		"\\_SB.AMWW.WMAX 0 0x15 {0x01, 0xa1, 0x00, 0x00}"); // Performance mode
 	printf("Performance mode activated.\n");
 }
 
 void batteryMode() {
+	if (check_current_mode("0xa5"))
+		return;
 	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x15 {1, 0xa5, 0x00, 0x00}"); // Battery mode
-	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
+		"\\_SB.AMWW.WMAX 0 0x15 {0x01, 0xa5, 0x00, 0x00}"); // Battery mode
 	printf("Battery Saver mode activated.\n");
 }
 void balanceMode() {
+	if (check_current_mode("0xa0"))
+		return;
 	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x15 {1, 0xa0, 0x00, 0x00}"); // Balanced mode
-	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
+		"\\_SB.AMWW.WMAX 0 0x15 {0x01, 0xa0, 0x00, 0x00}"); // Balanced mode
 	printf("Balance mode activated.\n");
 }
 void gamingMode() {
-	executeAcpiCall("\\_SB.AMWW.WMAX 0 0x15 {1, 0xab, 0x00, 0x00}"); // GMode
-	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}"); // Shared call
+	if (check_current_mode("0xab"))
+		return;
+	executeAcpiCall("\\_SB.AMWW.WMAX 0 0x15 {0x01, 0xab, 0x00, 0x00}"); // GMode
 	printf("Gaming mode activated.\n");
 }
 
-int getFanSpeed() {
-	char buffer[256];
-	int fan_speed = -1;
-
-	FILE *fp = popen("sensors", "r");
-	if (!fp) {
-		perror("Failed to run sensors command");
-		exit(EXIT_FAILURE);
-	}
-
-	while (fgets(buffer, sizeof(buffer), fp)) {
-		if (strstr(buffer, "CPU Fan")) {
-			sscanf(buffer, "%*[^:]: %d", &fan_speed);
-			break;
-		}
-	}
-
-	pclose(fp);
-
-	if (fan_speed == -1) {
-		fprintf(stderr, "Unable to find CPU fan speed in sensors output\n");
-		exit(EXIT_FAILURE);
-	}
-
-	return fan_speed;
-}
-
 void toggleGMode() {
-	int fan_speed = getFanSpeed();
+	executeAcpiCall("\\_SB.AMWW.WMAX 0 0x25 {0x02, 0x00, 0x00, 0x00}");
 
-	printf("Current fan speed: %d RPM\n", fan_speed);
-	printf("Fan speed threshold: %d RPM\n", 3000);
+	usleep(100000); // wait for the ACPI call to complete
+	char *response = readAcpiResponse();
 
-	if (fan_speed > 3800) {
+	if (strstr(response, "0x0")) {
+		printf("G-Mode is currently OFF. Enabling Gaming Mode...\n");
+		gamingMode();
+	} else if (strstr(response, "0x1")) {
+		printf("G-Mode is currently ON. Reverting to Performance Mode...\n");
 		default_mode;
 	} else {
-		gamingMode();
+		fprintf(stderr, "Unable to determine G-Mode status. Response: %s\n",
+				response);
 	}
 }
