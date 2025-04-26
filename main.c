@@ -5,27 +5,35 @@
 #include <stdlib.h>
 #include <string.h>
 void print_usage(void) {
-	printf("Alienware Command Center for  Dell G Series\n");
-	printf("Usage: awcc [command] [arguments]...\n");
-	printf("\n");
-	printf("Light Controls:\n");
-	printf("\tbrightness <value>  \tSet brightness\n");
-	printf("\trainbow <duration>  \tSet Rainbows Spectrum\n");
-	printf("\twave <color>        \tSet Wave Effect\n");
-	printf("\tbkf <color>         \tSet Back and fourth effect\n");
-	printf("\tstatic <color>      \tStatic color\n");
-	printf("\tbreathe <color>     \tIt lives and breathes!\n");
-	printf("\tspectrum <duration> \tCycles through all colors\n");
-	printf("\tdefaultblue         \tStatic Default Blue color\n");
-	printf("\n");
-	printf("Fan Controls(Run As root):\n");
-	printf("\tqm\tQuery Current Mode\n");
-	printf("\tg\tG-Mode\n");
-	printf("\tq\tQuite Mode\n");
-	printf("\tp\tPerformance Mode\n");
-	printf("\tb\tBalance Mode\n");
-	printf("\tbs\tBattery Saver Mode\n");
-	printf("\tgt\tG-Mode Toggle (useful for setting as keybinds)\n");
+	printf("\nAlienware Command Center for Dell G Series\n");
+	printf("==========================================\n\n");
+	printf("Usage:\n");
+	printf("  awcc [command] [arguments]...\n\n");
+
+	printf("Lighting Controls:\n");
+	printf("  brightness <value>     Set keyboard brightness (0-100)\n");
+	printf("  static <color>         Set static color (hex RGB)\n");
+	printf("  breathe <color>        Breathing color effect\n");
+	printf("  wave <color>           Wave color effect\n");
+	printf("  bkf <color>            Back-and-forth color effect\n");
+	printf("  rainbow <duration>     Rainbow spectrum cycle (ms)\n");
+	printf("  spectrum <duration>    Full color cycle (ms)\n");
+	printf("  defaultblue            Set default static blue color\n\n");
+
+	printf("Fan Controls (Run as root):\n");
+	printf("  qm                     Query current fan mode\n");
+	printf("  g                      Set G-Mode\n");
+	printf("  q                      Set Quiet Mode\n");
+	printf("  p                      Set Performance Mode\n");
+	printf("  b                      Set Balanced Mode\n");
+	printf("  bs                     Set Battery Saver Mode\n");
+	printf("  gt                     Toggle G-Mode (useful for keybinds)\n\n");
+
+	printf("Fan Boost Controls (Run as root):\n");
+	printf("  cb                      Get CPU fan boost\n");
+	printf("  gb                      Get GPU fan boost\n");
+	printf("  scb <value>             Set CPU fan boost (1-100)\n");
+	printf("  sgb <value>             Set GPU fan boost (1-100)\n\n");
 }
 
 int main(int argc, char **argv) {
@@ -130,6 +138,36 @@ int main(int argc, char **argv) {
 		} else if (strcmp(argv[1], "gt") == 0) {
 			checkRoot(argv[1], argv);
 			toggleGMode();
+		} else if (strcmp(argv[1], "cb") == 0 ||
+				   strcmp(argv[1], "getcpufanboost") == 0) {
+			checkRoot(argv[1], argv);
+			getFanBoost("cpu");
+
+		} else if (strcmp(argv[1], "gb") == 0 ||
+				   strcmp(argv[1], "getgpufanboost") == 0) {
+			checkRoot(argv[1], argv);
+			getFanBoost("gpu");
+
+		} else if (strcmp(argv[1], "scb") == 0 ||
+				   strcmp(argv[1], "setcpufanboost") == 0) {
+			if (argc < 3) {
+				fprintf(stderr, "error: missing value for CPU fan boost\n");
+				device_close();
+				return 1;
+			}
+			int value = atoi(argv[2]);
+			checkRoot(argv[1], argv);
+			setFanBoost("cpu", value);
+		} else if (strcmp(argv[1], "sgb") == 0 ||
+				   strcmp(argv[1], "setgpufanboost") == 0) {
+			if (argc < 3) {
+				fprintf(stderr, "error: missing value for GPU fan boost\n");
+				device_close();
+				return 1;
+			}
+			int value = atoi(argv[2]);
+			checkRoot(argv[1], argv);
+			setFanBoost("gpu", value);
 		} else {
 			print_usage();
 		}

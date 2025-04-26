@@ -1,6 +1,4 @@
 #include <ctype.h>
-#include <libnotify/notification.h>
-#include <libnotify/notify.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,9 +9,28 @@
 
 void checkRoot(const char *command, char **argv) {
 	if (geteuid() != 0) {
-		const char *rootCommands[] = {"q",		 "quiet", "p",	"performance",
-									  "g",		 "gmode", "gt", "b",
-									  "balance", "bs",	  "qm", "query"};
+		const char *rootCommands[] = {
+			"q",
+			"quiet",
+			"p",
+			"performance",
+			"g",
+			"gmode",
+			"gt",
+			"b",
+			"balance",
+			"bs",
+			"qm",
+			"query",
+			"gb",
+			"cb",
+			"sgb",
+			"scb",
+			"getcpufanboost",
+			"getgpufanboost",
+			"setcpufanboost",
+			"setgpufanboost",
+		};
 		size_t numCommands = sizeof(rootCommands) / sizeof(rootCommands[0]);
 
 		int requiresRoot = 0;
@@ -120,6 +137,66 @@ void printCurrentMode() {
 	}
 }
 
+int extractHexValue(const char *response) {
+	char *start = strstr(response, "0x");
+	if (!start) {
+		fprintf(stderr, "No hex value found in response.\n");
+		return -1;
+	}
+	unsigned int value;
+	if (sscanf(start, "%x", &value) == 1)
+		return value;
+	else {
+		fprintf(stderr, "Failed to parse hex value.\n");
+		return -1;
+	}
+}
+
+void getFanBoost(const char *device) {
+	if (strcmp(device, "cpu") == 0) {
+		executeAcpiCall("\\_SB.AMWW.WMAX 0 0x14 {0x0c, 0x32, 0x00, 0x00}");
+	} else if (strcmp(device, "gpu") == 0) {
+		executeAcpiCall("\\_SB.AMWW.WMAX 0 0x14 {0x0c, 0x33, 0x00, 0x00}");
+	} else {
+		fprintf(stderr, "Unknown device type: %s\n", device);
+		return;
+	}
+
+	usleep(100000);
+	char *response = readAcpiResponse();
+	int value = extractHexValue(response);
+
+	if (value >= 0) {
+		if (strcmp(device, "cpu") == 0)
+			printf("Current CPU Fan Boost: %d%%\n", value);
+		else
+			printf("Current GPU Fan Boost: %d%%\n", value);
+	}
+}
+
+void setFanBoost(const char *device, int value) {
+	if (value < 0 || value > 100) {
+		fprintf(stderr, "Fan boost value must be between 1 and 100.\n");
+		return;
+	}
+
+	char command[128];
+
+	if (strcmp(device, "cpu") == 0) {
+		snprintf(command, sizeof(command),
+				 "\\_SB.AMWW.WMAX 0 0x15 {0x02, 0x32, 0x%02x, 0x00}", value);
+	} else if (strcmp(device, "gpu") == 0) {
+		snprintf(command, sizeof(command),
+				 "\\_SB.AMWW.WMAX 0 0x15 {0x02, 0x33, 0x%02x, 0x00}", value);
+	} else {
+		fprintf(stderr, "Unknown device type: %s\n", device);
+		return;
+	}
+
+	executeAcpiCall(command);
+	printf("%s Fan Boost set to %d%%.\n",
+		   strcmp(device, "cpu") == 0 ? "CPU" : "GPU", value);
+}
 void quietMode() {
 	if (check_current_mode("0xa3"))
 		return;

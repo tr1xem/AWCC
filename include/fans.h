@@ -11,6 +11,8 @@ void gamingMode();
 void balanceMode();
 void batteryMode();
 
+void getFanBoost(const char *device);
+void setFanBoost(const char *device, int value);
 void printCurrentMode();
 void toggleGMode();
 
