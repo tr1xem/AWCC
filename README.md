@@ -1,6 +1,6 @@
 # AWCC for Dell G series
 
-Alienware Command Center for Dell G series with keybords USB 187c:0550 and USB 187c:0551
+Alienware Command Center for Dell G series with keybords USB 187c:0550 and USB 187c:0551 that auto detects if ur using intel or amd and with this you could set manual fan speeds too
 
 # Building  And  Installation
 
@@ -32,27 +32,36 @@ Then execute these cmds to add urself in plugdev
 
 # Usage
 ```bash
-Alienware Command Center for  Dell G Series
-Usage: awcc [command] [arguments]...
+Alienware Command Center for Dell G Series
+==========================================
 
-Light Controls:
-        brightness <value>      Set brightness
-        rainbow <duration>      Set Rainbows Spectrum
-        wave <color>            Set Wave Effect
-        bkf <color>             Set Back and fourth effect
-        static <color>          Static color
-        breathe <color>         It lives and breathes!
-        spectrum <duration>     Cycles through all colors
-        defaultblue             Static Default Blue color
+Usage:
+  awcc [command] [arguments]...
 
-Fan Controls(Run As root):
-        qm      Query Current Mode
-        g       G-Mode
-        q       Quite Mode
-        p       Performance Mode
-        b       Balance Mode
-        bs      Battery Saver Mode
-        gt      G-Mode Toggle (useful for setting as keybinds)
+Lighting Controls:
+  brightness <value>     Set keyboard brightness (0-100)
+  static <color>         Set static color (hex RGB)
+  breathe <color>        Breathing color effect
+  wave <color>           Wave color effect
+  bkf <color>            Back-and-forth color effect
+  rainbow <duration>     Rainbow spectrum cycle (ms)
+  spectrum <duration>    Full color cycle (ms)
+  defaultblue            Set default static blue color
+
+Fan Controls (Run as root):
+  qm                     Query current fan mode
+  g                      Set G-Mode
+  q                      Set Quiet Mode
+  p                      Set Performance Mode
+  b                      Set Balanced Mode
+  bs                     Set Battery Saver Mode
+  gt                     Toggle G-Mode (useful for keybinds)
+
+Fan Boost Controls (Run as root):
+  cb                      Get CPU fan boost
+  gb                      Get GPU fan boost
+  scb <value>             Set CPU fan boost (1-100)
+  sgb <value>             Set GPU fan boost (1-100)
 ```
 
 # Device Tested
@@ -81,14 +90,6 @@ echo "Executing command with argument: $ARG"
 awcc brightness "$ARG"
 ```
 and Bind it to  a key preferrably F5
-
-Q: I am a amd user the fan cmds dont work?
-
-Ans:Use a text editor to find a replace in file named `/include/fans.cpp` and then build
-
-Find -> AMWW
-
-Replace with -> AMW3
 
 Q. Can I keybind the gmode toggle to a key like windows?
 
