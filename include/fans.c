@@ -7,6 +7,28 @@
 
 #define default_mode performanceMode()
 
+const char *acpi_prefix = "AMWW"; // Default to Intel
+
+void detectCpuVendor() {
+	FILE *cpuinfo = fopen("/proc/cpuinfo", "r");
+	if (!cpuinfo) {
+		perror("Failed to open /proc/cpuinfo");
+		return;
+	}
+
+	char line[256];
+	while (fgets(line, sizeof(line), cpuinfo)) {
+		if (strstr(line, "vendor_id")) {
+			if (strstr(line, "AuthenticAMD")) {
+				acpi_prefix = "AMW3"; // AMD detected
+			}
+			break;
+		}
+	}
+	// printf("Detected CPU vendor: %s\n", acpi_prefix);
+	fclose(cpuinfo);
+}
+
 void checkRoot(const char *command, char **argv) {
 	if (geteuid() != 0) {
 		const char *rootCommands[] = {
@@ -90,17 +112,18 @@ char *readAcpiResponse() {
 	fgets(buffer, sizeof(buffer), fp);
 	fclose(fp);
 
-	// Normalize string to lowercase
 	for (char *p = buffer; *p; ++p)
 		*p = tolower(*p);
 	return buffer;
 }
 
 int check_current_mode(const char *desired_hex) {
-	executeAcpiCall("\\_SB.AMWW.WMAX 0 0x14 {0x0b, 0x00, 0x00, 0x00}");
+	char cmd[256];
+	snprintf(cmd, sizeof(cmd), "\\_SB.%s.WMAX 0 0x14 {0x0b, 0x00, 0x00, 0x00}",
+			 acpi_prefix);
+	executeAcpiCall(cmd);
 
-	usleep(100000); // Allow time for ACPI response
-
+	usleep(100000);
 	char *response = readAcpiResponse();
 
 	if (strstr(response, desired_hex)) {
@@ -114,12 +137,14 @@ int check_current_mode(const char *desired_hex) {
 }
 
 void printCurrentMode() {
-	executeAcpiCall("\\_SB.AMWW.WMAX 0 0x14 {0x0b, 0x00, 0x00, 0x00}");
-	usleep(100000); // wait for ACPI response
+	char cmd[256];
+	snprintf(cmd, sizeof(cmd), "\\_SB.%s.WMAX 0 0x14 {0x0b, 0x00, 0x00, 0x00}",
+			 acpi_prefix);
+	executeAcpiCall(cmd);
 
+	usleep(100000);
 	char *response = readAcpiResponse();
 
-	// Find the relevant hex value in response
 	if (strstr(response, "0xa0")) {
 		printf("Current mode: Balanced\n");
 	} else if (strstr(response, "0xa1")) {
@@ -153,24 +178,27 @@ int extractHexValue(const char *response) {
 }
 
 void getFanBoost(const char *device) {
+	char cmd[256];
 	if (strcmp(device, "cpu") == 0) {
-		executeAcpiCall("\\_SB.AMWW.WMAX 0 0x14 {0x0c, 0x32, 0x00, 0x00}");
+		snprintf(cmd, sizeof(cmd),
+				 "\\_SB.%s.WMAX 0 0x14 {0x0c, 0x32, 0x00, 0x00}", acpi_prefix);
 	} else if (strcmp(device, "gpu") == 0) {
-		executeAcpiCall("\\_SB.AMWW.WMAX 0 0x14 {0x0c, 0x33, 0x00, 0x00}");
+		snprintf(cmd, sizeof(cmd),
+				 "\\_SB.%s.WMAX 0 0x14 {0x0c, 0x33, 0x00, 0x00}", acpi_prefix);
 	} else {
 		fprintf(stderr, "Unknown device type: %s\n", device);
 		return;
 	}
+
+	executeAcpiCall(cmd);
 
 	usleep(100000);
 	char *response = readAcpiResponse();
 	int value = extractHexValue(response);
 
 	if (value >= 0) {
-		if (strcmp(device, "cpu") == 0)
-			printf("Current CPU Fan Boost: %d%%\n", value);
-		else
-			printf("Current GPU Fan Boost: %d%%\n", value);
+		printf("Current %s Fan Boost: %d%%\n",
+			   strcmp(device, "cpu") == 0 ? "CPU" : "GPU", value);
 	}
 }
 
@@ -180,74 +208,96 @@ void setFanBoost(const char *device, int value) {
 		return;
 	}
 
-	char command[128];
-
+	char cmd[256];
 	if (strcmp(device, "cpu") == 0) {
-		snprintf(command, sizeof(command),
-				 "\\_SB.AMWW.WMAX 0 0x15 {0x02, 0x32, 0x%02x, 0x00}", value);
+		snprintf(cmd, sizeof(cmd),
+				 "\\_SB.%s.WMAX 0 0x15 {0x02, 0x32, 0x%02x, 0x00}", acpi_prefix,
+				 value);
 	} else if (strcmp(device, "gpu") == 0) {
-		snprintf(command, sizeof(command),
-				 "\\_SB.AMWW.WMAX 0 0x15 {0x02, 0x33, 0x%02x, 0x00}", value);
+		snprintf(cmd, sizeof(cmd),
+				 "\\_SB.%s.WMAX 0 0x15 {0x02, 0x33, 0x%02x, 0x00}", acpi_prefix,
+				 value);
 	} else {
 		fprintf(stderr, "Unknown device type: %s\n", device);
 		return;
 	}
 
-	executeAcpiCall(command);
+	executeAcpiCall(cmd);
 	printf("%s Fan Boost set to %d%%.\n",
 		   strcmp(device, "cpu") == 0 ? "CPU" : "GPU", value);
 }
+
 void quietMode() {
 	if (check_current_mode("0xa3"))
 		return;
-	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x15 {0x01, 0xa3, 0x00, 0x00}"); // Quiet mode
+	char cmd[256];
+	snprintf(cmd, sizeof(cmd), "\\_SB.%s.WMAX 0 0x15 {0x01, 0xa3, 0x00, 0x00}",
+			 acpi_prefix);
+	executeAcpiCall(cmd);
 	printf("Quiet mode activated.\n");
 }
 
 void performanceMode() {
 	if (check_current_mode("0xa1"))
 		return;
-	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x15 {0x01, 0xa1, 0x00, 0x00}"); // Performance mode
+	char cmd[256];
+	snprintf(cmd, sizeof(cmd), "\\_SB.%s.WMAX 0 0x15 {0x01, 0xa1, 0x00, 0x00}",
+			 acpi_prefix);
+	executeAcpiCall(cmd);
 	printf("Performance mode activated.\n");
 }
 
 void batteryMode() {
 	if (check_current_mode("0xa5"))
 		return;
-	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x15 {0x01, 0xa5, 0x00, 0x00}"); // Battery mode
+	char cmd[256];
+	snprintf(cmd, sizeof(cmd), "\\_SB.%s.WMAX 0 0x15 {0x01, 0xa5, 0x00, 0x00}",
+			 acpi_prefix);
+	executeAcpiCall(cmd);
 	printf("Battery Saver mode activated.\n");
 }
+
 void balanceMode() {
 	if (check_current_mode("0xa0"))
 		return;
-	executeAcpiCall(
-		"\\_SB.AMWW.WMAX 0 0x15 {0x01, 0xa0, 0x00, 0x00}"); // Balanced mode
+	char cmd[256];
+	snprintf(cmd, sizeof(cmd), "\\_SB.%s.WMAX 0 0x15 {0x01, 0xa0, 0x00, 0x00}",
+			 acpi_prefix);
+	executeAcpiCall(cmd);
 	printf("Balance mode activated.\n");
 }
+
 void gamingMode() {
 	if (check_current_mode("0xab"))
 		return;
-	executeAcpiCall("\\_SB.AMWW.WMAX 0 0x15 {0x01, 0xab, 0x00, 0x00}"); // GMode
+	char cmd[256];
+	snprintf(cmd, sizeof(cmd), "\\_SB.%s.WMAX 0 0x15 {0x01, 0xab, 0x00, 0x00}",
+			 acpi_prefix);
+	executeAcpiCall(cmd);
 	printf("Gaming mode activated.\n");
 }
 
 void toggleGMode() {
-	executeAcpiCall("\\_SB.AMWW.WMAX 0 0x25 {0x02, 0x00, 0x00, 0x00}");
+	char cmd[256];
+	snprintf(cmd, sizeof(cmd), "\\_SB.%s.WMAX 0 0x25 {0x02, 0x00, 0x00, 0x00}",
+			 acpi_prefix);
+	executeAcpiCall(cmd);
 
-	usleep(100000); // wait for the ACPI call to complete
+	usleep(100000);
 	char *response = readAcpiResponse();
 
 	if (strstr(response, "0x0")) {
 		printf("G-Mode is currently OFF. Enabling Gaming Mode...\n");
 		gamingMode();
-		executeAcpiCall("\\_SB.AMWW.WMAX 0 0x25 {0x01, 0x01, 0x00, 0x00}");
+		snprintf(cmd, sizeof(cmd),
+				 "\\_SB.%s.WMAX 0 0x25 {0x01, 0x01, 0x00, 0x00}", acpi_prefix);
+		executeAcpiCall(cmd);
 	} else if (strstr(response, "0x1")) {
 		printf("G-Mode is currently ON. Reverting to Default Mode...\n");
 		default_mode;
-		executeAcpiCall("\\_SB.AMWW.WMAX 0 0x25 {0x01, 0x00, 0x00, 0x00}");
+		snprintf(cmd, sizeof(cmd),
+				 "\\_SB.%s.WMAX 0 0x25 {0x01, 0x00, 0x00, 0x00}", acpi_prefix);
+		executeAcpiCall(cmd);
 	} else {
 		fprintf(stderr, "Unable to determine G-Mode status. Response: %s\n",
 				response);

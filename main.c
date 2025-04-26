@@ -37,6 +37,7 @@ void print_usage(void) {
 }
 
 int main(int argc, char **argv) {
+	detectCpuVendor();
 	device_open();
 
 	if (argc >= 2) {

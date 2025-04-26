@@ -10,7 +10,7 @@ void performanceMode();
 void gamingMode();
 void balanceMode();
 void batteryMode();
-
+void detectCpuVendor();
 void getFanBoost(const char *device);
 void setFanBoost(const char *device, int value);
 void printCurrentMode();
