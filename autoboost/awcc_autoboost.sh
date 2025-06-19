@@ -7,10 +7,14 @@ declare -a CPU_RULES GPU_RULES
 LAST_CPU_BOOST=""
 LAST_GPU_BOOST=""
 
-HYSTERESIS=2
+HYSTERESIS=3
 
 LAST_CPU_TEMP=""
 LAST_GPU_TEMP=""
+
+COOLDOWN=10
+LAST_CPU_BOOST_TIME=0
+LAST_GPU_BOOST_TIME=0
 
 mkdir -p /var/run/awcc
 
@@ -123,23 +127,43 @@ while true; do
 	CPU_BOOST=$(match_boost "$CPU_TEMP" CPU_RULES)
 	GPU_BOOST=$(match_boost "$GPU_TEMP" GPU_RULES)
 
+	now=$(date +%s)
+
 	if [[ -n "$CPU_BOOST" && "$CPU_BOOST" != "$LAST_CPU_BOOST" ]]; then
-		if [[ -z "$LAST_CPU_TEMP" || $(( CPU_TEMP > LAST_CPU_TEMP || CPU_TEMP < LAST_CPU_TEMP - HYSTERESIS )) -ne 0 ]]; then
-			echo cpu "$CPU_TEMP $CPU_BOOST"
+		if [[ "$CPU_BOOST" -gt "$LAST_CPU_BOOST" ]]; then
+			# Immediate upboost
+			echo cpu "$CPU_TEMP $CPU_BOOST (upboost)"
 			awcc scb "$CPU_BOOST"
 			echo "$CPU_BOOST" > /var/run/awcc/cpu_boost
 			LAST_CPU_BOOST="$CPU_BOOST"
 			LAST_CPU_TEMP="$CPU_TEMP"
+			LAST_CPU_BOOST_TIME=$now
+		elif [[ "$CPU_TEMP" -le $((LAST_CPU_TEMP - HYSTERESIS)) && $((now - LAST_CPU_BOOST_TIME)) -ge $COOLDOWN ]]; then
+			# Delayed downboost with hysteresis
+			echo cpu "$CPU_TEMP $CPU_BOOST (downboost)"
+			awcc scb "$CPU_BOOST"
+			echo "$CPU_BOOST" > /var/run/awcc/cpu_boost
+			LAST_CPU_BOOST="$CPU_BOOST"
+			LAST_CPU_TEMP="$CPU_TEMP"
+			LAST_CPU_BOOST_TIME=$now
 		fi
 	fi
 
 	if [[ -n "$GPU_BOOST" && "$GPU_BOOST" != "$LAST_GPU_BOOST" ]]; then
-		if [[ -z "$LAST_GPU_TEMP" || $(( GPU_TEMP > LAST_GPU_TEMP || GPU_TEMP < LAST_GPU_TEMP - HYSTERESIS )) -ne 0 ]]; then
-			echo gpu "$GPU_TEMP $GPU_BOOST"
+		if [[ "$GPU_BOOST" -gt "$LAST_GPU_BOOST" ]]; then
+			echo gpu "$GPU_TEMP $GPU_BOOST (upboost)"
 			awcc sgb "$GPU_BOOST"
 			echo "$GPU_BOOST" > /var/run/awcc/gpu_boost
 			LAST_GPU_BOOST="$GPU_BOOST"
 			LAST_GPU_TEMP="$GPU_TEMP"
+			LAST_GPU_BOOST_TIME=$now
+		elif [[ "$GPU_TEMP" -le $((LAST_GPU_TEMP - HYSTERESIS)) && $((now - LAST_GPU_BOOST_TIME)) -ge $COOLDOWN ]]; then
+			echo gpu "$GPU_TEMP $GPU_BOOST (downboost)"
+			awcc sgb "$GPU_BOOST"
+			echo "$GPU_BOOST" > /var/run/awcc/gpu_boost
+			LAST_GPU_BOOST="$GPU_BOOST"
+			LAST_GPU_TEMP="$GPU_TEMP"
+			LAST_GPU_BOOST_TIME=$now
 		fi
 	fi
 
