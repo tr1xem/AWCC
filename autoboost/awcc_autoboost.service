@@ -1,0 +1,16 @@
+[Unit]
+Description=AWCC AutoBoost Fan Manager
+After=graphical.target
+Wants=graphical.target
+ConditionPathExists=/etc/awcc/autoboost.conf
+
+[Service]
+Type=simple                        # Script runs in foreground, no fork
+ExecStart=/usr/local/bin/awcc_autoboost.sh
+Restart=always                     # Restart if it crashes or is killed
+RestartSec=5                       # Wait 5 seconds before restarting
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=graphical.target
