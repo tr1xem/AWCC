@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CONFIG="awcc_autoboost.conf"
+CONFIG="/etc/awcc/autoboost.conf"
 CHECK_INTERVAL=2
 
 declare -a CPU_RULES GPU_RULES
@@ -17,6 +17,16 @@ LAST_CPU_BOOST_TIME=0
 LAST_GPU_BOOST_TIME=0
 
 mkdir -p /var/run/awcc
+
+PIDFILE="/var/run/awcc/autoboost.pid"
+
+# Prevent multiple instances
+if [[ -f "$PIDFILE" ]] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+	echo "Already running with PID $(cat "$PIDFILE")"
+	exit 1
+fi
+
+echo $$ > "$PIDFILE"
 
 # Load config
 load_config() {
@@ -86,11 +96,14 @@ cleanup() {
 	else
 		echo "Exiting in G-Mode: leaving boosts unchanged"
 	fi
+
+	rm -f "$PIDFILE"
+
 	exit 0
 }
 
 # Trap script termination signals
-trap cleanup SIGINT SIGTERM EXIT
+trap cleanup SIGINT SIGTERM SIGHUP EXIT
 
 g_mode=''
 
