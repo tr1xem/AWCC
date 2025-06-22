@@ -5,13 +5,15 @@
 # include "AWCC.h"
 
 static void Initialize (void);
-static int GetCpuBoost (void);
-static int GetGpuBoost (void);
-static void SetCpuBoost (int);
-static void SetGpuBoost (int);
-static void SetMode (enum AWCCMode);
-static enum AWCCMode GetMode (void);
-const char * GetModeName (enum AWCCMode);
+static AWCCBoost_t GetCpuBoost (void);
+static AWCCBoost_t GetGpuBoost (void);
+static void SetCpuBoost (AWCCBoost_t);
+static void SetGpuBoost (AWCCBoost_t);
+static AWCCTemperature_t GetCpuTemperature (void);
+static AWCCTemperature_t GetGpuTemperature (void);
+static void SetMode (enum AWCCMode_t);
+static enum AWCCMode_t GetMode (void);
+const char * GetModeName (enum AWCCMode_t);
 static void Deinitialize (void);
 
 const struct AWCC_t AWCC = {
@@ -20,6 +22,8 @@ const struct AWCC_t AWCC = {
 	.GetGpuBoost = & GetGpuBoost,
 	.SetCpuBoost = & SetCpuBoost,
 	.SetGpuBoost = & SetGpuBoost,
+	.GetCpuTemperature = & GetCpuTemperature,
+	.GetGpuTemperature = & GetGpuTemperature,
 	.SetMode = & SetMode,
 	.GetMode = & GetMode,
 	.GetModeName = & GetModeName,
@@ -32,7 +36,8 @@ static void DeviceClose (void);
 
 struct {
 	const char * AcpiPrefix;
-	const char ** ModeNames;
+	const char * const * ModeNames;
+	enum AWCCMode_t LastMode;
 	void (* DetectCpuVendor) (void);
 	void (* DeviceOpen) (void);
 	void (* DeviceClose) (void);
@@ -61,43 +66,55 @@ void Deinitialize (void)
 	InternalData.DeviceClose ();
 }
 
-int GetCpuBoost (void)
+AWCCBoost_t GetCpuBoost (void)
 {
 	fputs ("Not Implemented Yet", stderr);
 	exit (-1);
 }
 
-int GetGpuBoost (void)
+AWCCBoost_t GetGpuBoost (void)
 {
 	fputs ("Not Implemented Yet", stderr);
 	exit (-1);
 }
 
-void SetCpuBoost (int boost)
+void SetCpuBoost (AWCCBoost_t boost)
 {
 	fputs ("Not Implemented Yet", stderr);
 	exit (-1);
 }
 
-void SetGpuBoost (int boost)
+void SetGpuBoost (AWCCBoost_t boost)
 {
 	fputs ("Not Implemented Yet", stderr);
 	exit (-1);
 }
 
-void SetMode (enum AWCCMode mode)
+AWCCTemperature_t GetCpuTemperature (void)
 {
 	fputs ("Not Implemented Yet", stderr);
 	exit (-1);
 }
 
-enum AWCCMode GetMode (void)
+AWCCTemperature_t GetGpuTemperature (void)
 {
 	fputs ("Not Implemented Yet", stderr);
 	exit (-1);
 }
 
-const char * GetModeName (enum AWCCMode mode) {
+void SetMode (enum AWCCMode_t mode)
+{
+	fputs ("Not Implemented Yet", stderr);
+	exit (-1);
+}
+
+enum AWCCMode_t GetMode (void)
+{
+	fputs ("Not Implemented Yet", stderr);
+	exit (-1);
+}
+
+const char * GetModeName (enum AWCCMode_t mode) {
 	return InternalData.ModeNames [mode];
 }
 
