@@ -20,6 +20,22 @@ mkdir -p /var/run/awcc
 
 PIDFILE="/var/run/awcc/autoboost.pid"
 
+DRY_RUN=""
+
+if [[ "dry" = "$1" ]]
+then
+	DRY_RUN=1
+fi
+
+run_cmd() {
+	if ! [[ -z "$DRY_RUN" ]]
+	then
+		echo dry "$@"
+	else
+		$@
+	fi
+}
+
 # Prevent multiple instances
 if [[ -f "$PIDFILE" ]] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
 	echo "Already running with PID $(cat "$PIDFILE")"
@@ -89,8 +105,8 @@ cleanup() {
 
 	if ! check_g_mode; then
 		echo "Exiting: resetting fan boosts to 0"
-		awcc scb 0
-		awcc sgb 0
+		run_cmd awcc scb 0
+		run_cmd awcc sgb 0
 		echo 0 > /var/run/awcc/cpu_boost
 		echo 0 > /var/run/awcc/gpu_boost
 	else
@@ -146,7 +162,7 @@ while true; do
 		if [[ "$CPU_BOOST" -gt "$LAST_CPU_BOOST" ]]; then
 			# Immediate upboost
 			echo cpu "$CPU_TEMP $CPU_BOOST (upboost)"
-			awcc scb "$CPU_BOOST"
+			run_cmd awcc scb "$CPU_BOOST"
 			echo "$CPU_BOOST" > /var/run/awcc/cpu_boost
 			LAST_CPU_BOOST="$CPU_BOOST"
 			LAST_CPU_TEMP="$CPU_TEMP"
@@ -154,7 +170,7 @@ while true; do
 		elif [[ "$CPU_TEMP" -le $((LAST_CPU_TEMP - HYSTERESIS)) && $((now - LAST_CPU_BOOST_TIME)) -ge $COOLDOWN ]]; then
 			# Delayed downboost with hysteresis
 			echo cpu "$CPU_TEMP $CPU_BOOST (downboost)"
-			awcc scb "$CPU_BOOST"
+			run_cmd awcc scb "$CPU_BOOST"
 			echo "$CPU_BOOST" > /var/run/awcc/cpu_boost
 			LAST_CPU_BOOST="$CPU_BOOST"
 			LAST_CPU_TEMP="$CPU_TEMP"
