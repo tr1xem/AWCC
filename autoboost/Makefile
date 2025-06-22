@@ -1,7 +1,7 @@
 CFLAGS=-std=c18 -pedantic-errors -Werror=pedantic -O3 -I./include
 LIBS=-lusb-1.0 -lpcre2-32
-DEPS=include/AWCC.h
-SRC=src/AWCC.c src/awcc_autoboost.c
+DEPS=include/AWCC.h include/AWCCConfig.h src/AWCCACPI.h
+SRC=src/AWCC.c src/AWCCACPI.c src/awcc_autoboost.c
 
 OBJ=${SRC:%.c=%.o}
 	PREFIX = /usr/local
