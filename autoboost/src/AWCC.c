@@ -1,8 +1,9 @@
+# include "AWCC.h"
+
 # include <stdio.h>
 # include <stdlib.h>
-# include <string.h>
 
-# include "AWCC.h"
+# include "AWCCACPI.h"
 
 static void Initialize (void);
 static AWCCBoost_t GetCpuBoost (void);
@@ -30,19 +31,10 @@ const struct AWCC_t AWCC = {
 	.Deinitialize = & Deinitialize,
 };
 
-static void DetectCpuVendor (void);
-static void DeviceOpen (void);
-static void DeviceClose (void);
-
 struct {
-	const char * AcpiPrefix;
 	const char * const * ModeNames;
 	enum AWCCMode_t LastMode;
-	void (* DetectCpuVendor) (void);
-	void (* DeviceOpen) (void);
-	void (* DeviceClose) (void);
-} static InternalData = {
-	.AcpiPrefix = "AMWW",
+} static AWCCInternal = {
 	.ModeNames = (const char * []) {
 		[AWCCModeQuiet]          =   "Quiet",
 		[AWCCModeBatterySaver]   =   "BatterySaver",
@@ -50,20 +42,16 @@ struct {
 		[AWCCModePerformance]    =   "Performance",
 		[AWCCModeG]              =   "G"
 	},
-	.DetectCpuVendor = DetectCpuVendor,
-	.DeviceOpen = DeviceOpen,
-	.DeviceClose = DeviceClose,
 };
+
 
 void Initialize (void)
 {
-	InternalData.DetectCpuVendor ();
-	InternalData.DeviceOpen ();
+	AWCCACPI.Initialize ();
 }
 
 void Deinitialize (void)
 {
-	InternalData.DeviceClose ();
 }
 
 AWCCBoost_t GetCpuBoost (void)
@@ -114,39 +102,7 @@ enum AWCCMode_t GetMode (void)
 	exit (-1);
 }
 
-const char * GetModeName (enum AWCCMode_t mode) {
-	return InternalData.ModeNames [mode];
-}
-
-void DetectCpuVendor (void)
+const char * GetModeName (enum AWCCMode_t mode)
 {
-	FILE *cpuinfo = fopen("/proc/cpuinfo", "r");
-	if (!cpuinfo) {
-		perror("Failed to open /proc/cpuinfo");
-		return;
-	}
-
-	char line[256];
-	while (fgets(line, sizeof(line), cpuinfo)) {
-		if (strstr(line, "vendor_id")) {
-			if (strstr(line, "AuthenticAMD")) {
-				InternalData.AcpiPrefix = "AMW3"; // AMD detected
-			}
-			break;
-		}
-	}
-	// printf("Detected CPU vendor: %s\n", acpi_prefix);
-	fclose(cpuinfo);
-}
-
-void DeviceOpen (void)
-{
-	fputs ("Not Implemented Yet", stderr);
-	exit (-1);
-}
-
-void DeviceClose (void)
-{
-	fputs ("Not Implemented Yet", stderr);
-	exit (-1);
+	return AWCCInternal.ModeNames [mode];
 }
