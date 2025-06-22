@@ -1,7 +1,7 @@
-# ifndef AWCC_H
-# define AWCC_H
+# ifndef __AWCC_H
+# define __AWCC_H
 
-enum AWCCMode {
+enum AWCCMode_t {
 	AWCCModeQuiet,
 	AWCCModeBatterySaver,
 	AWCCModeBalanced,
@@ -9,16 +9,21 @@ enum AWCCMode {
 	AWCCModeG
 };
 
+typedef int AWCCBoost_t;
+typedef double AWCCTemperature_t;
+
 struct AWCC_t {
 	void (* Initialize) (void);
-	int (* GetCpuBoost) (void);
-	int (* GetGpuBoost) (void);
-	void (* SetCpuBoost) (int);
-	void (* SetGpuBoost) (int);
-	void (* SetMode) (enum AWCCMode);
-	enum AWCCMode (* GetMode) (void);
-	const char * (* GetModeName) (enum AWCCMode);
+	AWCCBoost_t (* GetCpuBoost) (void);
+	AWCCBoost_t (* GetGpuBoost) (void);
+	void (* SetCpuBoost) (AWCCBoost_t);
+	void (* SetGpuBoost) (AWCCBoost_t);
+	void (* SetMode) (enum AWCCMode_t);
+	AWCCTemperature_t (* GetCpuTemperature) (void);
+	AWCCTemperature_t (* GetGpuTemperature) (void);
+	enum AWCCMode_t (* GetMode) (void);
+	const char * (* GetModeName) (enum AWCCMode_t);
 	void (* Deinitialize) (void);
 } extern const AWCC;
 
-# endif // AWCC_H
+# endif // __AWCC_H
