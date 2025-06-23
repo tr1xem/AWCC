@@ -134,8 +134,7 @@ void SetMode (enum AWCCMode_t mode)
 
 enum AWCCMode_t GetMode (void)
 {
-	fputs ("Not Implemented Yet", stderr);
-	exit (-1);
+	return AWCCACPI.GetMode ();
 }
 
 const char * GetModeName (enum AWCCMode_t mode)
