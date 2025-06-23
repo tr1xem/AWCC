@@ -62,7 +62,6 @@ struct {
 	},
 };
 
-
 void Initialize (void)
 {
 	AWCCACPI.Initialize ();
