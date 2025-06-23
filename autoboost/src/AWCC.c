@@ -99,7 +99,7 @@ AWCCTemperature_t GetCpuTemperature (void)
 
 AWCCTemperature_t GetGpuTemperature (void)
 {
-	return GetFanTemperature (AWCCFanCPU);
+	return GetFanTemperature (AWCCFanGPU);
 }
 
 AWCCBoost_t GetFanBoost (enum AWCCFan_t fan)
@@ -114,8 +114,7 @@ void SetFanBoost (enum AWCCFan_t fan, AWCCBoost_t boost)
 
 AWCCTemperature_t GetFanTemperature (enum AWCCFan_t fan)
 {
-	fputs ("Not Implemented Yet", stderr);
-	exit (-1);
+	return AWCCACPI.GetFanTemperature (fan);
 }
 
 void SetMode (enum AWCCMode_t mode)

@@ -25,6 +25,8 @@ int main (void)
 			printf ("Current Mode: %s\n", AWCC.GetModeName (mode));
 			thrd_sleep (& (struct timespec) {.tv_sec = 2}, NULL);
 		}
+
+		goto exit;
 	}
 
 	if (0) {
@@ -39,7 +41,19 @@ int main (void)
 			printf ("%d = %d, %d = %d\n", i, boostCpu, i + 2, boostGpu);
 			thrd_sleep (& (struct timespec) {.tv_sec = 3}, NULL);
 		}
+
+		goto exit;
 	}
 
+	if (0) {
+		while (1) {
+			printf ("cpu temp: %d\ngpu temp: %d\n\n", AWCC.GetCpuTemperature (), AWCC.GetGpuTemperature ());
+			thrd_sleep (& (struct timespec) {.tv_sec = 1}, NULL);
+		}
+
+		goto exit;
+	}
+
+exit:
 	AWCC.Deinitialize ();
 }

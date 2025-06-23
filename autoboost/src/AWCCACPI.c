@@ -17,6 +17,7 @@ static void SetMode (enum AWCCMode_t);
 static AWCCBoost_t GetFanBoost (enum AWCCFan_t);
 static void SetFanBoost (enum AWCCFan_t, AWCCBoost_t);
 static unsigned int ParseHexValue (const char *);
+static AWCCTemperature_t GetFanTemperature (enum AWCCFan_t);
 
 const struct AWCCACPI_t AWCCACPI = {
 	.Initialize = & Initialize,
@@ -24,6 +25,7 @@ const struct AWCCACPI_t AWCCACPI = {
 	.SetMode = & SetMode,
 	.GetFanBoost = & GetFanBoost,
 	.SetFanBoost = & SetFanBoost,
+	.GetFanTemperature = & GetFanTemperature,
 };
 
 struct {
@@ -36,12 +38,16 @@ struct {
 	const char * CmdSetFanBoost;
 	const char * CmdGetCurrentMode;
 	const char * CmdSetCurrentMode;
+	const char * CmdGetTemperature;
 
 	unsigned * ModeToHexMap;
 	enum AWCCMode_t * HexToModeMap;
 
-	unsigned * FanToHexMap;
-	enum AWCCFan_t * HexToFanMap;
+	unsigned * FanToBoostHexMap;
+	enum AWCCFan_t * BoostHexToFanMap;
+
+	unsigned * FanToTempHexMap;
+	// enum AWCCFan_t * TempHexToFanMap;
 
 	void (* Execute) (const char *);
 	const char * (* Read) (void);
@@ -57,6 +63,8 @@ struct {
 	.CmdSetFanBoost      =   "\\_SB.%s.WMAX 0 0x15 {0x02, 0x%02x, 0x%02x, 0x00}"  ,
 	.CmdGetCurrentMode   =   "\\_SB.%s.WMAX 0 0x14 {0x0b, 0x00, 0x00, 0x00}"    ,
 	.CmdSetCurrentMode   =   "\\_SB.%s.WMAX 0 0x15 {0x01, 0x%02x, 0x00, 0x00}"  ,
+	.CmdGetTemperature   =   "\\_SB.%s.WMAX 0 0x14 {0x04, 0x%02x, 0x00, 0x00}"  ,
+
 
 	.ModeToHexMap = (unsigned []) {
 		[AWCCModeBalanced]       = 0xa0  ,
@@ -76,15 +84,25 @@ struct {
 		// [0x00]  =  AWCCModeManual        ,
 	},
 
-	.FanToHexMap = (unsigned []) {
+	.FanToBoostHexMap = (unsigned []) {
 		[AWCCFanCPU] = 0x32,
 		[AWCCFanGPU] = 0x33,
 	},
 
-	.HexToFanMap = (enum AWCCFan_t []) {
+	.BoostHexToFanMap = (enum AWCCFan_t []) {
 		[0x32] = AWCCFanCPU,
 		[0x33] = AWCCFanGPU,
 	},
+
+	.FanToTempHexMap = (unsigned []) {
+		[AWCCFanCPU] = 0x01,
+		[AWCCFanGPU] = 0x06,
+	},
+
+	// .TempHexToFanMap = (enum AWCCFan_t []) {
+	// 	[0x01] = AWCCFanCPU,
+	// 	[0x06] = AWCCFanGPU,
+	// },
 
 	.Execute = & Execute,
 	.Read = & Read,
@@ -147,6 +165,22 @@ const char * Read (void)
 	return buffer;
 }
 
+unsigned int ParseHexValue (const char * response)
+{
+	char * start = strstr (response, "0x");
+	if (NULL == start) {
+		fprintf (stderr, "No hex value found in response.\n");
+		return -1;
+	}
+	unsigned int value;
+	if (sscanf (start, "%x", & value) == 1)
+		return value;
+	else {
+		fprintf (stderr, "Failed to parse hex value.\n");
+		return -1;
+	}
+}
+
 AWCCBoost_t GetFanBoost (enum AWCCFan_t fan)
 {
 	static _Thread_local char cmd [256];
@@ -155,15 +189,13 @@ AWCCBoost_t GetFanBoost (enum AWCCFan_t fan)
 		sizeof (cmd),
 		Internal.CmdGetFanBoost,
 		Internal.Prefix,
-		Internal.FanToHexMap [fan]
+		Internal.FanToBoostHexMap [fan]
 	);
 
 	Internal.Execute (cmd);
 
 	thrd_sleep (& (struct timespec) {.tv_nsec = 1E8}, NULL);
 	const char * response = Internal.Read ();
-
-	printf ("Response: %s\n", response);
 
 	unsigned int response_uint = Internal.ParseHexValue (response);
 
@@ -190,7 +222,7 @@ void SetFanBoost (enum AWCCFan_t fan, AWCCBoost_t boost)
 		sizeof (cmd),
 		Internal.CmdSetFanBoost,
 		Internal.Prefix,
-		Internal.FanToHexMap [fan],
+		Internal.FanToBoostHexMap [fan],
 		boost
 	);
 	Internal.Execute (cmd);
@@ -215,6 +247,34 @@ enum AWCCMode_t GetMode (void)
 	return Internal.HexToModeMap [response_uint];
 }
 
+AWCCTemperature_t GetFanTemperature (enum AWCCFan_t fan)
+{
+	// FIXME: sometimes returns 160, although temperature is around 40-50
+	// no matter cpu or gpu
+	static _Thread_local char cmd [256];
+	snprintf (
+		cmd,
+		sizeof (cmd),
+		Internal.CmdGetTemperature,
+		Internal.Prefix,
+		Internal.FanToTempHexMap [fan]
+	);
+	Internal.Execute (cmd);
+
+	thrd_sleep (& (struct timespec) {.tv_nsec = 1E8}, NULL);
+	const char * response = Internal.Read ();
+
+	unsigned int response_uint;
+	int status = sscanf (response, "0x%2x", & response_uint);
+
+	if (EOF == status) {
+		fputs ("Failed to get the current mode.\n", stderr);
+		exit (-1);
+	}
+
+	return response_uint;
+}
+
 void SetMode (enum AWCCMode_t mode)
 {
 	static _Thread_local char cmd [256];
@@ -226,20 +286,4 @@ void SetMode (enum AWCCMode_t mode)
 		Internal.ModeToHexMap [mode]
 	);
 	Internal.Execute (cmd);
-}
-
-unsigned int ParseHexValue (const char * response)
-{
-	char * start = strstr (response, "0x");
-	if (NULL == start) {
-		fprintf (stderr, "No hex value found in response.\n");
-		return -1;
-	}
-	unsigned int value;
-	if (sscanf (start, "%x", & value) == 1)
-		return value;
-	else {
-		fprintf (stderr, "Failed to parse hex value.\n");
-		return -1;
-	}
 }

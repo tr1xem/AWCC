@@ -19,7 +19,7 @@ enum {
 };
 
 typedef int AWCCBoost_t;
-typedef double AWCCTemperature_t;
+typedef int AWCCTemperature_t;
 
 struct AWCC_t {
 	void (* Initialize) (void);
