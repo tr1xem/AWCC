@@ -8,8 +8,6 @@
 
 struct AWCCACPI_t {
 	void (* Initialize) (void);
-	void (* Execute) (const char *);
-	const char * (* Read) (void);
 	enum AWCCMode_t (* GetMode) (void);
 } extern const AWCCACPI;
 

@@ -16,8 +16,6 @@ static enum AWCCMode_t GetMode (void);
 
 const struct AWCCACPI_t AWCCACPI = {
 	.Initialize = & Initialize,
-	.Execute = & Execute,
-	.Read = & Read,
 	.GetMode = & GetMode,
 };
 
@@ -31,6 +29,8 @@ struct {
 	const char * CmdSetCurrentMode;
 	unsigned * ModeToHexMap;
 	enum AWCCMode_t * HexToModeMap;
+	void (* Execute) (const char *);
+	const char * (* Read) (void);
 } static Internal = {
 	 .Prefix = "AMWW",
 
@@ -58,6 +58,9 @@ struct {
 		[0xab]              = AWCCModeG  ,
 		// [0x00]         = AWCCModeManual  ,
 	},
+
+	.Execute = & Execute,
+	.Read = & Read,
 };
 
 void Initialize (void)
@@ -120,17 +123,17 @@ enum AWCCMode_t GetMode (void)
 {
 	static _Thread_local char cmd [256];
 	snprintf (cmd, sizeof (cmd), Internal.CmdGetCurrentMode, Internal.Prefix);
-	AWCCACPI.Execute (cmd);
+	Internal.Execute (cmd);
 
 	thrd_sleep (& (struct timespec) {.tv_nsec = 1E8}, NULL);
-	const char * response = AWCCACPI.Read ();
-	unsigned int response_ulong;
-	int status = sscanf (response, "0x%2x", & response_ulong);
+	const char * response = Internal.Read ();
+	unsigned int response_uint;
+	int status = sscanf (response, "0x%2x", & response_uint);
 
 	if (EOF == status) {
 		fputs ("Failed to get the current mode.\n", stderr);
 		exit (-1);
 	}
 
-	return Internal.HexToModeMap [response_ulong];
+	return Internal.HexToModeMap [response_uint];
 }
