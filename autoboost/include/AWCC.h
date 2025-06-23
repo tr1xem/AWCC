@@ -14,6 +14,10 @@ enum AWCCFan_t {
 	AWCCFanGPU,
 };
 
+enum {
+	AWCCFanBoostMin = 0, AWCCFanBoostMax = 100
+};
+
 typedef int AWCCBoost_t;
 typedef double AWCCTemperature_t;
 

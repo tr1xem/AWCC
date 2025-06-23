@@ -9,6 +9,11 @@
 struct AWCCACPI_t {
 	void (* Initialize) (void);
 	enum AWCCMode_t (* GetMode) (void);
+	void (* SetMode) (enum AWCCMode_t);
+
+	AWCCBoost_t (* GetFanBoost) (enum AWCCFan_t);
+	void (* SetFanBoost) (enum AWCCFan_t, AWCCBoost_t);
+
 } extern const AWCCACPI;
 
 # endif // __AWCCACPI_H
