@@ -1,10 +1,11 @@
 # include "AWCCACPI.h"
-#include "AWCC.h"
 
 # include <ctype.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+
+# include "AWCC.h"
 
 static void Initialize (void);
 static void Execute (const char *);

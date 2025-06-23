@@ -2,6 +2,6 @@
 # include "AWCC.h"
 
 int main (void) {
-	puts ("hello");
+	AWCC.Initialize ();
 	printf ("cpu: %d, gpu: %d\n", AWCC.GetCpuBoost (), AWCC.GetGpuBoost ());
 }

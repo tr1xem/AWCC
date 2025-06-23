@@ -14,7 +14,7 @@ static AWCCTemperature_t GetCpuTemperature (void);
 static AWCCTemperature_t GetGpuTemperature (void);
 static void SetMode (enum AWCCMode_t);
 static enum AWCCMode_t GetMode (void);
-const char * GetModeName (enum AWCCMode_t);
+static const char * GetModeName (enum AWCCMode_t);
 static void Deinitialize (void);
 
 const struct AWCC_t AWCC = {
