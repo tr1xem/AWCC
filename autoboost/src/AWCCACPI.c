@@ -28,19 +28,21 @@ struct {
 	unsigned * ModeToHexMap;
 } static Internal = {
 	 .Prefix = "AMWW",
-	.CmdGetCPUBoost = "\\_SB.%s.WMAX 0 0x14 {0x0c, 0x32, 0x00, 0x00}",
-	.CmdGetGPUBoost = "\\_SB.%s.WMAX 0 0x14 {0x0c, 0x33, 0x00, 0x00}",
-	.CmdSetCPUBoost = "\\_SB.%s.WMAX 0 0x15 {0x02, 0x32, 0x%02x, 0x00}",
-	.CmdSetGPUBoost = "\\_SB.%s.WMAX 0 0x15 {0x02, 0x33, 0x%02x, 0x00}",
-	.CmdGetCurrentMode = "\\_SB.%s.WMAX 0 0x14 {0x0b, 0x00, 0x00, 0x00}",
-	.CmdSetCurrentMode = "\\_SB.%s.WMAX 0 0x15 {0x01, 0x%02x, 0x00, 0x00}",
+
+	.CmdGetCPUBoost      =   "\\_SB.%s.WMAX 0 0x14 {0x0c, 0x32, 0x00, 0x00}"    ,
+	.CmdGetGPUBoost      =   "\\_SB.%s.WMAX 0 0x14 {0x0c, 0x33, 0x00, 0x00}"    ,
+	.CmdSetCPUBoost      =   "\\_SB.%s.WMAX 0 0x15 {0x02, 0x32, 0x%02x, 0x00}"  ,
+	.CmdSetGPUBoost      =   "\\_SB.%s.WMAX 0 0x15 {0x02, 0x33, 0x%02x, 0x00}"  ,
+	.CmdGetCurrentMode   =   "\\_SB.%s.WMAX 0 0x14 {0x0b, 0x00, 0x00, 0x00}"    ,
+	.CmdSetCurrentMode   =   "\\_SB.%s.WMAX 0 0x15 {0x01, 0x%02x, 0x00, 0x00}"  ,
+
 	.ModeToHexMap = (unsigned []) {
-		[AWCCModeBalanced] = 0xa0,
-		[AWCCModePerformance] = 0xa1,
-		[AWCCModeQuiet] = 0xa3,
-		[AWCCModeBatterySaver] = 0xa5,
-		[AWCCModeG] = 0xab,
-		// [AWCCModeManual] = 0x00,
+		[AWCCModeBalanced]       = 0xa0  ,
+		[AWCCModePerformance]    = 0xa1  ,
+		[AWCCModeQuiet]          = 0xa3  ,
+		[AWCCModeBatterySaver]   = 0xa5  ,
+		[AWCCModeG]              = 0xab  ,
+		// [AWCCModeManual]         = 0x00  ,
 	}
 };
 
