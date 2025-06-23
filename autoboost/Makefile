@@ -1,19 +1,30 @@
+PREFIX = /usr/local
+
 CFLAGS=-std=c18 -pedantic-errors -Werror=pedantic -O3 -I./include
 LIBS=-lusb-1.0 -lpcre2-32
-DEPS=include/AWCC.h include/AWCCConfig.h src/AWCCACPI.h
-SRC=src/AWCC.c src/AWCCACPI.c src/awcc_autoboost.c
+
+DEPS := $(wildcard include/*.h) $(wildcard src/*.h)
+SRC := $(wildcard src/*.c)
 
 OBJ=${SRC:%.c=%.o}
-	PREFIX = /usr/local
 
-awcc_autoboost:    $(OBJ)
+awcc_autoboost: $(OBJ)
 	$(CC) -o $@ $^ $(LIBS)
 
-%.o:    %.c $(DEPS)
+%.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 clean:
 	rm -f $(OBJ) awcc_autoboost
+
+compile_commands.json: Makefile
+	@command -v compiledb >/dev/null || { echo "compiledb not found! Install it with 'pipx install compiledb'"; exit 1; }
+	@compiledb -n make
+
+compiledb: compile_commands.json
+
+run: awcc_autoboost compiledb # update compile_commands.json for neovim
+	./awcc_autoboost
 
 install: awcc_autoboost
 	cp -fv awcc_autoboost.sh /usr/local/bin
@@ -22,4 +33,4 @@ install: awcc_autoboost
 	mkdir -pv /etc/systemd/system
 	cp -fv awcc_autoboost.service /etc/systemd/system/awcc_autoboost.service
 
-.PHONY:		awcc_autoboost clean install uninstall
+.PHONY: awcc_autoboost clean install uninstall compiledb

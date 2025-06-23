@@ -11,10 +11,10 @@ currently written in bash, must be rewritten in c and have a systemd unit
 - map temperature ranges to fan boost levels
 - hysteresis handling
 - temperature/boost output on /var/run/awcc/ for non-root read access
+- systemd unit
 
 ## TODOS (in C version)
 
-- systemd unit
 - more flexible hysterisis handling and flexible boost switching (for example
 different conditions for upboosting and downboosting)
 - avoid the dependency **sensors** if possible
