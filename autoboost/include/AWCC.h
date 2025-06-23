@@ -10,8 +10,8 @@ enum AWCCMode_t {
 };
 
 enum AWCCFan_t {
-	AWCCFanCPU,
-	AWCCFanGPU,
+	AWCCFanCPU = 0, // NOTE: these values are important to keep as is
+	AWCCFanGPU = 1,
 };
 
 enum {

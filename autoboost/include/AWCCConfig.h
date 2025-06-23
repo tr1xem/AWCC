@@ -19,7 +19,6 @@ struct AWCCModeInterval_t {
 };
 
 struct AWCCFanConfig_t {
-	int TemperatureCheckInterval;
 	int BoostDownHysteresis;
 	int MinTimeBeforeBoostDown;
 	struct AWCCBoostInterval_t * BoostIntervals;
@@ -27,8 +26,9 @@ struct AWCCFanConfig_t {
 };
 
 struct AWCCConfig_t {
+	int TemperatureCheckInterval;
 	int MinTimeBeforeModeDown;
-	struct AWCCFanConfig_t * FanConfigs;
+	struct AWCCFanConfig_t FanConfigs [2];
 	struct AWCCModeInterval_t * ModeIntervals;
 	int _ModeIntervalCount;
 } extern const AWCCDefaultConfig;
