@@ -4,5 +4,6 @@
 int main (void)
 {
 	AWCC.Initialize ();
-	printf ("cpu: %d, gpu: %d\n", AWCC.GetCpuBoost (), AWCC.GetGpuBoost ());
+
+	printf ("Current Mode: %s\n", AWCC.GetModeName (AWCC.GetMode ()));
 }
