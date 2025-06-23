@@ -74,50 +74,42 @@ void Deinitialize (void)
 
 AWCCBoost_t GetCpuBoost (void)
 {
-	fputs ("Not Implemented Yet", stderr);
-	exit (-1);
+	return GetFanBoost (AWCCFanCPU);
 }
 
 AWCCBoost_t GetGpuBoost (void)
 {
-	fputs ("Not Implemented Yet", stderr);
-	exit (-1);
+	return GetFanBoost (AWCCFanGPU);
 }
 
 void SetCpuBoost (AWCCBoost_t boost)
 {
-	fputs ("Not Implemented Yet", stderr);
-	exit (-1);
+	SetFanBoost (AWCCFanCPU, boost);
 }
 
 void SetGpuBoost (AWCCBoost_t boost)
 {
-	fputs ("Not Implemented Yet", stderr);
-	exit (-1);
+	SetFanBoost (AWCCFanGPU, boost);
 }
 
 AWCCTemperature_t GetCpuTemperature (void)
 {
-	fputs ("Not Implemented Yet", stderr);
-	exit (-1);
+	return GetFanTemperature (AWCCFanCPU);
 }
 
 AWCCTemperature_t GetGpuTemperature (void)
 {
-	fputs ("Not Implemented Yet", stderr);
-	exit (-1);
+	return GetFanTemperature (AWCCFanCPU);
 }
 
 AWCCBoost_t GetFanBoost (enum AWCCFan_t fan)
 {
-	fputs ("Not Implemented Yet", stderr);
-	exit (-1);
+	return AWCCACPI.GetFanBoost (fan);
 }
 
 void SetFanBoost (enum AWCCFan_t fan, AWCCBoost_t boost)
 {
-	fputs ("Not Implemented Yet", stderr);
-	exit (-1);
+	AWCCACPI.SetFanBoost (fan, boost);
 }
 
 AWCCTemperature_t GetFanTemperature (enum AWCCFan_t fan)
@@ -128,8 +120,7 @@ AWCCTemperature_t GetFanTemperature (enum AWCCFan_t fan)
 
 void SetMode (enum AWCCMode_t mode)
 {
-	fputs ("Not Implemented Yet", stderr);
-	exit (-1);
+	AWCCACPI.SetMode (mode);
 }
 
 enum AWCCMode_t GetMode (void)

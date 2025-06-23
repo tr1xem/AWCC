@@ -1,9 +1,45 @@
 # include <stdio.h>
+# include <threads.h>
+# include <stddef.h>
+# include <assert.h>
+
 # include "AWCC.h"
 
 int main (void)
 {
 	AWCC.Initialize ();
 
-	printf ("Current Mode: %s\n", AWCC.GetModeName (AWCC.GetMode ()));
+	if (0) {
+		enum AWCCMode_t modes [] = {
+			AWCCModeQuiet,
+			AWCCModeBatterySaver,
+			AWCCModeBalanced,
+			AWCCModePerformance,
+			AWCCModeG,
+		};
+
+		for (size_t i = 0; i < sizeof (modes) / sizeof (* modes); i++) {
+			AWCC.SetMode (modes [i]);
+			const enum AWCCMode_t mode = AWCC.GetMode ();
+			assert (mode == modes [i]);
+			printf ("Current Mode: %s\n", AWCC.GetModeName (mode));
+			thrd_sleep (& (struct timespec) {.tv_sec = 2}, NULL);
+		}
+	}
+
+	if (0) {
+		for (int i = 0; i <= 87; i += 10) {
+			AWCC.SetFanBoost (AWCCFanCPU, i);
+			AWCC.SetFanBoost (AWCCFanGPU, i + 2);
+			AWCCBoost_t boostCpu = AWCC.GetFanBoost (AWCCFanCPU);
+			AWCCBoost_t boostGpu = AWCC.GetFanBoost (AWCCFanGPU);
+
+			assert (i == boostCpu && i + 2 == boostGpu);
+
+			printf ("%d = %d, %d = %d\n", i, boostCpu, i + 2, boostGpu);
+			thrd_sleep (& (struct timespec) {.tv_sec = 3}, NULL);
+		}
+	}
+
+	AWCC.Deinitialize ();
 }
