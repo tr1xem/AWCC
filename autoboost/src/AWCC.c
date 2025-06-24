@@ -51,7 +51,6 @@ const struct AWCC_t AWCC = {
 
 struct {
 	const char * const * ModeNames;
-	enum AWCCMode_t LastMode;
 } static Internal = {
 	.ModeNames = (const char * []) {
 		[AWCCModeQuiet]          =   "Quiet",
