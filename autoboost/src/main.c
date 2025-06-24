@@ -45,10 +45,10 @@ int main (void)
 		goto exit;
 	}
 
-	if (0) {
+	if (1) {
 		while (1) {
 			printf ("cpu temp: %d\ngpu temp: %d\n\n", AWCC.GetCpuTemperature (), AWCC.GetGpuTemperature ());
-			thrd_sleep (& (struct timespec) {.tv_sec = 1}, NULL);
+			thrd_sleep (& (struct timespec) {.tv_nsec = 1E9 * 0.25}, NULL);
 		}
 
 		goto exit;

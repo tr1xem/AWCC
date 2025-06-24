@@ -2,7 +2,9 @@
 
 const struct AWCCConfig_t AWCCDefaultConfig = {
 	.TemperatureCheckInterval = 1,
-	.MinTimeBeforeModeDown = 10,
+	.MinTimeBeforeModeDown = 15,
+	.UpBoostShift = 5,
+	.UpBoostShiftTime = 10,
 
 	.FanConfigs = {
 		[AWCCFanCPU] = {
