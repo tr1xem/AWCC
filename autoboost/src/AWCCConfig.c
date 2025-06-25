@@ -3,13 +3,14 @@
 const struct AWCCConfig_t AWCCDefaultConfig = {
 	.TemperatureCheckInterval = 1,
 	.MinTimeBeforeModeDown = 15,
+	.ModeDownHysteresis = 3,
 
 	.FanConfigs = {
 		[AWCCFanCPU] = {
 			.UpBoostShift = 5,
 			.UpBoostShiftTime = 10,
 			.BoostDownHysteresis = 3,
-			.MinTimeBeforeBoostDown = 10,
+			.MinTimeBeforeBoostDown = 15,
 			.BoostIntervals = (struct AWCCBoostInterval_t []) {
 				{ .TemperatureRange = { .Min =  0, .Max = 44  }, .Boost = 0   },
 				{ .TemperatureRange = { .Min = 45, .Max = 49  }, .Boost = 30  },
@@ -27,7 +28,7 @@ const struct AWCCConfig_t AWCCDefaultConfig = {
 			.UpBoostShift = 5,
 			.UpBoostShiftTime = 10,
 			.BoostDownHysteresis = 3,
-			.MinTimeBeforeBoostDown = 10,
+			.MinTimeBeforeBoostDown = 15,
 			.BoostIntervals = (struct AWCCBoostInterval_t []) {
 				{ .TemperatureRange = { .Min =  0, .Max = 44  }, .Boost = 0   },
 				{ .TemperatureRange = { .Min = 45, .Max = 49  }, .Boost = 30  },

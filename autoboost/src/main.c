@@ -5,6 +5,7 @@
 
 # include "AWCC.h"
 # include "AWCCAutoBoost.h"
+#include "AWCCConfig.h"
 
 int main (void)
 {
@@ -56,7 +57,7 @@ int main (void)
 	}
 
 	if (1) {
-		AWCCBoost.Start ();
+		AWCCBoost.Start (& AWCCDefaultConfig);
 		goto exit;
 	}
 

@@ -5,7 +5,7 @@
 # include "AWCCConfig.h"
 
 struct AWCCBoost_t {
-	void (* Start) (struct AWCCConfig_t *);
+	void (* Start) (const struct AWCCConfig_t *);
 } extern AWCCBoost;
 
 # endif // __AWCCAUTOBOOST_H
