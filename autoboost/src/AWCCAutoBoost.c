@@ -36,6 +36,7 @@ struct AWCCBoostInfo_t {
 	int BoostInterval;
 	enum AWCCBoostPhase_t BoostPhase;
 	time_t BoostSetTime;
+	AWCCBoost_t Boost;
 };
 
 enum AWCCModePhase_t {
@@ -75,10 +76,12 @@ struct {
 		[AWCCFanCPU] = {
 			.BoostPhase = AWCCBoostPhaseInitial,
 			.BoostInterval = -1,
+			.Boost = 0,
 		},
 		[AWCCFanGPU] = {
 			.BoostPhase = AWCCBoostPhaseInitial,
 			.BoostInterval = -1,
+			.Boost = 0,
 		},
 	},
 	.ModeInfo = {
@@ -235,6 +238,7 @@ void SetFanBoost (enum AWCCFan_t fan, int boostInterval, _Bool upShift)
 
 # ifndef DRY_RUN
 	AWCC.SetFanBoost (fan, boost);
+	Internal.BoostInfos [fan].Boost = boost;
 # endif // DRY_RUN
 
 	if (Internal.BoostInfos [fan].BoostInterval != boostInterval) {
@@ -253,6 +257,11 @@ void SetMode (int modeInterval)
 
 # ifndef DRY_RUN
 	AWCC.SetMode (mode);
+
+	if (AWCCModeG != mode) {
+		AWCC.SetCpuBoost (Internal.BoostInfos [AWCCFanCPU].Boost);
+		AWCC.SetGpuBoost (Internal.BoostInfos [AWCCFanGPU].Boost);
+	}
 # endif // DRY_RUN
 
 	if (Internal.ModeInfo.ModeInterval != modeInterval) {
