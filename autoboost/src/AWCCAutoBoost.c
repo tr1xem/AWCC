@@ -152,11 +152,11 @@ void ManageFanBoost (enum AWCCFan_t fan)
 		Internal.SetFanBoost (fan, boostIntervalOfTemperature, 1);
 	}
 	else if (
-		   boostIntervalOfTemperature == Internal.BoostInfos [fan].BoostInterval
+		   boostIntervalOfTemperature <= Internal.BoostInfos [fan].BoostInterval
 		&& AWCCBoostPhaseUpShift == Internal.BoostInfos [fan].BoostPhase
 	) {
 		if (difftime (time (NULL), Internal.BoostInfos [fan].BoostSetTime) > Internal.Config->FanConfigs [fan].UpBoostShiftTime) {
-			Internal.SetFanBoost (fan, boostIntervalOfTemperature, 0);
+			Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval, 0);
 		}
 	}
 	else if (
