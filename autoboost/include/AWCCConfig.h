@@ -36,6 +36,7 @@ struct AWCCConfig_t {
 								  // consecutive temperature checks
 	int MinTimeBeforeModeDown; // The minimum time before mode down happens
 							   // after temperature drop to lower mode zone
+	int ModeDownHysteresis; // Hysteresis for selecting a lower mode
 	struct AWCCFanConfig_t FanConfigs [2];
 	struct AWCCModeInterval_t * ModeIntervals;
 	int _ModeIntervalCount; // Internal variable keeping mode intervals count
