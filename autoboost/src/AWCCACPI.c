@@ -109,7 +109,7 @@ struct {
 	.ParseHexValue = & ParseHexValue,
 };
 
-void Initialize (void)
+void Initialize (void) // TODO: fix prefix and cpu/gpu specific codes in acpi calls
 {
 	FILE * cpuinfo = fopen ("/proc/cpuinfo", "r");
 	if (NULL == cpuinfo) {
