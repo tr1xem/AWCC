@@ -3,11 +3,11 @@
 const struct AWCCConfig_t AWCCDefaultConfig = {
 	.TemperatureCheckInterval = 1,
 	.MinTimeBeforeModeDown = 15,
-	.UpBoostShift = 5,
-	.UpBoostShiftTime = 10,
 
 	.FanConfigs = {
 		[AWCCFanCPU] = {
+			.UpBoostShift = 5,
+			.UpBoostShiftTime = 10,
 			.BoostDownHysteresis = 3,
 			.MinTimeBeforeBoostDown = 10,
 			.BoostIntervals = (struct AWCCBoostInterval_t []) {
@@ -24,6 +24,8 @@ const struct AWCCConfig_t AWCCDefaultConfig = {
 			._BoostIntervalCount = 9
 		},
 		[AWCCFanGPU] = {
+			.UpBoostShift = 5,
+			.UpBoostShiftTime = 10,
 			.BoostDownHysteresis = 3,
 			.MinTimeBeforeBoostDown = 10,
 			.BoostIntervals = (struct AWCCBoostInterval_t []) {
