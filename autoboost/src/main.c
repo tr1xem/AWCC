@@ -7,6 +7,7 @@
 #include "../include/AWCC.h"
 #include "../include/AWCCAutoBoost.h"
 #include "../include/AWCCConfig.h"
+#include "AWCCSysteminfo.c"
 
 int main(void) {
 	AWCC.Initialize();
@@ -52,6 +53,16 @@ int main(void) {
 				   AWCC.GetGpuTemperature());
 			thrd_sleep(&(struct timespec){.tv_nsec = 1E9 * 0.25}, NULL);
 		}
+
+		goto exit;
+	}
+
+	if (0) {
+		const char *model = GetSystemInfo(AWCCSystemInfoModel);
+		const char *version = GetSystemInfo(AWCCSystemInfoVersion);
+
+		printf("System Model: %s\n", model);
+		printf("System Version: %s\n", version);
 
 		goto exit;
 	}
