@@ -1,6 +1,7 @@
 # include "AWCCAutoBoost.h"
 
-#include <stdio.h>
+# include <stdio.h>
+# include <sys/stat.h>
 # include <threads.h>
 # include <time.h>
 
@@ -100,6 +101,10 @@ void Start (const struct AWCCConfig_t * config, const struct AWCCSystemLogger_t 
 {
 	Internal.Config = config;
 	Internal.SystemLogger = systemLogger;
+
+	if (NULL != systemLogger) {
+		mkdir (systemLogger->Dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	}
 
 	while (1) {
 		Internal.BoostInfos [AWCCFanCPU].Temperature = AWCC.GetFanTemperature (AWCCFanCPU);
