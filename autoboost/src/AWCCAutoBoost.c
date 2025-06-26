@@ -37,6 +37,7 @@ struct {
 			AWCCBoostPhaseNormal,
 		} BoostPhase;
 		time_t BoostSetTime;
+		time_t LastTimeInCurrentTemperatureInterval;
 		AWCCBoost_t Boost;
 	} BoostInfos [2];
 	struct {
@@ -152,6 +153,12 @@ void ManageFanBoost (enum AWCCFan_t fan)
 		}
 	}
 
+	time_t currentTime = time (NULL);
+
+	if (boostIntervalOfTemperature == Internal.BoostInfos [fan].BoostInterval) {
+		Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval = currentTime;
+	}
+
 	if (AWCCBoostPhaseInitial == Internal.BoostInfos [fan].BoostPhase) {
 		Internal.SetFanBoost (fan, boostIntervalOfTemperature, 1);
 	}
@@ -162,7 +169,7 @@ void ManageFanBoost (enum AWCCFan_t fan)
 		   boostIntervalOfTemperature <= Internal.BoostInfos [fan].BoostInterval
 		&& AWCCBoostPhaseUpShift == Internal.BoostInfos [fan].BoostPhase
 	) {
-		if (difftime (time (NULL), Internal.BoostInfos [fan].BoostSetTime) > Internal.Config->FanConfigs [fan].UpBoostShiftTime) {
+		if (difftime (currentTime, Internal.BoostInfos [fan].BoostSetTime) > Internal.Config->FanConfigs [fan].UpBoostShiftTime) {
 			Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval, 0);
 		}
 	}
@@ -175,7 +182,7 @@ void ManageFanBoost (enum AWCCFan_t fan)
 			< Internal.Config->FanConfigs [fan].BoostIntervals [Internal.BoostInfos [fan].BoostInterval].TemperatureRange.Min - Internal.Config->FanConfigs [fan].BoostDownHysteresis
 		) {
 			if (
-				  difftime (time (NULL), Internal.BoostInfos [fan].BoostSetTime)
+				  difftime (currentTime, Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval)
 				> Internal.Config->FanConfigs [fan].MinTimeBeforeBoostDown / (float) (Internal.BoostInfos [fan].BoostInterval - boostIntervalOfTemperature)
 			) {
 				Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval - 1, 0);
@@ -251,9 +258,12 @@ void SetFanBoost (enum AWCCFan_t fan, int boostInterval, _Bool upShift)
 	Internal.BoostInfos [fan].Boost = boost;
 # endif // DRY_RUN
 
+	time_t currentTime = time (NULL);
+	Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval = currentTime;
+
 	if (Internal.BoostInfos [fan].BoostInterval != boostInterval) {
 		Internal.BoostInfos [fan].BoostInterval = boostInterval;
-		Internal.BoostInfos [fan].BoostSetTime = time (NULL);
+		Internal.BoostInfos [fan].BoostSetTime = currentTime;
 	}
 }
 
