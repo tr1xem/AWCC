@@ -40,13 +40,16 @@ static const char *GetSystemInfo(enum AWCCSystemInfoField_t field) {
 	token = strtok(NULL, " "); // Model
 	char *model = token;
 	token = strtok(NULL, " "); // Version
-	char *version = token;
+	int version = token ? atoi(token) : 0;
 
 	switch (field) {
 	case AWCCSystemInfoModel:
 		return model;
-	case AWCCSystemInfoVersion:
-		return version;
+	case AWCCSystemInfoVersion: {
+		static char version_str[16];
+		snprintf(version_str, sizeof(version_str), "%d", version);
+		return version_str;
+	}
 	default:
 		return NULL;
 	}

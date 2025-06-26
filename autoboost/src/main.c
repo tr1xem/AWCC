@@ -62,7 +62,7 @@ int main(void) {
 		const char *version = GetSystemInfo(AWCCSystemInfoVersion);
 
 		printf("System Model: %s\n", model);
-		printf("System Version: %d\n", version);
+		printf("System Version: %s\n", version);
 
 		AWCCBoost.Start(&AWCCDefaultConfig, &AWCCSystemLoggerDefault);
 		goto exit;
