@@ -30,10 +30,17 @@ static const char *GetSystemInfo(enum AWCCSystemInfoField_t field) {
 		initialized = 1;
 	}
 
+	// Make a copy of the product_name to avoid modifying the original string
+	char product_name_copy[256];
+	strncpy(product_name_copy, product_name, sizeof(product_name_copy));
+	product_name_copy[sizeof(product_name_copy) - 1] = '\0';
+
 	// Skip the first token (e.g., "Dell")
-	strtok(product_name, " ");
-	char *model = strtok(NULL, " ");
-	char *version = strtok(NULL, " ");
+	char *token = strtok(product_name_copy, " ");
+	token = strtok(NULL, " "); // Model
+	char *model = token;
+	token = strtok(NULL, " "); // Version
+	char *version = token;
 
 	switch (field) {
 	case AWCCSystemInfoModel:
