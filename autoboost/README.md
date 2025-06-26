@@ -20,7 +20,7 @@ currently written in bash, must be rewritten in c and have a systemd unit
 different conditions for upboosting and downboosting)
 - [x] avoid the dependency **sensors** if possible
 - [ ] config file parsing (currently hardcoded defaults are used)
-- [ ] write info to /var/log/awcc
+- [x] write info to /var/log/awcc
 - [ ] smart logging system
 - [ ] error handling
 

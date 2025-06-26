@@ -1,6 +1,6 @@
 PREFIX = /usr/local
 
-CFLAGS=-std=c18 -pedantic-errors -Werror=pedantic -O0 -g -DDEBUG -I./include -DENABLE_LOGS
+CFLAGS=-std=c18 -pedantic-errors -Werror=pedantic -O0 -g -DDEBUG -I./include
 LIBS=-lusb-1.0 -lpcre2-32
 
 DEPS := $(wildcard include/*.h) $(wildcard src/*.h)
@@ -27,9 +27,10 @@ run: awcc_autoboost compiledb # update compile_commands.json for neovim
 	./awcc_autoboost
 
 install: awcc_autoboost
-	cp -fv awcc_autoboost.sh /usr/local/bin
-	mkdir -pv /etc/awcc
-	cp -fv awcc_autoboost.conf /etc/awcc/autoboost.conf
+	# cp -fv awcc_autoboost.sh /usr/local/bin
+	# mkdir -pv /etc/awcc
+	# cp -fv awcc_autoboost.conf /etc/awcc/autoboost.conf
+	cp -fv awcc_autoboost /usr/local/bin
 	mkdir -pv /etc/systemd/system
 	cp -fv awcc_autoboost.service /etc/systemd/system/awcc_autoboost.service
 

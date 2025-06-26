@@ -2,13 +2,13 @@
 Description=AWCC AutoBoost Fan Manager
 After=graphical.target
 Wants=graphical.target
-ConditionPathExists=/etc/awcc/autoboost.conf
+# ConditionPathExists=/etc/awcc/autoboost.conf
 
 # FIXME: needs a refresh after sleep/hibernate
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/awcc_autoboost.sh
+ExecStart=/usr/local/bin/awcc_autoboost
 Restart=always
 RestartSec=5
 StandardOutput=journal
