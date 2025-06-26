@@ -1,0 +1,251 @@
+
+# 2025-05-28 19:48:11.266324
++y
+
+# 2025-05-28 19:48:45.071177
++/model openai/gemini-2.5-pro-preview-05-06
++
+
+# 2025-05-28 19:48:58.659757
++/add *
+
+# 2025-05-28 19:49:55.463496
++Can you make a professional looking gui for it? thats interactive and smooth animations diff tabs for diff funcs group and a credits tab too
+
+# 2025-05-28 20:06:48.260347
++y
+
+# 2025-05-28 20:15:53.979626
++src/gui.c:3:10: fatal error: include/effects.h: No such file or directory
++    3 | #include "include/effects.h"
++      |          ^~~~~~~~~~~~~~~~~~~
++
+
+# 2025-05-28 20:17:25.125235
++/model o4-mini
+
+# 2025-05-28 20:17:40.806510
++src/gui.c:3:10: fatal error: include/effects.h: No such file or directory
++    3 | #include "include/effects.h"
++      |          ^~~~~~~~~~~~~~~~~~~
++
+
+# 2025-05-28 20:17:50.634857
++/add main.c
+
+# 2025-05-28 20:17:51.825899
++src/gui.c:3:10: fatal error: include/effects.h: No such file or directory
++    3 | #include "include/effects.h"
++      |          ^~~~~~~~~~~~~~~~~~~
++
+
+# 2025-05-28 20:17:52.822695
++y
+
+# 2025-05-28 20:19:53.111100
++/run make
+
+# 2025-05-28 20:19:53.111188
++/run make
+
+# 2025-05-28 20:19:58.587049
++y
+
+# 2025-05-28 20:23:40.688526
++make it execute cmds with sudo and also just make the ui more dynamic like make it show current cpu boost cpu model fan speeds current modes all in gui itslef also fix placments of buttons make it more appealing to eyes and add a header above all also do not make diff segments of same options like rainbox takes durations make them more compact
+
+# 2025-05-28 20:24:25.782188
++1 yes 
+
+# 2025-05-28 20:24:31.328782
++1 yes
+
+# 2025-05-28 20:26:08.419992
++1 yes 2nd awcc cb and /proc/cpuinfo for  cpu model fanspeed form lm-sensors 3 just as it would be most good looking 4 yes i prefer also it could be more interactive 
+
+# 2025-05-28 20:29:27.597070
++/reset
+
+# 2025-05-28 20:29:39.573537
++/model openai/gemini-2.5-pro-preview-05-06
+
+# 2025-05-28 20:30:01.792397
++/add main.c 
+
+# 2025-05-28 20:30:06.172769
++1 yes 2nd awcc cb and /proc/cpuinfo for  cpu model fanspeed form lm-sensors 3 just as it would be most good looking 4 yes i prefer also it could be more interactive 
+
+# 2025-05-28 20:32:38.843626
++y
+
+# 2025-05-28 20:35:20.033922
++/model openai/o4-mini
+
+# 2025-05-28 20:35:30.068111
++      |            ^~~~~~~~~~~~~~~
++src/gui.c:173:52: warning: unused parameter ‘user_data’ [-Wunused-parameter]
++  173 | static void activate(GtkApplication *app, gpointer user_data) {
++      |                                           ~~~~~~~~~^~~~~~~~~
++make: *** [Makefile:13: awcc] Error 1
++
+
+# 2025-05-28 20:35:56.350715
++y
+
+# 2025-05-28 20:37:13.483935
++/run make
+
+# 2025-05-28 20:37:13.483975
++/run make
+
+# 2025-05-28 20:37:20.229050
++y
+
+# 2025-05-28 20:37:24.085897
++error 
+
+# 2025-05-28 20:39:42.088557
++y
+
+# 2025-05-28 20:39:42.090895
++/run make
+
+# 2025-05-28 20:39:42.090926
++/run make
+
+# 2025-05-28 20:39:45.005803
++y
+
+# 2025-05-28 20:40:50.017070
++make it more compact also show mesuarements like current mode in gui
++
+
+# 2025-05-30 08:29:54.836728
++/model openai/o4-mini
+
+# 2025-05-30 08:30:08.780293
++/add main.c
+
+# 2025-05-30 08:31:18.635044
++Make the gui better by adding stats show on window itself its a app to control the fans and light of the gaming laptop 
+
+# 2025-05-30 08:31:31.242424
++y
+
+# 2025-05-30 08:32:47.524378
++/run ./awcc --gui
+
+# 2025-05-30 08:32:47.524415
++/run ./awcc --gui
+
+# 2025-05-30 08:32:50.703235
++y
+
+# 2025-05-30 08:33:49.550771
++/undo
+
+# 2025-05-30 08:37:05.907177
++/git reset --hard HEAD^
+
+# 2025-05-30 08:37:07.361776
++/undo
+
+# 2025-05-30 08:37:09.424714
++/git reset --hard HEAD^
+
+# 2025-05-30 08:37:12.180329
++/undo
+
+# 2025-05-30 08:37:13.437862
++/git reset --hard HEAD^
+
+# 2025-05-30 08:37:14.545567
++/undo
+
+# 2025-05-30 08:37:16.019952
++/git reset --hard HEAD^
+
+# 2025-05-30 08:42:01.119487
++src/gui.c:3:10: fatal error: include/effects.h: No such file or directory
++    3 | #include "include/effects.h"
++      |          ^~~~~~~~~~~~~~~~~~~
++compilation terminated.
++make: *** [Makefile:13: awcc] Error 1
++
+
+# 2025-05-30 08:42:02.863890
++y
+
+# 2025-05-30 08:43:51.850842
++/run make
+
+# 2025-05-30 08:43:51.850877
++/run make
+
+# 2025-05-30 08:43:57.775991
++y
+
+# 2025-05-30 08:45:29.143238
++remove all gui things
+
+# 2025-05-30 08:46:16.533213
++y
+
+# 2025-05-30 08:46:25.525876
++/undo
+
+# 2025-05-30 08:49:43.609235
++/reset
+
+# 2025-05-30 08:49:50.517709
++/add main.c 
+
+# 2025-05-30 08:50:31.743235
++Make a interactive and beautiful gui for this app Make it compact and make it run cmd with sudo 
+
+# 2025-05-30 08:51:57.085506
++y
+
+# 2025-05-30 08:51:59.166558
++/run pip install PySimpleGUI
+
+# 2025-05-30 08:51:59.166626
++/run pip install PySimpleGUI
+
+# 2025-05-30 08:52:02.450464
++y
+
+# 2025-05-30 08:55:03.833386
++Traceback (most recent call last):
++  File "/home/saumya/dotfiles/work/awcc/gui.py", line 3, in <module>
++    import PySimpleGUI as sg
++  File "/home/saumya/.local/lib/python3.13/site-packages/PySimpleGUI/__init__.py", line 1, in <module>
++    from .PySimpleGUI import *
++  File "/home/saumya/.local/lib/python3.13/site-packages/PySimpleGUI/PySimpleGUI.py", line 100, in <module>
++    import tkinter as tk
++  File "/usr/lib/python3.13/tkinter/__init__.py", line 38, in <module>
++    import _tkinter # If this fails your Python may not be configured for Tk
++    ^^^^^^^^^^^^^^^
++ImportError: libtk8.6.so: cannot open shared object file: No such file or directory
++
+
+# 2025-05-30 08:56:46.117290
++y
+
+# 2025-05-30 08:56:46.121788
++/run sudo pacman -S tk
+
+# 2025-05-30 08:56:46.121848
++/run sudo pacman -S tk
+
+# 2025-05-30 08:56:59.201638
++n
+
+# 2025-05-30 08:57:26.939015
++/undo
+
+# 2025-05-30 08:57:48.750064
++make it with some free and opensource thing thats light and beautiful
+
+# 2025-05-30 08:59:06.519713
++y
