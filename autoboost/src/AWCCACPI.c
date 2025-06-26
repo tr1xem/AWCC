@@ -135,6 +135,10 @@ void Execute (const char * command)
 {
 	FILE * acpi_file = fopen ("/proc/acpi/call", "w");
 
+# ifdef ENABLE_ACPI_LOGS
+	printf ("ACPI CALL: %s\n", command);
+# endif // ENABLE_LOGS
+
 	if (NULL == acpi_file) {
 		perror ("Unable to open /proc/acpi/call");
 		exit (EXIT_FAILURE);
