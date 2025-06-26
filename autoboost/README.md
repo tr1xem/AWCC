@@ -11,8 +11,8 @@ currently written in bash, must be rewritten in c and have a systemd unit
 - map temperature ranges to fan boost levels
 - map temperature ranges to modes
 - hysteresis handling
-- ~temperature/boost output on /var/run/awcc/ for non-root read access~
-- ~systemd unit~
+- temperature/boost and mode output on /var/run/awcc/ for non-root read access
+- systemd unit (WIP)
 
 ## TODOS (in C version)
 
