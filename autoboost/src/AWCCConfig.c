@@ -48,8 +48,8 @@ const struct AWCCConfig_t AWCCDefaultConfig = {
 	.ModeIntervals = (struct AWCCModeInterval_t []) {
 		{ .TemperatureRange = { .Min =  0, .Max = 29  }, .Mode = AWCCModeQuiet },
 		{ .TemperatureRange = { .Min = 30, .Max = 44  }, .Mode = AWCCModeBatterySaver },
-		{ .TemperatureRange = { .Min = 45, .Max = 54  }, .Mode = AWCCModeBalanced },
-		{ .TemperatureRange = { .Min = 55, .Max = 89  }, .Mode = AWCCModePerformance },
+		{ .TemperatureRange = { .Min = 45, .Max = 64  }, .Mode = AWCCModeBalanced },
+		{ .TemperatureRange = { .Min = 65, .Max = 89  }, .Mode = AWCCModePerformance },
 		{ .TemperatureRange = { .Min = 90, .Max = 100 }, .Mode = AWCCModeG },
 	},
 	._ModeIntervalCount = 5
