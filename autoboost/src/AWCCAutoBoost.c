@@ -174,7 +174,10 @@ void ManageFanBoost (enum AWCCFan_t fan)
 			  Internal.BoostInfos [fan].Temperature
 			< Internal.Config->FanConfigs [fan].BoostIntervals [Internal.BoostInfos [fan].BoostInterval].TemperatureRange.Min - Internal.Config->FanConfigs [fan].BoostDownHysteresis
 		) {
-			if (difftime (time (NULL), Internal.BoostInfos [fan].BoostSetTime) > Internal.Config->FanConfigs [fan].MinTimeBeforeBoostDown) {
+			if (
+				   difftime (time (NULL), Internal.BoostInfos [fan].BoostSetTime)
+				> Internal.Config->FanConfigs [fan].MinTimeBeforeBoostDown / (float) (Internal.BoostInfos [fan].BoostInterval - boostIntervalOfTemperature)
+			) {
 				Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval - 1, 0);
 			}
 		}
