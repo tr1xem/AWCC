@@ -30,7 +30,9 @@ static const char *GetSystemInfo(enum AWCCSystemInfoField_t field) {
 		initialized = 1;
 	}
 
-	char *model = strtok(product_name, " ");
+	// Skip the first token (e.g., "Dell")
+	strtok(product_name, " ");
+	char *model = strtok(NULL, " ");
 	char *version = strtok(NULL, " ");
 
 	switch (field) {
