@@ -18,7 +18,7 @@
 // 2) be careful handling jumps over multiple boost intervals, go one by one
 //    respecting MinTimeBeforeBoostDown
 
-static void Start (const struct AWCCConfig_t *);
+static void Start (const struct AWCCConfig_t *, const struct AWCCSystemLogger_t *);
 
 struct AWCCBoost_t AWCCBoost = {
 	.Start = & Start,
@@ -62,15 +62,17 @@ struct {
 	void (* SetFanBoost) (enum AWCCFan_t, int, _Bool);
 	void (* SetMode) (int);
 	const struct AWCCConfig_t * Config;
+	const struct AWCCSystemLogger_t * SystemLogger;
 	struct AWCCBoostInfo_t BoostInfos [2];
 	struct AWCCModeInfo_t ModeInfo;
 	const char * FanNames [2];
-} Internal = {
+} static Internal = {
 	.ManageFanBoost = & ManageFanBoost,
 	.ManageMode = & ManageMode,
 	.SetFanBoost = & SetFanBoost,
 	.SetMode = & SetMode,
 	.Config = NULL,
+	.SystemLogger = NULL,
 	.BoostInfos = {
 		[AWCCFanCPU] = {
 			.BoostPhase = AWCCBoostPhaseInitial,
@@ -94,13 +96,14 @@ struct {
 	},
 };
 
-void Start (const struct AWCCConfig_t * config)
+void Start (const struct AWCCConfig_t * config, const struct AWCCSystemLogger_t * systemLogger)
 {
 	Internal.Config = config;
+	Internal.SystemLogger = systemLogger;
 
 	while (1) {
-		Internal.BoostInfos [AWCCFanCPU].Temperature  = AWCC.GetFanTemperature (AWCCFanCPU);
-		Internal.BoostInfos [AWCCFanGPU].Temperature  = AWCC.GetFanTemperature (AWCCFanGPU);
+		Internal.BoostInfos [AWCCFanCPU].Temperature = AWCC.GetFanTemperature (AWCCFanCPU);
+		Internal.BoostInfos [AWCCFanGPU].Temperature = AWCC.GetFanTemperature (AWCCFanGPU);
 
 		Internal.ModeInfo.MaxTemp = Internal.BoostInfos [AWCCFanCPU].Temperature;
 		if (Internal.BoostInfos [AWCCFanGPU].Temperature > Internal.ModeInfo.MaxTemp) {
@@ -117,13 +120,25 @@ void Start (const struct AWCCConfig_t * config)
 		);
 # endif // ENABLE_LOGS
 
-		// FIXME: changing mode seems to reset boosts, at least when changing
-		// from performance to balanced
 		Internal.ManageMode ();
 
 		if (AWCCModeG != Internal.ModeInfo.Mode) {
 			Internal.ManageFanBoost (AWCCFanCPU);
 			Internal.ManageFanBoost (AWCCFanGPU);
+		} // WARN: what happens with boosts after exiting G Mode?
+
+		if (NULL != Internal.SystemLogger) {
+			Internal.SystemLogger->LogCpuTemp (Internal.BoostInfos [AWCCFanCPU].Temperature);
+			Internal.SystemLogger->LogGpuTemp (Internal.BoostInfos [AWCCFanGPU].Temperature);
+			if (AWCCModeG != Internal.ModeInfo.Mode) {
+				Internal.SystemLogger->LogCpuBoost (Internal.BoostInfos [AWCCFanCPU].Boost);
+				Internal.SystemLogger->LogGpuBoost (Internal.BoostInfos [AWCCFanGPU].Boost);
+			}
+			else {
+				Internal.SystemLogger->LogCpuBoost (AWCC.GetCpuBoost ());
+				Internal.SystemLogger->LogGpuBoost (AWCC.GetGpuBoost ());
+			}
+			Internal.SystemLogger->LogMode (Internal.ModeInfo.Mode);
 		}
 
 		thrd_sleep (& (struct timespec) { .tv_sec = Internal.Config->TemperatureCheckInterval }, NULL);

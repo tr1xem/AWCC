@@ -1,11 +1,12 @@
 # include <stdio.h>
+# include <stdlib.h>
 # include <threads.h>
 # include <stddef.h>
 # include <assert.h>
 
 # include "AWCC.h"
 # include "AWCCAutoBoost.h"
-#include "AWCCConfig.h"
+# include "AWCCConfig.h"
 
 int main (void)
 {
@@ -24,7 +25,8 @@ int main (void)
 			AWCC.SetMode (modes [i]);
 			const enum AWCCMode_t mode = AWCC.GetMode ();
 			assert (mode == modes [i]);
-			printf ("Current Mode: %s\n", AWCC.GetModeName (mode));
+			printf ("::: Current Mode: %s\n", AWCC.GetModeName (mode));
+			system ("awcc qm");
 			thrd_sleep (& (struct timespec) {.tv_sec = 2}, NULL);
 		}
 
@@ -57,7 +59,7 @@ int main (void)
 	}
 
 	if (1) {
-		AWCCBoost.Start (& AWCCDefaultConfig);
+		AWCCBoost.Start (& AWCCDefaultConfig, & AWCCSystemLoggerDefault);
 		goto exit;
 	}
 
