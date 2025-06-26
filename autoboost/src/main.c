@@ -57,17 +57,13 @@ int main(void) {
 		goto exit;
 	}
 
-	if (0) {
+	if (1) {
 		const char *model = GetSystemInfo(AWCCSystemInfoModel);
 		const char *version = GetSystemInfo(AWCCSystemInfoVersion);
 
 		printf("System Model: %s\n", model);
-		printf("System Version: %s\n", version);
+		printf("System Version: %d\n", version);
 
-		goto exit;
-	}
-
-	if (1) {
 		AWCCBoost.Start(&AWCCDefaultConfig, &AWCCSystemLoggerDefault);
 		goto exit;
 	}
