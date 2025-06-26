@@ -9,6 +9,10 @@
 
 # include "AWCC.h"
 
+# ifdef __STDC_NO_THREADS__
+# error this tool currently depends on threads.h
+# endif // __STDC_NO_THREADS__
+
 static void Initialize (void);
 static void Execute (const char *);
 static const char * Read (void);

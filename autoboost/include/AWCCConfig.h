@@ -27,7 +27,7 @@ struct AWCCFanConfig_t { // The fan specific options
 	int MinTimeBeforeBoostDown; // The minimum time of the current boost being
 								// active before boost down
 	struct AWCCBoostInterval_t * BoostIntervals;
-	int _BoostIntervalCount; // Internal variable keeping mode intervals count
+	int _BoostIntervalCount; // Internal variable keeping boost intervals count
 							 // to keep the implementation simple
 };
 
