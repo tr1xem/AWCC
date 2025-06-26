@@ -14,42 +14,10 @@
 
 // # define DRY_RUN
 
-// WARN:
-// 1) be careful handling UpBoostShiftTime and MinTimeBeforeBoostDown
-// 2) be careful handling jumps over multiple boost intervals, go one by one
-//    respecting MinTimeBeforeBoostDown
-
 static void Start (const struct AWCCConfig_t *, const struct AWCCSystemLogger_t *);
 
 struct AWCCBoost_t AWCCBoost = {
 	.Start = & Start,
-};
-
-enum AWCCBoostPhase_t {
-	AWCCBoostPhaseInitial,
-	AWCCBoostPhaseUpShift,
-	AWCCBoostPhaseNormal,
-};
-
-struct AWCCBoostInfo_t {
-	AWCCTemperature_t Temperature;
-	int BoostInterval;
-	enum AWCCBoostPhase_t BoostPhase;
-	time_t BoostSetTime;
-	AWCCBoost_t Boost;
-};
-
-enum AWCCModePhase_t {
-	AWCCModePhaseInitial,
-	AWCCModePhaseNormal,
-};
-
-struct AWCCModeInfo_t {
-	AWCCTemperature_t MaxTemp;
-	enum AWCCMode_t Mode;
-	int ModeInterval;
-	enum AWCCModePhase_t ModePhase;
-	time_t ModeSetTime;
 };
 
 static void ManageFanBoost (enum AWCCFan_t);
@@ -58,20 +26,35 @@ static void SetFanBoost (enum AWCCFan_t, int, _Bool);
 static void SetMode (int);
 
 struct {
+	const struct AWCCConfig_t * Config;
+	const struct AWCCSystemLogger_t * SystemLogger;
+	struct {
+		AWCCTemperature_t Temperature;
+		int BoostInterval;
+		enum {
+			AWCCBoostPhaseInitial,
+			AWCCBoostPhaseUpShift,
+			AWCCBoostPhaseNormal,
+		} BoostPhase;
+		time_t BoostSetTime;
+		AWCCBoost_t Boost;
+	} BoostInfos [2];
+	struct {
+		AWCCTemperature_t MaxTemp;
+		enum AWCCMode_t Mode;
+		int ModeInterval;
+		enum {
+			AWCCModePhaseInitial,
+			AWCCModePhaseNormal,
+		} ModePhase;
+		time_t ModeSetTime;
+	} ModeInfo;
+	const char * FanNames [2];
 	void (* ManageFanBoost) (enum AWCCFan_t fan);
 	void (* ManageMode) (void);
 	void (* SetFanBoost) (enum AWCCFan_t, int, _Bool);
 	void (* SetMode) (int);
-	const struct AWCCConfig_t * Config;
-	const struct AWCCSystemLogger_t * SystemLogger;
-	struct AWCCBoostInfo_t BoostInfos [2];
-	struct AWCCModeInfo_t ModeInfo;
-	const char * FanNames [2];
 } static Internal = {
-	.ManageFanBoost = & ManageFanBoost,
-	.ManageMode = & ManageMode,
-	.SetFanBoost = & SetFanBoost,
-	.SetMode = & SetMode,
 	.Config = NULL,
 	.SystemLogger = NULL,
 	.BoostInfos = {
@@ -95,6 +78,10 @@ struct {
 		[AWCCFanCPU] = "CPU",
 		[AWCCFanGPU] = "GPU",
 	},
+	.ManageFanBoost = & ManageFanBoost,
+	.ManageMode = & ManageMode,
+	.SetFanBoost = & SetFanBoost,
+	.SetMode = & SetMode,
 };
 
 void Start (const struct AWCCConfig_t * config, const struct AWCCSystemLogger_t * systemLogger)
@@ -102,8 +89,8 @@ void Start (const struct AWCCConfig_t * config, const struct AWCCSystemLogger_t 
 	Internal.Config = config;
 	Internal.SystemLogger = systemLogger;
 
-	if (NULL != systemLogger) {
-		mkdir (systemLogger->Dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	if (NULL != Internal.SystemLogger) {
+		mkdir (Internal.SystemLogger->Dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	}
 
 	while (1) {
@@ -131,6 +118,7 @@ void Start (const struct AWCCConfig_t * config, const struct AWCCSystemLogger_t 
 			Internal.ManageFanBoost (AWCCFanCPU);
 			Internal.ManageFanBoost (AWCCFanGPU);
 		} // WARN: what happens with boosts after exiting G Mode?
+		// NOTE: Seems to work fine.
 
 		if (NULL != Internal.SystemLogger) {
 			Internal.SystemLogger->LogCpuTemp (Internal.BoostInfos [AWCCFanCPU].Temperature);

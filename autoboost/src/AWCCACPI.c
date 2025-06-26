@@ -253,8 +253,6 @@ enum AWCCMode_t GetMode (void)
 
 AWCCTemperature_t GetFanTemperature (enum AWCCFan_t fan)
 {
-	// FIXME: sometimes returns 160, although temperature is around 40-50
-	// no matter cpu or gpu
 	static _Thread_local char cmd [256];
 	snprintf (
 		cmd,
