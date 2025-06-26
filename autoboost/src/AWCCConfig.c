@@ -40,7 +40,6 @@ const struct AWCCConfig_t AWCCDefaultConfig = {
 				{ .TemperatureRange = { .Min = 75, .Max = 79  }, .Boost = 90  },
 				{ .TemperatureRange = { .Min = 80, .Max = 100 }, .Boost = 100 },
 			},
-
 			._BoostIntervalCount = 9
 		},
 	},
