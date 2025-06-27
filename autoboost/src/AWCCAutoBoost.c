@@ -28,6 +28,7 @@ static void SetMode (int);
 struct {
 	const struct AWCCConfig_t * Config;
 	const struct AWCCSystemLogger_t * SystemLogger;
+	time_t CurrentTime;
 	struct {
 		AWCCTemperature_t Temperature;
 		int BoostInterval;
@@ -98,6 +99,7 @@ void Start (const struct AWCCConfig_t * config, const struct AWCCSystemLogger_t 
 	while (1) {
 		Internal.BoostInfos [AWCCFanCPU].Temperature = AWCC.GetFanTemperature (AWCCFanCPU);
 		Internal.BoostInfos [AWCCFanGPU].Temperature = AWCC.GetFanTemperature (AWCCFanGPU);
+		Internal.CurrentTime = time (NULL);
 
 		Internal.ModeInfo.MaxTemp = Internal.BoostInfos [AWCCFanCPU].Temperature;
 		if (Internal.BoostInfos [AWCCFanGPU].Temperature > Internal.ModeInfo.MaxTemp) {
@@ -119,8 +121,7 @@ void Start (const struct AWCCConfig_t * config, const struct AWCCSystemLogger_t 
 		if (AWCCModeG != Internal.ModeInfo.Mode) {
 			Internal.ManageFanBoost (AWCCFanCPU);
 			Internal.ManageFanBoost (AWCCFanGPU);
-		} // WARN: what happens with boosts after exiting G Mode?
-		// NOTE: Seems to work fine.
+		}
 
 		if (NULL != Internal.SystemLogger) {
 			Internal.SystemLogger->LogCpuTemp (Internal.BoostInfos [AWCCFanCPU].Temperature);
@@ -154,8 +155,6 @@ void ManageFanBoost (enum AWCCFan_t fan)
 		}
 	}
 
-	time_t currentTime = time (NULL);
-
 	// if (boostIntervalOfTemperature == Internal.BoostInfos [fan].BoostInterval) {
 	// 	Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval = currentTime;
 	// }
@@ -170,9 +169,8 @@ void ManageFanBoost (enum AWCCFan_t fan)
 		   boostIntervalOfTemperature <= Internal.BoostInfos [fan].BoostInterval
 		&& AWCCBoostPhaseUpShift == Internal.BoostInfos [fan].BoostPhase
 	) {
-		if (difftime (currentTime, Internal.BoostInfos [fan].BoostSetTime) > Internal.Config->FanConfigs [fan].UpBoostShiftTime) {
+		if (difftime (Internal.CurrentTime, Internal.BoostInfos [fan].BoostSetTime) > Internal.Config->FanConfigs [fan].UpBoostShiftTime) {
 			Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval, 0);
-			Internal.BoostInfos [fan].UpShiftDownTime = currentTime;
 		}
 	}
 	else if (
@@ -185,10 +183,10 @@ void ManageFanBoost (enum AWCCFan_t fan)
 		) {
 			if (
 				  // difftime (currentTime, Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval)
-				  difftime (currentTime, Internal.BoostInfos [fan].BoostSetTime)
+				  difftime (Internal.CurrentTime, Internal.BoostInfos [fan].BoostSetTime)
 				> Internal.Config->FanConfigs [fan].MinTimeBeforeBoostDown / (float) (Internal.BoostInfos [fan].BoostInterval - boostIntervalOfTemperature)
 			) {
-				if (difftime (currentTime, Internal.BoostInfos [fan].UpShiftDownTime) > Internal.Config->FanConfigs [fan].MinTimeAfterShiftDown) {
+				if (difftime (Internal.CurrentTime, Internal.BoostInfos [fan].UpShiftDownTime) > Internal.Config->FanConfigs [fan].MinTimeAfterShiftDown) {
 					Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval - 1, 0);
 				}
 			}
@@ -225,7 +223,7 @@ void ManageMode (void)
 			  Internal.ModeInfo.MaxTemp
 			< Internal.Config->ModeIntervals [Internal.ModeInfo.ModeInterval].TemperatureRange.Min - Internal.Config->ModeDownHysteresis
 		) {
-			if (difftime (time (NULL), Internal.ModeInfo.ModeSetTime) > Internal.Config->MinTimeBeforeModeDown) {
+			if (difftime (Internal.CurrentTime, Internal.ModeInfo.ModeSetTime) > Internal.Config->MinTimeBeforeModeDown) {
 				Internal.SetMode (Internal.ModeInfo.ModeInterval - 1);
 			}
 		}
@@ -251,6 +249,7 @@ void SetFanBoost (enum AWCCFan_t fan, int boostInterval, _Bool upShift)
 		}
 		else {
 			Internal.BoostInfos [fan].BoostPhase = AWCCBoostPhaseNormal;
+			Internal.BoostInfos [fan].UpShiftDownTime = Internal.CurrentTime;
 		}
 	}
 
@@ -263,12 +262,11 @@ void SetFanBoost (enum AWCCFan_t fan, int boostInterval, _Bool upShift)
 	Internal.BoostInfos [fan].Boost = boost;
 # endif // DRY_RUN
 
-	time_t currentTime = time (NULL);
-	// Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval = currentTime;
+	// Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval = Internal.CurrentTime;
 
 	if (Internal.BoostInfos [fan].BoostInterval != boostInterval) {
 		Internal.BoostInfos [fan].BoostInterval = boostInterval;
-		Internal.BoostInfos [fan].BoostSetTime = currentTime;
+		Internal.BoostInfos [fan].BoostSetTime = Internal.CurrentTime;
 	}
 }
 
@@ -292,6 +290,6 @@ void SetMode (int modeInterval)
 	if (Internal.ModeInfo.ModeInterval != modeInterval) {
 		Internal.ModeInfo.Mode = mode;
 		Internal.ModeInfo.ModeInterval = modeInterval;
-		Internal.ModeInfo.ModeSetTime = time (NULL);
+		Internal.ModeInfo.ModeSetTime = Internal.CurrentTime;
 	}
 }
