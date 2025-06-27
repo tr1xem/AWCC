@@ -37,7 +37,8 @@ struct {
 			AWCCBoostPhaseNormal,
 		} BoostPhase;
 		time_t BoostSetTime;
-		time_t LastTimeInCurrentTemperatureInterval;
+		// time_t LastTimeInCurrentTemperatureInterval;
+		time_t UpShiftDownTime;
 		AWCCBoost_t Boost;
 	} BoostInfos [2];
 	struct {
@@ -155,9 +156,9 @@ void ManageFanBoost (enum AWCCFan_t fan)
 
 	time_t currentTime = time (NULL);
 
-	if (boostIntervalOfTemperature == Internal.BoostInfos [fan].BoostInterval) {
-		Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval = currentTime;
-	}
+	// if (boostIntervalOfTemperature == Internal.BoostInfos [fan].BoostInterval) {
+	// 	Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval = currentTime;
+	// }
 
 	if (AWCCBoostPhaseInitial == Internal.BoostInfos [fan].BoostPhase) {
 		Internal.SetFanBoost (fan, boostIntervalOfTemperature, 1);
@@ -171,6 +172,7 @@ void ManageFanBoost (enum AWCCFan_t fan)
 	) {
 		if (difftime (currentTime, Internal.BoostInfos [fan].BoostSetTime) > Internal.Config->FanConfigs [fan].UpBoostShiftTime) {
 			Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval, 0);
+			Internal.BoostInfos [fan].UpShiftDownTime = currentTime;
 		}
 	}
 	else if (
@@ -182,10 +184,13 @@ void ManageFanBoost (enum AWCCFan_t fan)
 			< Internal.Config->FanConfigs [fan].BoostIntervals [Internal.BoostInfos [fan].BoostInterval].TemperatureRange.Min - Internal.Config->FanConfigs [fan].BoostDownHysteresis
 		) {
 			if (
-				  difftime (currentTime, Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval)
+				  // difftime (currentTime, Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval)
+				  difftime (currentTime, Internal.BoostInfos [fan].BoostSetTime)
 				> Internal.Config->FanConfigs [fan].MinTimeBeforeBoostDown / (float) (Internal.BoostInfos [fan].BoostInterval - boostIntervalOfTemperature)
 			) {
-				Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval - 1, 0);
+				if (difftime (currentTime, Internal.BoostInfos [fan].UpShiftDownTime) > Internal.Config->FanConfigs [fan].MinTimeAfterShiftDown) {
+					Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval - 1, 0);
+				}
 			}
 		}
 	}
@@ -259,7 +264,7 @@ void SetFanBoost (enum AWCCFan_t fan, int boostInterval, _Bool upShift)
 # endif // DRY_RUN
 
 	time_t currentTime = time (NULL);
-	Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval = currentTime;
+	// Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval = currentTime;
 
 	if (Internal.BoostInfos [fan].BoostInterval != boostInterval) {
 		Internal.BoostInfos [fan].BoostInterval = boostInterval;

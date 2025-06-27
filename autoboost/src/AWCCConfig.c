@@ -11,6 +11,7 @@ const struct AWCCConfig_t AWCCDefaultConfig = {
 			.UpBoostShiftTime = 10,
 			.BoostDownHysteresis = 3,
 			.MinTimeBeforeBoostDown = 15,
+			.MinTimeAfterShiftDown = 5,
 			.BoostIntervals = (struct AWCCBoostInterval_t []) {
 				{ .TemperatureRange = { .Min =  0, .Max = 44  }, .Boost = 0   },
 				{ .TemperatureRange = { .Min = 45, .Max = 49  }, .Boost = 30  },
@@ -29,6 +30,7 @@ const struct AWCCConfig_t AWCCDefaultConfig = {
 			.UpBoostShiftTime = 10,
 			.BoostDownHysteresis = 3,
 			.MinTimeBeforeBoostDown = 15,
+			.MinTimeAfterShiftDown = 5,
 			.BoostIntervals = (struct AWCCBoostInterval_t []) {
 				{ .TemperatureRange = { .Min =  0, .Max = 44  }, .Boost = 0   },
 				{ .TemperatureRange = { .Min = 45, .Max = 49  }, .Boost = 30  },
