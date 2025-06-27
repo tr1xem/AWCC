@@ -26,6 +26,8 @@ struct AWCCFanConfig_t { // The fan specific options
 	int BoostDownHysteresis; // Hysteresis for down boosting
 	int MinTimeBeforeBoostDown; // The minimum time of the current boost being
 								// active before boost down
+	int MinTimeAfterShiftDown; // The minimum time after shift down before boost
+							   // down
 	struct AWCCBoostInterval_t * BoostIntervals;
 	int _BoostIntervalCount; // Internal variable keeping boost intervals count
 							 // to keep the implementation simple
