@@ -17,6 +17,6 @@ struct AWCCSystemLogger_t {
 	void (* LogCpuBoost) (AWCCBoost_t);
 	void (* LogGpuBoost) (AWCCBoost_t);
 	void (* LogMode) (enum AWCCMode_t);
-} extern AWCCSystemLoggerDefault;
+} extern const AWCCSystemLoggerDefault;
 
 # endif // __AWCCSYSTEM_LOGGER_H

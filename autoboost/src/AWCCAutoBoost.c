@@ -16,7 +16,7 @@
 
 static void Start (const struct AWCCConfig_t *, const struct AWCCSystemLogger_t *);
 
-struct AWCCBoost_t AWCCBoost = {
+const struct AWCCAutoBoost_t AWCCAutoBoost = {
 	.Start = & Start,
 };
 

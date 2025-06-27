@@ -10,7 +10,7 @@ static void LogCpuBoost (AWCCBoost_t);
 static void LogGpuBoost (AWCCBoost_t);
 static void LogMode (enum AWCCMode_t);
 
-struct AWCCSystemLogger_t AWCCSystemLoggerDefault = {
+const struct AWCCSystemLogger_t AWCCSystemLoggerDefault = {
 	.Dir = "/var/run/awcc",
 	.CpuBoostFile = "cb",
 	.GpuBoostFile = "gb",
