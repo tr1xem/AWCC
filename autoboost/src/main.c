@@ -63,7 +63,7 @@ int main (void)
 	}
 
 	if (1) {
-		AWCCBoost.Start (& AWCCDefaultConfig, & AWCCSystemLoggerDefault);
+		AWCCAutoBoost.Start (& AWCCDefaultConfig, & AWCCSystemLoggerDefault);
 		goto exit;
 	}
 
