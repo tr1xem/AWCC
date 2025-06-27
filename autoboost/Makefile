@@ -27,11 +27,8 @@ run: awcc_autoboost compiledb # update compile_commands.json for neovim
 	./awcc_autoboost
 
 install: awcc_autoboost
-	# cp -fv awcc_autoboost.sh /usr/local/bin
-	# mkdir -pv /etc/awcc
-	# cp -fv awcc_autoboost.conf /etc/awcc/autoboost.conf
 	cp -fv awcc_autoboost /usr/local/bin
 	mkdir -pv /etc/systemd/system
-	cp -fv awcc_autoboost.service /etc/systemd/system/awcc_autoboost.service
+	cp -fv systemd/awcc_autoboost.service /etc/systemd/system/awcc_autoboost.service
 
 .PHONY: awcc_autoboost clean install uninstall compiledb

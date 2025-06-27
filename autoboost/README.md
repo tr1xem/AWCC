@@ -26,7 +26,6 @@ different conditions for upboosting and downboosting)
 
 ## deprecated
 
-Current systemd service uses the old prototype awcc_autoboost.sh script for
-automated boost management which supports config file parsing from
-/etc/awcc/autoboost.conf. This script is deprecated now. The development
-continues on the C version.
+There's an old prototype awcc_autoboost.sh script for automated boost management
+which supports config file parsing from /etc/awcc/autoboost.conf. This script is
+deprecated now. The development continues on the C version.
