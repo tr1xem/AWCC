@@ -1,5 +1,8 @@
 #include "lights.h"
+#include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>	// For time()
 #include <unistd.h> // for sleep()
 void brightness(uint8_t value) {
 	device_acquire();
@@ -192,19 +195,24 @@ void defaultblue(uint32_t color) {
 	device_release();
 }
 
-void testzones(uint32_t color) {
+void testzones() {
+	srand(time(NULL)); // Seed random generator once
+
 	for (uint8_t zone = 0x00; zone <= 0x09; zone++) {
+		uint32_t color =
+			(rand() % 256 << 16) | (rand() % 256 << 8) | (rand() % 256);
+
 		device_acquire();
 		send_animation_remove(1);
 		send_animation_config_start(1);
 
-		printf("Setting zone %d\n", zone);
-
-		send_zone_select(1, 4,
-						 zone); // zone parameter replaced by individual zone ID
+		printf("Setting zone 0x%02X with color #%06X\n", zone, color);
+		send_zone_select(1, 4, zone);
 		send_add_action(ACTION_COLOR, 1, 2, color);
 		send_animation_config_save(1);
 		send_animation_set_default(1);
+
+		sleep(5); // Wait 5 seconds
 		device_release();
 	}
 }
