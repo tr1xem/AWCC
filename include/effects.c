@@ -1,5 +1,6 @@
 #include "lights.h"
-
+#include <stdio.h>
+#include <unistd.h> // for sleep()
 void brightness(uint8_t value) {
 	device_acquire();
 	send_set_dim(100 - value, 4, ZONE_ALL);
@@ -189,6 +190,23 @@ void defaultblue(uint32_t color) {
 	send_animation_config_save(1);
 	send_animation_set_default(1);
 	device_release();
+}
+
+void testzones(uint32_t color) {
+	for (uint8_t zone = 0x00; zone <= 0x09; zone++) {
+		device_acquire();
+		send_animation_remove(1);
+		send_animation_config_start(1);
+
+		printf("Setting zone %d\n", zone);
+
+		send_zone_select(1, 4,
+						 zone); // zone parameter replaced by individual zone ID
+		send_add_action(ACTION_COLOR, 1, 2, color);
+		send_animation_config_save(1);
+		send_animation_set_default(1);
+		device_release();
+	}
 }
 
 void example_spectrum(uint16_t duration) {

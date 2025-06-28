@@ -103,6 +103,10 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 			back_and_forth(color);
+		} else if (!strcmp(argv[1], "testzones")) {
+			testzones(0x00FFFF);
+
+			// Fan control
 		} else if (!strcmp(argv[1], "defaultblue")) {
 			defaultblue(0x00FFFF);
 
