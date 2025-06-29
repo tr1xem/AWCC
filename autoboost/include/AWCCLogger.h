@@ -1,6 +1,6 @@
-# ifndef __AWCCLOGGER_H
-# define __AWCCLOGGER_H
+# ifndef __AWCC_LOGGER_H
+# define __AWCC_LOGGER_H
 
 
 
-# endif // __AWCCLOGGER_H
+# endif // __AWCC_LOGGER_H

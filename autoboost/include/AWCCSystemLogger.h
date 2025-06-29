@@ -1,5 +1,5 @@
-# ifndef __AWCCSYSTEM_LOGGER_H
-# define __AWCCSYSTEM_LOGGER_H
+# ifndef __AWCC_SYSTEM_LOGGER_H
+# define __AWCC_SYSTEM_LOGGER_H
 
 # include "AWCC.h"
 
@@ -19,4 +19,4 @@ struct AWCCSystemLogger_t {
 	void (* LogMode) (enum AWCCMode_t);
 } extern const AWCCSystemLoggerDefault;
 
-# endif // __AWCCSYSTEM_LOGGER_H
+# endif // __AWCC_SYSTEM_LOGGER_H

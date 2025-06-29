@@ -1,5 +1,5 @@
-# ifndef __AWCCACPI_H
-# define __AWCCACPI_H
+# ifndef __AWCC_ACPI_H
+# define __AWCC_ACPI_H
 
 // https://docs.kernel.org/wmi/devices/alienware-wmi.html
 // https://docs.kernel.org/admin-guide/laptops/alienware-wmi.html
@@ -17,4 +17,4 @@ struct AWCCACPI_t {
 
 } extern const AWCCACPI;
 
-# endif // __AWCCACPI_H
+# endif // __AWCC_ACPI_H
