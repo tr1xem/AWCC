@@ -40,6 +40,13 @@ struct {
 		time_t BoostSetTime;
 		// time_t LastTimeInCurrentTemperatureInterval;
 		time_t UpShiftDownTime;
+		enum {
+			AWCCBoostPendingNone,
+			AWCCBoostPendingUp,
+			AWCCBoostPendingShiftDown, // FIXME: Do we need this?
+			AWCCBoostPendingDown,
+		} BoostPendingState;
+		time_t BoostPendingTime;
 		AWCCBoost_t Boost;
 	} BoostInfos [2];
 	struct {
@@ -165,38 +172,67 @@ void ManageFanBoost (enum AWCCFan_t fan)
 	// 	Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval = currentTime;
 	// }
 
+	_Bool pending = 0;
+
 	if (AWCCBoostPhaseInitial == Internal.BoostInfos [fan].BoostPhase) {
 		Internal.SetFanBoost (fan, boostIntervalOfTemperature, 1);
 	}
 	else if (boostIntervalOfTemperature > Internal.BoostInfos [fan].BoostInterval) {
-		Internal.SetFanBoost (fan, boostIntervalOfTemperature, 1);
+		pending = 1;
+
+		if (AWCCBoostPendingUp == Internal.BoostInfos [fan].BoostPendingState) {
+			if (difftime (Internal.CurrentTime, Internal.BoostInfos [fan].BoostPendingTime) >= Internal.Config->FanConfigs [fan].PendingTime) {
+				Internal.SetFanBoost (fan, boostIntervalOfTemperature, 1);
+			}
+		}
+		else {
+			Internal.BoostInfos [fan].BoostPendingState = AWCCBoostPendingUp;
+			Internal.BoostInfos [fan].BoostPendingTime = Internal.CurrentTime;
+		}
 	}
 	else if (
 		   boostIntervalOfTemperature <= Internal.BoostInfos [fan].BoostInterval
 		&& AWCCBoostPhaseUpShift == Internal.BoostInfos [fan].BoostPhase
 	) {
-		if (difftime (Internal.CurrentTime, Internal.BoostInfos [fan].BoostSetTime) >= Internal.Config->FanConfigs [fan].UpBoostShiftTime) {
-			Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval, 0);
+		// FIXME: Do we need pending before boosting here?
+		if (AWCCBoostPendingNone == Internal.BoostInfos [fan].BoostPendingState) {
+			if (difftime (Internal.CurrentTime, Internal.BoostInfos [fan].BoostSetTime) >= Internal.Config->FanConfigs [fan].UpBoostShiftTime) {
+				Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval, 0);
+			}
 		}
 	}
 	else if (
 		   boostIntervalOfTemperature < Internal.BoostInfos [fan].BoostInterval
 		&& AWCCBoostPhaseNormal == Internal.BoostInfos [fan].BoostPhase
 	) {
-		if (
-			   Internal.BoostInfos [fan].Temperature
-			<= Internal.Config->FanConfigs [fan].BoostIntervals [Internal.BoostInfos [fan].BoostInterval].TemperatureRange.Min - Internal.Config->FanConfigs [fan].BoostDownHysteresis
-		) {
-			if (
-				  // difftime (currentTime, Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval)
-				   difftime (Internal.CurrentTime, Internal.BoostInfos [fan].BoostSetTime)
-				>= Internal.Config->FanConfigs [fan].MinTimeBeforeBoostDown / (float) (Internal.BoostInfos [fan].BoostInterval - boostIntervalOfTemperature)
-			) {
-				if (difftime (Internal.CurrentTime, Internal.BoostInfos [fan].UpShiftDownTime) >= Internal.Config->FanConfigs [fan].MinTimeAfterShiftDown) {
-					Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval - 1, 0);
+		pending = 1;
+
+		if (AWCCBoostPendingDown == Internal.BoostInfos [fan].BoostPendingState) {
+			if (difftime (Internal.CurrentTime, Internal.BoostInfos [fan].BoostPendingTime) >= Internal.Config->FanConfigs [fan].PendingTime) {
+				if (
+					   Internal.BoostInfos [fan].Temperature
+					<= Internal.Config->FanConfigs [fan].BoostIntervals [Internal.BoostInfos [fan].BoostInterval].TemperatureRange.Min - Internal.Config->FanConfigs [fan].BoostDownHysteresis
+				) {
+					if (
+						  // difftime (currentTime, Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval)
+						   difftime (Internal.CurrentTime, Internal.BoostInfos [fan].BoostSetTime)
+						>= Internal.Config->FanConfigs [fan].MinTimeBeforeBoostDown / (float) (Internal.BoostInfos [fan].BoostInterval - boostIntervalOfTemperature)
+					) {
+						if (difftime (Internal.CurrentTime, Internal.BoostInfos [fan].UpShiftDownTime) >= Internal.Config->FanConfigs [fan].MinTimeAfterShiftDown) {
+							Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval - 1, 0);
+						}
+					}
 				}
 			}
 		}
+		else {
+			Internal.BoostInfos [fan].BoostPendingState = AWCCBoostPendingDown;
+			Internal.BoostInfos [fan].BoostPendingTime = Internal.CurrentTime;
+		}
+	}
+
+	if (0 == pending) {
+		Internal.BoostInfos [fan].BoostPendingState = AWCCBoostPendingNone;
 	}
 }
 
