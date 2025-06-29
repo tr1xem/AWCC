@@ -169,7 +169,7 @@ void ManageFanBoost (enum AWCCFan_t fan)
 		   boostIntervalOfTemperature <= Internal.BoostInfos [fan].BoostInterval
 		&& AWCCBoostPhaseUpShift == Internal.BoostInfos [fan].BoostPhase
 	) {
-		if (difftime (Internal.CurrentTime, Internal.BoostInfos [fan].BoostSetTime) > Internal.Config->FanConfigs [fan].UpBoostShiftTime) {
+		if (difftime (Internal.CurrentTime, Internal.BoostInfos [fan].BoostSetTime) >= Internal.Config->FanConfigs [fan].UpBoostShiftTime) {
 			Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval, 0);
 		}
 	}
@@ -178,15 +178,15 @@ void ManageFanBoost (enum AWCCFan_t fan)
 		&& AWCCBoostPhaseNormal == Internal.BoostInfos [fan].BoostPhase
 	) {
 		if (
-			  Internal.BoostInfos [fan].Temperature
-			< Internal.Config->FanConfigs [fan].BoostIntervals [Internal.BoostInfos [fan].BoostInterval].TemperatureRange.Min - Internal.Config->FanConfigs [fan].BoostDownHysteresis
+			   Internal.BoostInfos [fan].Temperature
+			<= Internal.Config->FanConfigs [fan].BoostIntervals [Internal.BoostInfos [fan].BoostInterval].TemperatureRange.Min - Internal.Config->FanConfigs [fan].BoostDownHysteresis
 		) {
 			if (
 				  // difftime (currentTime, Internal.BoostInfos [fan].LastTimeInCurrentTemperatureInterval)
-				  difftime (Internal.CurrentTime, Internal.BoostInfos [fan].BoostSetTime)
-				> Internal.Config->FanConfigs [fan].MinTimeBeforeBoostDown / (float) (Internal.BoostInfos [fan].BoostInterval - boostIntervalOfTemperature)
+				   difftime (Internal.CurrentTime, Internal.BoostInfos [fan].BoostSetTime)
+				>= Internal.Config->FanConfigs [fan].MinTimeBeforeBoostDown / (float) (Internal.BoostInfos [fan].BoostInterval - boostIntervalOfTemperature)
 			) {
-				if (difftime (Internal.CurrentTime, Internal.BoostInfos [fan].UpShiftDownTime) > Internal.Config->FanConfigs [fan].MinTimeAfterShiftDown) {
+				if (difftime (Internal.CurrentTime, Internal.BoostInfos [fan].UpShiftDownTime) >= Internal.Config->FanConfigs [fan].MinTimeAfterShiftDown) {
 					Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval - 1, 0);
 				}
 			}
@@ -220,10 +220,10 @@ void ManageMode (void)
 		&& AWCCModePhaseNormal == Internal.ModeInfo.ModePhase
 	) {
 		if (
-			  Internal.ModeInfo.MaxTemp
-			< Internal.Config->ModeIntervals [Internal.ModeInfo.ModeInterval].TemperatureRange.Min - Internal.Config->ModeDownHysteresis
+			   Internal.ModeInfo.MaxTemp
+			<= Internal.Config->ModeIntervals [Internal.ModeInfo.ModeInterval].TemperatureRange.Min - Internal.Config->ModeDownHysteresis
 		) {
-			if (difftime (Internal.CurrentTime, Internal.ModeInfo.ModeSetTime) > Internal.Config->MinTimeBeforeModeDown) {
+			if (difftime (Internal.CurrentTime, Internal.ModeInfo.ModeSetTime) >= Internal.Config->MinTimeBeforeModeDown) {
 				Internal.SetMode (Internal.ModeInfo.ModeInterval - 1);
 			}
 		}
