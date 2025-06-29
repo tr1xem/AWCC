@@ -1,5 +1,5 @@
-# ifndef __AWCCCONFIG_H
-# define __AWCCCONFIG_H
+# ifndef __AWCC_CONFIG_H
+# define __AWCC_CONFIG_H
 
 # include "AWCC.h"
 
@@ -45,4 +45,4 @@ struct AWCCConfig_t {
 							// to keep the implementation simple
 } extern const AWCCDefaultConfig;
 
-# endif // __AWCCCONFIG_H
+# endif // __AWCC_CONFIG_H

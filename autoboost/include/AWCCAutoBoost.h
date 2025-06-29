@@ -1,5 +1,5 @@
-# ifndef __AWCCAUTOBOOST_H
-# define __AWCCAUTOBOOST_H
+# ifndef __AWCC_AUTOBOOST_H
+# define __AWCC_AUTOBOOST_H
 
 # include "AWCC.h"
 # include "AWCCConfig.h"
@@ -9,4 +9,4 @@ struct AWCCAutoBoost_t {
 	void (* Start) (const struct AWCCConfig_t *, const struct AWCCSystemLogger_t *);
 } extern const AWCCAutoBoost;
 
-# endif // __AWCCAUTOBOOST_H
+# endif // __AWCC_AUTOBOOST_H

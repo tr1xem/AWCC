@@ -12,7 +12,7 @@ const struct AWCCConfig_t AWCCDefaultConfig = {
 			.BoostDownHysteresis = 3,
 			.MinTimeBeforeBoostDown = 15,
 			.MinTimeAfterShiftDown = 5,
-			.BoostIntervals = (struct AWCCBoostInterval_t []) {
+			.BoostIntervals = (struct AWCCBoostInterval_t [9]) {
 				{ .TemperatureRange = { .Min =  0, .Max = 44  }, .Boost = 0   },
 				{ .TemperatureRange = { .Min = 45, .Max = 49  }, .Boost = 30  },
 				{ .TemperatureRange = { .Min = 50, .Max = 54  }, .Boost = 40  },
@@ -31,7 +31,7 @@ const struct AWCCConfig_t AWCCDefaultConfig = {
 			.BoostDownHysteresis = 3,
 			.MinTimeBeforeBoostDown = 15,
 			.MinTimeAfterShiftDown = 5,
-			.BoostIntervals = (struct AWCCBoostInterval_t []) {
+			.BoostIntervals = (struct AWCCBoostInterval_t [9]) {
 				{ .TemperatureRange = { .Min =  0, .Max = 44  }, .Boost = 0   },
 				{ .TemperatureRange = { .Min = 45, .Max = 49  }, .Boost = 30  },
 				{ .TemperatureRange = { .Min = 50, .Max = 54  }, .Boost = 40  },
@@ -46,7 +46,7 @@ const struct AWCCConfig_t AWCCDefaultConfig = {
 		},
 	},
 
-	.ModeIntervals = (struct AWCCModeInterval_t []) {
+	.ModeIntervals = (struct AWCCModeInterval_t [5]) {
 		{ .TemperatureRange = { .Min =  0, .Max = 29  }, .Mode = AWCCModeQuiet },
 		{ .TemperatureRange = { .Min = 30, .Max = 49  }, .Mode = AWCCModeBatterySaver },
 		{ .TemperatureRange = { .Min = 50, .Max = 69  }, .Mode = AWCCModeBalanced },
