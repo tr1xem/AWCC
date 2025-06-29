@@ -51,6 +51,12 @@ struct {
 			AWCCModePhaseNormal,
 		} ModePhase;
 		time_t ModeSetTime;
+		enum {
+			AWCCModePendingNone,
+			AWCCModePendingUp,
+			AWCCModePendingDown,
+		} ModePendingState;
+		time_t ModePendingTime;
 	} ModeInfo;
 	const char * FanNames [2];
 	void (* ManageFanBoost) (enum AWCCFan_t fan);
@@ -208,25 +214,51 @@ void ManageMode (void)
 		}
 	}
 
+	_Bool pending = 0;
+
 	if (AWCCModePhaseInitial == Internal.ModeInfo.ModePhase) {
 		Internal.SetMode (modeIntervalOfTemperature);
 		Internal.ModeInfo.ModePhase = AWCCModePhaseNormal;
 	}
 	else if (modeIntervalOfTemperature > Internal.ModeInfo.ModeInterval) {
-		Internal.SetMode (modeIntervalOfTemperature);
+		pending = 1;
+
+		if (AWCCModePendingUp == Internal.ModeInfo.ModePendingState) {
+			if (difftime (Internal.CurrentTime, Internal.ModeInfo.ModePendingTime) >= Internal.Config->ModePendingTime) {
+				Internal.SetMode (modeIntervalOfTemperature);
+			}
+		}
+		else {
+			Internal.ModeInfo.ModePendingState = AWCCModePendingUp;
+			Internal.ModeInfo.ModePendingTime = Internal.CurrentTime;
+		}
 	}
 	else if (
 		   modeIntervalOfTemperature < Internal.ModeInfo.ModeInterval
 		&& AWCCModePhaseNormal == Internal.ModeInfo.ModePhase
 	) {
-		if (
-			   Internal.ModeInfo.MaxTemp
-			<= Internal.Config->ModeIntervals [Internal.ModeInfo.ModeInterval].TemperatureRange.Min - Internal.Config->ModeDownHysteresis
-		) {
-			if (difftime (Internal.CurrentTime, Internal.ModeInfo.ModeSetTime) >= Internal.Config->MinTimeBeforeModeDown) {
-				Internal.SetMode (Internal.ModeInfo.ModeInterval - 1);
+		pending = 1;
+
+		if (AWCCModePendingDown == Internal.ModeInfo.ModePendingState) {
+			if (difftime (Internal.CurrentTime, Internal.ModeInfo.ModePendingTime) >= Internal.Config->ModePendingTime) {
+				if (
+					   Internal.ModeInfo.MaxTemp
+					<= Internal.Config->ModeIntervals [Internal.ModeInfo.ModeInterval].TemperatureRange.Min - Internal.Config->ModeDownHysteresis
+				) {
+					if (difftime (Internal.CurrentTime, Internal.ModeInfo.ModeSetTime) >= Internal.Config->MinTimeBeforeModeDown) {
+						Internal.SetMode (Internal.ModeInfo.ModeInterval - 1);
+					}
+				}
 			}
 		}
+		else {
+			Internal.ModeInfo.ModePendingState = AWCCModePendingDown;
+			Internal.ModeInfo.ModePendingTime = Internal.CurrentTime;
+		}
+	}
+
+	if (0 == pending) {
+		Internal.ModeInfo.ModePendingState = AWCCModePendingNone;
 	}
 }
 
