@@ -43,7 +43,6 @@ struct {
 		enum {
 			AWCCBoostPendingNone,
 			AWCCBoostPendingUp,
-			AWCCBoostPendingShiftDown, // FIXME: Do we need this?
 			AWCCBoostPendingDown,
 		} BoostPendingState;
 		time_t BoostPendingTime;
@@ -194,7 +193,6 @@ void ManageFanBoost (enum AWCCFan_t fan)
 		   boostIntervalOfTemperature <= Internal.BoostInfos [fan].BoostInterval
 		&& AWCCBoostPhaseUpShift == Internal.BoostInfos [fan].BoostPhase
 	) {
-		// FIXME: Do we need pending before boosting here?
 		if (AWCCBoostPendingNone == Internal.BoostInfos [fan].BoostPendingState) {
 			if (difftime (Internal.CurrentTime, Internal.BoostInfos [fan].BoostSetTime) >= Internal.Config->FanConfigs [fan].UpBoostShiftTime) {
 				Internal.SetFanBoost (fan, Internal.BoostInfos [fan].BoostInterval, 0);
