@@ -4,7 +4,8 @@ automaded fan boost control for awcc
 
 works based on a config which maps temperature ranges to boost levels
 
-currently written in bash, must be rewritten in c and have a systemd unit
+~currently written in bash, must be rewritten in c and have a systemd unit~
+written in c, WIP
 
 ## current features
 

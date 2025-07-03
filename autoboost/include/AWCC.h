@@ -20,6 +20,7 @@ enum {
 
 typedef int AWCCBoost_t;
 typedef int AWCCTemperature_t;
+typedef int AWCCFanRpm_t;
 
 struct AWCC_t {
 	void (* Initialize) (void);
@@ -33,9 +34,13 @@ struct AWCC_t {
 	AWCCTemperature_t (* GetCpuTemperature) (void);
 	AWCCTemperature_t (* GetGpuTemperature) (void);
 
+	AWCCFanRpm_t (* GetCpuRpm) (void);
+	AWCCFanRpm_t (* GetGpuRpm) (void);
+
 	AWCCBoost_t (* GetFanBoost) (enum AWCCFan_t);
 	void (* SetFanBoost) (enum AWCCFan_t, AWCCBoost_t);
 	AWCCTemperature_t (* GetFanTemperature) (enum AWCCFan_t);
+	AWCCFanRpm_t (* GetFanRpm) (enum AWCCFan_t);
 
 	void (* SetMode) (enum AWCCMode_t);
 	enum AWCCMode_t (* GetMode) (void);

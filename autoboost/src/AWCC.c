@@ -16,9 +16,13 @@ static void SetGpuBoost (AWCCBoost_t);
 static AWCCTemperature_t GetCpuTemperature (void);
 static AWCCTemperature_t GetGpuTemperature (void);
 
+static AWCCFanRpm_t GetCpuRpm (void);
+static AWCCFanRpm_t GetGpuRpm (void);
+
 static AWCCBoost_t GetFanBoost (enum AWCCFan_t);
 static void SetFanBoost (enum AWCCFan_t, AWCCBoost_t);
 static AWCCTemperature_t GetFanTemperature (enum AWCCFan_t);
+static AWCCFanRpm_t GetFanRpm (enum AWCCFan_t);
 
 static void SetMode (enum AWCCMode_t);
 static enum AWCCMode_t GetMode (void);
@@ -38,9 +42,13 @@ const struct AWCC_t AWCC = {
 	.GetCpuTemperature = & GetCpuTemperature,
 	.GetGpuTemperature = & GetGpuTemperature,
 
+	.GetCpuRpm = & GetCpuRpm,
+	.GetGpuRpm = & GetGpuRpm,
+
 	.GetFanBoost = & GetFanBoost,
 	.SetFanBoost = & SetFanBoost,
 	.GetFanTemperature = & GetFanTemperature,
+	.GetFanRpm = & GetFanRpm,
 
 	.SetMode = & SetMode,
 	.GetMode = & GetMode,
@@ -100,6 +108,16 @@ AWCCTemperature_t GetGpuTemperature (void)
 	return GetFanTemperature (AWCCFanGPU);
 }
 
+AWCCFanRpm_t GetCpuRpm (void)
+{
+	return GetFanRpm (AWCCFanCPU);
+}
+
+AWCCFanRpm_t GetGpuRpm (void)
+{
+	return GetFanRpm (AWCCFanGPU);
+}
+
 AWCCBoost_t GetFanBoost (enum AWCCFan_t fan)
 {
 	return AWCCACPI.GetFanBoost (fan);
@@ -113,6 +131,11 @@ void SetFanBoost (enum AWCCFan_t fan, AWCCBoost_t boost)
 AWCCTemperature_t GetFanTemperature (enum AWCCFan_t fan)
 {
 	return AWCCACPI.GetFanTemperature (fan);
+}
+
+AWCCFanRpm_t GetFanRpm (enum AWCCFan_t fan)
+{
+	return AWCCACPI.GetFanRpm (fan);
 }
 
 void SetMode (enum AWCCMode_t mode)
