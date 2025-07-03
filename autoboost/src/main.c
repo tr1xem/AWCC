@@ -56,6 +56,7 @@ int main (void)
 	if (0) {
 		while (1) {
 			printf ("cpu temp: %d\ngpu temp: %d\n\n", AWCC.GetCpuTemperature (), AWCC.GetGpuTemperature ());
+			printf ("cpu rpm: %d\ngpu rpm: %d\n\n", AWCC.GetCpuRpm (), AWCC.GetGpuRpm ());
 			thrd_sleep (& (struct timespec) {.tv_nsec = 1E9 * 0.25}, NULL);
 		}
 

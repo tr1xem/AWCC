@@ -147,6 +147,8 @@ void Start (const struct AWCCConfig_t * config, const struct AWCCSystemLogger_t 
 				Internal.SystemLogger->LogGpuBoost (AWCC.GetGpuBoost ());
 			}
 			Internal.SystemLogger->LogMode (Internal.ModeInfo.Mode);
+			Internal.SystemLogger->LogCpuRpm (AWCC.GetCpuRpm ());
+			Internal.SystemLogger->LogGpuRpm (AWCC.GetGpuRpm ());
 		}
 
 		thrd_sleep (& (struct timespec) { .tv_sec = Internal.Config->TemperatureCheckInterval }, NULL);

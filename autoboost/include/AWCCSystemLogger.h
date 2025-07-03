@@ -9,6 +9,8 @@ struct AWCCSystemLogger_t {
 	const char * GpuTempFile;
 	const char * CpuBoostFile;
 	const char * GpuBoostFile;
+	const char * CpuRpmFile;
+	const char * GpuRpmFile;
 	const char * ModeFile;
 
 	const char * (* GetModeName) (enum AWCCMode_t);
@@ -16,6 +18,8 @@ struct AWCCSystemLogger_t {
 	void (* LogGpuTemp) (AWCCTemperature_t);
 	void (* LogCpuBoost) (AWCCBoost_t);
 	void (* LogGpuBoost) (AWCCBoost_t);
+	void (* LogCpuRpm) (AWCCFanRpm_t);
+	void (* LogGpuRpm) (AWCCFanRpm_t);
 	void (* LogMode) (enum AWCCMode_t);
 } extern const AWCCSystemLoggerDefault;
 

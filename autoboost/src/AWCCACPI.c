@@ -22,6 +22,7 @@ static AWCCBoost_t GetFanBoost (enum AWCCFan_t);
 static void SetFanBoost (enum AWCCFan_t, AWCCBoost_t);
 static unsigned int ParseHexValue (const char *);
 static AWCCTemperature_t GetFanTemperature (enum AWCCFan_t);
+static AWCCFanRpm_t GetFanRpm (enum AWCCFan_t);
 
 const struct AWCCACPI_t AWCCACPI = {
 	.Initialize = & Initialize,
@@ -30,6 +31,7 @@ const struct AWCCACPI_t AWCCACPI = {
 	.GetFanBoost = & GetFanBoost,
 	.SetFanBoost = & SetFanBoost,
 	.GetFanTemperature = & GetFanTemperature,
+	.GetFanRpm = & GetFanRpm,
 };
 
 struct {
@@ -43,11 +45,13 @@ struct {
 	const char * CmdGetCurrentMode;
 	const char * CmdSetCurrentMode;
 	const char * CmdGetTemperature;
+	const char * CmdGetRpm;
 
 	unsigned * ModeToHexMap;
 	enum AWCCMode_t * HexToModeMap;
 
 	unsigned * FanToBoostHexMap;
+	unsigned * FanToRpmHexMap;
 	enum AWCCFan_t * BoostHexToFanMap;
 
 	unsigned * FanToTempHexMap;
@@ -68,7 +72,7 @@ struct {
 	.CmdGetCurrentMode   =   "\\_SB.%s.WMAX 0 0x14 {0x0b, 0x00, 0x00, 0x00}"    ,
 	.CmdSetCurrentMode   =   "\\_SB.%s.WMAX 0 0x15 {0x01, 0x%02x, 0x00, 0x00}"  ,
 	.CmdGetTemperature   =   "\\_SB.%s.WMAX 0 0x14 {0x04, 0x%02x, 0x00, 0x00}"  ,
-
+	.CmdGetRpm           =   "\\_SB.%s.WMAX 0 0x14 {0x05, 0x%02x, 0x00, 0x00}",
 
 	.ModeToHexMap = (unsigned []) {
 		[AWCCModeBalanced]       = 0xa0  ,
@@ -89,6 +93,11 @@ struct {
 	},
 
 	.FanToBoostHexMap = (unsigned []) {
+		[AWCCFanCPU] = 0x32,
+		[AWCCFanGPU] = 0x33,
+	},
+
+	.FanToRpmHexMap = (unsigned []) {
 		[AWCCFanCPU] = 0x32,
 		[AWCCFanGPU] = 0x33,
 	},
@@ -207,9 +216,8 @@ AWCCBoost_t GetFanBoost (enum AWCCFan_t fan)
 
 	unsigned int response_uint = Internal.ParseHexValue (response);
 
-
 	if (-1 == response_uint) {
-		fputs ("Failed to get the the current fan boost.\n", stderr);
+		fputs ("Failed to get the current fan boost.\n", stderr);
 		exit (-1);
 	}
 
@@ -244,10 +252,9 @@ enum AWCCMode_t GetMode (void)
 
 	thrd_sleep (& (struct timespec) {.tv_nsec = 1E8}, NULL);
 	const char * response = Internal.Read ();
-	unsigned int response_uint;
-	int status = sscanf (response, "0x%2x", & response_uint);
+	unsigned int response_uint = Internal.ParseHexValue (response);
 
-	if (EOF == status) {
+	if (-1 == response_uint) {
 		fputs ("Failed to get the current mode.\n", stderr);
 		exit (-1);
 	}
@@ -270,11 +277,35 @@ AWCCTemperature_t GetFanTemperature (enum AWCCFan_t fan)
 	thrd_sleep (& (struct timespec) {.tv_nsec = 1E8}, NULL);
 	const char * response = Internal.Read ();
 
-	unsigned int response_uint;
-	int status = sscanf (response, "0x%2x", & response_uint);
+	unsigned int response_uint = Internal.ParseHexValue (response);
 
-	if (EOF == status) {
-		fputs ("Failed to get the current mode.\n", stderr);
+	if (-1 == response_uint) {
+		fputs ("Failed to get the fan temperature.\n", stderr);
+		exit (-1);
+	}
+
+	return response_uint;
+}
+
+AWCCFanRpm_t GetFanRpm (enum AWCCFan_t fan)
+{
+	static _Thread_local char cmd [256];
+	snprintf (
+		cmd,
+		sizeof (cmd),
+		Internal.CmdGetRpm,
+		Internal.Prefix,
+		Internal.FanToRpmHexMap [fan]
+	);
+	Internal.Execute (cmd);
+
+	thrd_sleep (& (struct timespec) {.tv_nsec = 1E8}, NULL);
+	const char * response = Internal.Read ();
+
+	unsigned int response_uint = Internal.ParseHexValue (response);
+
+	if (-1 == response_uint) {
+		fputs ("Failed to get the current fan boost.\n", stderr);
 		exit (-1);
 	}
 

@@ -8,6 +8,8 @@ static void LogCpuTemp (AWCCTemperature_t);
 static void LogGpuTemp (AWCCTemperature_t);
 static void LogCpuBoost (AWCCBoost_t);
 static void LogGpuBoost (AWCCBoost_t);
+static void LogCpuRpm (AWCCFanRpm_t);
+static void LogGpuRpm (AWCCFanRpm_t);
 static void LogMode (enum AWCCMode_t);
 
 const struct AWCCSystemLogger_t AWCCSystemLoggerDefault = {
@@ -16,6 +18,8 @@ const struct AWCCSystemLogger_t AWCCSystemLoggerDefault = {
 	.GpuBoostFile = "gb",
 	.CpuTempFile = "ct",
 	.GpuTempFile = "gt",
+	.CpuRpmFile = "cr",
+	.GpuRpmFile = "gr",
 	.ModeFile = "m",
 
 	.GetModeName = & GetModeName,
@@ -23,6 +27,8 @@ const struct AWCCSystemLogger_t AWCCSystemLoggerDefault = {
 	.LogGpuTemp = & LogGpuTemp,
 	.LogCpuBoost = & LogCpuBoost,
 	.LogGpuBoost = & LogGpuBoost,
+	.LogCpuRpm = & LogCpuRpm,
+	.LogGpuRpm = & LogGpuRpm,
 	.LogMode = & LogMode,
 };
 
@@ -137,6 +143,42 @@ void LogGpuBoost (AWCCBoost_t boost)
 
 	static _Thread_local char value [8];
 	snprintf (value, sizeof (value), "%d", (int) boost);
+	Internal.WriteToFile (path, value);
+}
+
+void LogCpuRpm (AWCCFanRpm_t rpm)
+{
+	static _Thread_local char path [256] = {0};
+	if (0 == path [0]) {
+		snprintf (
+			path,
+			sizeof (path),
+			"%s/%s",
+			AWCCSystemLoggerDefault.Dir,
+			AWCCSystemLoggerDefault.CpuRpmFile
+		);
+	}
+
+	static _Thread_local char value [8];
+	snprintf (value, sizeof (value), "%d", (int) rpm);
+	Internal.WriteToFile (path, value);
+}
+
+void LogGpuRpm (AWCCFanRpm_t rpm)
+{
+	static _Thread_local char path [256] = {0};
+	if (0 == path [0]) {
+		snprintf (
+			path,
+			sizeof (path),
+			"%s/%s",
+			AWCCSystemLoggerDefault.Dir,
+			AWCCSystemLoggerDefault.GpuRpmFile
+		);
+	}
+
+	static _Thread_local char value [8];
+	snprintf (value, sizeof (value), "%d", (int) rpm);
 	Internal.WriteToFile (path, value);
 }
 
