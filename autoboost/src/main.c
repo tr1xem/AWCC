@@ -7,6 +7,7 @@
 # include "AWCC.h"
 # include "AWCCAutoBoost.h"
 # include "AWCCConfig.h"
+# include "AWCCControl.h"
 
 # ifdef __STDC_NO_THREADS__
 # error this tool currently depends on threads.h
@@ -63,7 +64,7 @@ int main (void)
 	}
 
 	if (1) {
-		AWCCAutoBoost.Start (& AWCCDefaultConfig, & AWCCSystemLoggerDefault);
+		AWCCAutoBoost.Start (& AWCCDefaultConfig, & AWCCSystemLoggerDefault, & AWCCControlDefault);
 		goto exit;
 	}
 
