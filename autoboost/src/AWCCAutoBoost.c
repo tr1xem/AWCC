@@ -24,6 +24,7 @@ static void ManageFanBoost (enum AWCCFan_t);
 static void ManageMode (void);
 static void SetFanBoost (enum AWCCFan_t, int, _Bool);
 static void SetMode (int);
+static void HandleControl (void);
 
 struct {
 	const struct AWCCConfig_t * Config;
@@ -32,6 +33,7 @@ struct {
 
 	time_t CurrentTime;
 	struct {
+		_Bool Auto;
 		AWCCTemperature_t Temperature;
 		int BoostInterval;
 		enum {
@@ -51,6 +53,7 @@ struct {
 		AWCCBoost_t Boost;
 	} BoostInfos [2];
 	struct {
+		_Bool Auto;
 		AWCCTemperature_t MaxTemp;
 		enum AWCCMode_t Mode;
 		int ModeInterval;
@@ -71,6 +74,7 @@ struct {
 	void (* ManageMode) (void);
 	void (* SetFanBoost) (enum AWCCFan_t, int, _Bool);
 	void (* SetMode) (int);
+	void (* HandleControl) (void);
 } static Internal = {
 	.Config = NULL,
 	.SystemLogger = NULL,
@@ -78,17 +82,20 @@ struct {
 
 	.BoostInfos = {
 		[AWCCFanCPU] = {
+			.Auto = 1,
 			.BoostPhase = AWCCBoostPhaseInitial,
 			.BoostInterval = -1,
 			.Boost = 0,
 		},
 		[AWCCFanGPU] = {
+			.Auto = 1,
 			.BoostPhase = AWCCBoostPhaseInitial,
 			.BoostInterval = -1,
 			.Boost = 0,
 		},
 	},
 	.ModeInfo = {
+		.Auto = 1,
 		.Mode = AWCCModeQuiet,
 		.ModeInterval = -1,
 		.ModePhase = AWCCModePhaseInitial,
@@ -101,6 +108,7 @@ struct {
 	.ManageMode = & ManageMode,
 	.SetFanBoost = & SetFanBoost,
 	.SetMode = & SetMode,
+	.HandleControl = & HandleControl,
 };
 
 void Start (const struct AWCCConfig_t * config, const struct AWCCSystemLogger_t * systemLogger, const struct AWCCControl_t * control)
@@ -116,12 +124,12 @@ void Start (const struct AWCCConfig_t * config, const struct AWCCSystemLogger_t 
 	while (1) {
 		Internal.BoostInfos [AWCCFanCPU].Temperature = AWCC.GetFanTemperature (AWCCFanCPU);
 		Internal.BoostInfos [AWCCFanGPU].Temperature = AWCC.GetFanTemperature (AWCCFanGPU);
-		Internal.CurrentTime = time (NULL);
-
 		Internal.ModeInfo.MaxTemp = Internal.BoostInfos [AWCCFanCPU].Temperature;
 		if (Internal.BoostInfos [AWCCFanGPU].Temperature > Internal.ModeInfo.MaxTemp) {
 			Internal.ModeInfo.MaxTemp = Internal.BoostInfos [AWCCFanGPU].Temperature;
 		}
+
+		Internal.CurrentTime = time (NULL);
 
 # ifdef ENABLE_LOGS
 		printf (
@@ -133,55 +141,16 @@ void Start (const struct AWCCConfig_t * config, const struct AWCCSystemLogger_t 
 		);
 # endif // ENABLE_LOGS
 
-		struct {
-			enum AWCCModeControl_t modeControlState;
-			enum AWCCFanControl_t cpuControlState;
-			enum AWCCFanControl_t gpuControlState;
-			AWCCBoost_t cpuBoost;
-			AWCCBoost_t gpuBoost;
-			enum AWCCMode_t mode;
-		} static _Thread_local autoControl;
+		Internal.HandleControl ();
 
-		autoControl.modeControlState = AWCCModeControlAuto;
-		autoControl.cpuControlState = AWCCFanControlAuto;
-		autoControl.gpuControlState = AWCCFanControlAuto;
-
-		if (NULL != Internal.Control) {
-			autoControl.modeControlState = Internal.Control->GetModeControlState (& autoControl.mode);
-			autoControl.cpuControlState = Internal.Control->GetCpuControlState (& autoControl.cpuBoost);
-			autoControl.gpuControlState = Internal.Control->GetGpuControlState (& autoControl.gpuBoost);
-		}
-
-		if (AWCCModeControlAuto == autoControl.modeControlState) {
-			Internal.ManageMode ();
-		}
-		else {
-			// Set the requested mode: autoControl.mode
-			// NOTE: update Internal.ModeInfo.Mode and make sure returning to
-			// autoboost will work as expected
-		}
+		Internal.ManageMode ();
 
 		if (AWCCModeG != Internal.ModeInfo.Mode) {
-			if (AWCCFanControlAuto == autoControl.cpuControlState) {
-				Internal.ManageFanBoost (AWCCFanCPU);
-			}
-			else {
-				// Set the requested boost: autoControl.cpuBoost
-				// NOTE: update Internal and make sure returning to
-				// autoboost will work as expected
-			}
-
-			if (AWCCFanControlAuto == autoControl.gpuControlState) {
-				Internal.ManageFanBoost (AWCCFanGPU);
-			}
-			else {
-				// Set the requested boost: autoControl.gpuBoost
-				// NOTE: update Internal and make sure returning to
-				// autoboost will work as expected
-			}
+			Internal.ManageFanBoost (AWCCFanCPU);
+			Internal.ManageFanBoost (AWCCFanGPU);
 		}
 
-		if (NULL != Internal.SystemLogger) {
+		if (NULL != Internal.SystemLogger) { // TODO: Separate system logger data in Internal
 			Internal.SystemLogger->LogCpuTemp (Internal.BoostInfos [AWCCFanCPU].Temperature);
 			Internal.SystemLogger->LogGpuTemp (Internal.BoostInfos [AWCCFanGPU].Temperature);
 			if (AWCCModeG != Internal.ModeInfo.Mode) {
@@ -201,6 +170,10 @@ void Start (const struct AWCCConfig_t * config, const struct AWCCSystemLogger_t 
 
 void ManageFanBoost (enum AWCCFan_t fan)
 {
+	if (0 == Internal.BoostInfos [fan].Auto) {
+		return;
+	}
+
 	int boostIntervalOfTemperature;
 
 	for (int i = 0; i < Internal.Config->FanConfigs [fan]._BoostIntervalCount; i++) {
@@ -282,6 +255,10 @@ void ManageFanBoost (enum AWCCFan_t fan)
 
 void ManageMode (void)
 {
+	if (0 == Internal.ModeInfo.Auto) {
+		return;
+	}
+
 	int modeIntervalOfTemperature;
 
 	for (int i = 0; i < Internal.Config->_ModeIntervalCount; i++) {
@@ -403,5 +380,59 @@ void SetMode (int modeInterval)
 		Internal.ModeInfo.Mode = mode;
 		Internal.ModeInfo.ModeInterval = modeInterval;
 		Internal.ModeInfo.ModeSetTime = Internal.CurrentTime;
+	}
+}
+
+void HandleControl (void)
+{
+	struct {
+		enum AWCCModeControl_t modeControlState;
+		enum AWCCFanControl_t cpuControlState;
+		enum AWCCFanControl_t gpuControlState;
+		enum AWCCMode_t mode;
+		AWCCBoost_t cpuBoost;
+		AWCCBoost_t gpuBoost;
+	} static _Thread_local autoControl;
+
+	if (NULL != Internal.Control) {
+		autoControl.modeControlState = Internal.Control->GetModeControlState (& autoControl.mode);
+		autoControl.cpuControlState = Internal.Control->GetCpuControlState (& autoControl.cpuBoost);
+		autoControl.gpuControlState = Internal.Control->GetGpuControlState (& autoControl.gpuBoost);
+
+		if (AWCCModeControlSetAuto == autoControl.modeControlState) {
+			if (0 == Internal.ModeInfo.Auto) {
+				Internal.ModeInfo.Auto = 1;
+				Internal.ModeInfo.ModePhase = AWCCModePhaseInitial;
+			}
+		}
+		else if (AWCCModeControlSetManual == autoControl.modeControlState) {
+			Internal.ModeInfo.Auto = 0;
+			AWCC.SetMode (autoControl.mode);
+			Internal.Control->ApproveModeControlState (); // TODO: Don't forget about system logger
+		}
+
+		if (AWCCFanControlSetAuto == autoControl.cpuControlState) {
+			if (0 == Internal.BoostInfos [AWCCFanCPU].Auto) {
+				Internal.BoostInfos [AWCCFanCPU].Auto = 1;
+				Internal.BoostInfos [AWCCFanCPU].BoostPhase = AWCCBoostPhaseInitial;
+			}
+		}
+		else if (AWCCFanControlSetManual == autoControl.cpuControlState) {
+			Internal.BoostInfos [AWCCFanCPU].Auto = 0;
+			AWCC.SetCpuBoost (autoControl.cpuBoost);
+			Internal.Control->ApproveCpuControlState (); // TODO: Don't forget about system logger
+		}
+
+		if (AWCCFanControlSetAuto == autoControl.gpuControlState) {
+			if (0 == Internal.BoostInfos [AWCCFanGPU].Auto) {
+				Internal.BoostInfos [AWCCFanGPU].Auto = 1;
+				Internal.BoostInfos [AWCCFanGPU].BoostPhase = AWCCBoostPhaseInitial;
+			}
+		}
+		else if (AWCCFanControlSetManual == autoControl.gpuControlState) {
+			Internal.BoostInfos [AWCCFanGPU].Auto = 0;
+			AWCC.SetGpuBoost (autoControl.gpuBoost);
+			Internal.Control->ApproveGpuControlState (); // TODO: Don't forget about system logger
+		}
 	}
 }

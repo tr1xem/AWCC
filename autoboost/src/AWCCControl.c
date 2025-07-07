@@ -11,6 +11,7 @@
 
 enum AWCCFanControl_t GetCpuControlState (AWCCBoost_t *);
 enum AWCCFanControl_t GetGpuControlState (AWCCBoost_t *);
+enum AWCCFanControl_t GetFanControlState (enum AWCCFan_t, AWCCBoost_t *);
 enum AWCCModeControl_t GetModeControlState (enum AWCCMode_t *);
 
 const struct AWCCControl_t AWCCControlDefault = {
@@ -19,10 +20,9 @@ const struct AWCCControl_t AWCCControlDefault = {
 	.GpuBoostFile = "sgb",
 	.ModeFile = "sm",
 
-	.ControlAuto = "auto",
-
 	.GetCpuControlState = & GetCpuControlState,
 	.GetGpuControlState = & GetGpuControlState,
+	.GetFanControlState = & GetFanControlState,
 	.GetModeControlState = & GetModeControlState,
 };
 
@@ -34,10 +34,17 @@ struct {
 	AWCCBoost_t CpuBoost;
 	AWCCBoost_t GpuBoost;
 
+	const char * ControlAuto;
+	const char * ControlManual;
 	const char * const * ModeSymbols;
+	const char * const * FanBoostFiles;
+
 	void (* WriteToFile) (const char *, const char *);
 	_Bool (* ReadFromFile) (const char *, char *, size_t);
 } static Internal = {
+	.ControlAuto = "auto",
+	.ControlManual = "manual",
+
 	.ModeSymbols = (const char * []) {
 		[AWCCModeQuiet]          =   "q",
 		[AWCCModeBatterySaver]   =   "bs",
@@ -45,6 +52,12 @@ struct {
 		[AWCCModePerformance]    =   "p",
 		[AWCCModeG]              =   "g"
 	},
+
+	.FanBoostFiles = (const char * []) {
+		[AWCCFanCPU] = AWCCControlDefault.CpuBoostFile,
+		[AWCCFanGPU] = AWCCControlDefault.GpuBoostFile,
+	},
+
 	.WriteToFile = & WriteToFile,
 	.ReadFromFile = & ReadFromFile,
 };
@@ -79,23 +92,15 @@ _Bool ReadFromFile (const char * path, char * value, size_t size)
 
 enum AWCCFanControl_t GetCpuControlState (AWCCBoost_t * boost)
 {
-	static _Thread_local char path [256] = {0};
-	if (0 == path [0]) {
-		snprintf (
-			path,
-			sizeof (path),
-			"%s/%s",
-			AWCCControlDefault.Dir,
-			AWCCControlDefault.CpuBoostFile
-		);
-	}
-
-	static _Thread_local char value [8];
-
-	return AWCCFanControlAuto;
+	return GetFanControlState (AWCCFanCPU, boost);
 }
 
 enum AWCCFanControl_t GetGpuControlState (AWCCBoost_t * boost)
+{
+	return GetFanControlState (AWCCFanGPU, boost);
+}
+
+enum AWCCFanControl_t GetFanControlState (enum AWCCFan_t fan, AWCCBoost_t * boost)
 {
 	static _Thread_local char path [256] = {0};
 	if (0 == path [0]) {
@@ -110,7 +115,7 @@ enum AWCCFanControl_t GetGpuControlState (AWCCBoost_t * boost)
 
 	static _Thread_local char value [8];
 
-	return AWCCFanControlAuto;
+	return AWCCFanControlUnchanged;
 }
 
 enum AWCCModeControl_t GetModeControlState (enum AWCCMode_t * mode)
@@ -128,5 +133,5 @@ enum AWCCModeControl_t GetModeControlState (enum AWCCMode_t * mode)
 
 	static _Thread_local char value [8];
 
-	return AWCCModeControlAuto;
+	return AWCCModeControlUnchanged;
 }
