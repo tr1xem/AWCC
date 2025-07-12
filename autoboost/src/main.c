@@ -63,6 +63,25 @@ int main (void)
 		goto exit;
 	}
 
+	if (0) {
+		while (1) {
+			AWCC.SetCpuBoost (10);
+			AWCC.SetGpuBoost (10);
+			thrd_sleep (& (struct timespec) {.tv_sec = 3}, NULL);
+
+			AWCCBoost_t boostCpu = AWCC.GetFanBoost (AWCCFanCPU);
+			AWCCBoost_t boostGpu = AWCC.GetFanBoost (AWCCFanGPU);
+
+			if (boostCpu != 10 || boostGpu != 10) {
+				printf ("cpu boost: %d\ngpu boost: %d\n\n", boostCpu, boostGpu);
+				goto exit;
+			}
+			else {
+				puts ("...........................");
+			}
+		}
+	}
+
 	if (1) {
 		AWCCAutoBoost.Start (& AWCCDefaultConfig, & AWCCSystemLoggerDefault);
 		goto exit;
