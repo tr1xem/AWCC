@@ -2,9 +2,19 @@
 
 const struct AWCCConfig_t AWCCDefaultConfig = {
 	.TemperatureCheckInterval = 1,
-	.MinTimeBeforeModeDown = 15,
-	.ModeDownHysteresis = 3,
-	.ModePendingTime = 3,
+
+	.MinTimeBeforeModeDown = 20,
+	.ModeDownHysteresis = 5,
+	.ModePendingTime = 5,
+
+	.ModeIntervals = (struct AWCCModeInterval_t [4]) {
+		{ .TemperatureRange = { .Min =  0, .Max = 39  }, .Mode = AWCCModeQuiet },
+		{ .TemperatureRange = { .Min = 40, .Max = 59  }, .Mode = AWCCModeBatterySaver },
+		{ .TemperatureRange = { .Min = 60, .Max = 79  }, .Mode = AWCCModeBalanced },
+		{ .TemperatureRange = { .Min = 80, .Max = 100  }, .Mode = AWCCModePerformance },
+		// { .TemperatureRange = { .Min = 90, .Max = 100 }, .Mode = AWCCModeG },
+	},
+	._ModeIntervalCount = 4,
 
 	.FanConfigs = {
 		[AWCCFanCPU] = {
@@ -27,6 +37,7 @@ const struct AWCCConfig_t AWCCDefaultConfig = {
 			},
 			._BoostIntervalCount = 9
 		},
+
 		[AWCCFanGPU] = {
 			.UpBoostShift = 5,
 			.UpBoostShiftTime = 10,
@@ -48,13 +59,4 @@ const struct AWCCConfig_t AWCCDefaultConfig = {
 			._BoostIntervalCount = 9
 		},
 	},
-
-	.ModeIntervals = (struct AWCCModeInterval_t [5]) {
-		{ .TemperatureRange = { .Min =  0, .Max = 29  }, .Mode = AWCCModeQuiet },
-		{ .TemperatureRange = { .Min = 30, .Max = 49  }, .Mode = AWCCModeBatterySaver },
-		{ .TemperatureRange = { .Min = 50, .Max = 69  }, .Mode = AWCCModeBalanced },
-		{ .TemperatureRange = { .Min = 70, .Max = 89  }, .Mode = AWCCModePerformance },
-		{ .TemperatureRange = { .Min = 90, .Max = 100 }, .Mode = AWCCModeG },
-	},
-	._ModeIntervalCount = 5
 };
