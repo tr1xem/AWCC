@@ -1,5 +1,5 @@
 # include "AWCCConfig.h"
-#include "AWCC.h"
+# include "AWCC.h"
 
 const struct AWCCConfig_t AWCCDefaultConfig = {
 	.TemperatureCheckInterval = 1,
@@ -74,15 +74,25 @@ const struct AWCCConfig_t AWCCDefaultConfigAC (void)
 }
 
 struct {
+	int UpBoostShiftBAT;
+	int UpBoostShiftTimeBAT;
+	int BoostDownHysteresisBAT;
+	int MinTimeBeforeBoostDownBAT;
+	int MinTimeAfterShiftDownBAT;
+	int PendingTimeBAT;
+
+	struct AWCCBoostInterval_t * BoostIntervals;
+	int _BoostIntervalCount;
+
 	struct AWCCModeInterval_t ModeIntervalsBAT [1];
 	struct AWCCBoostInterval_t BoostIntervalsBAT [6];
-	int _ModeIntervalsBATCount;
-	int _BoostIntervalsBATCount;
+	int _ModeIntervalsCountBAT;
+	int _BoostIntervalsCountBAT;
 } static Internal = {
 	.ModeIntervalsBAT = {
 		{ .TemperatureRange = { .Min =  0, .Max = 100 }, .Mode = AWCCModeBatterySaver },
 	},
-	._ModeIntervalsBATCount = 1,
+	._ModeIntervalsCountBAT = 1,
 
 	.BoostIntervalsBAT = {
 		{ .TemperatureRange = { .Min =  0, .Max = 59, }, .Boost = 0   },
@@ -92,7 +102,14 @@ struct {
 		{ .TemperatureRange = { .Min = 75, .Max = 79  }, .Boost = 80  },
 		{ .TemperatureRange = { .Min = 80, .Max = 100 }, .Boost = 100 },
 	},
-	._BoostIntervalsBATCount = 6,
+	._BoostIntervalsCountBAT = 6,
+
+	.UpBoostShiftBAT = 10,
+	.UpBoostShiftTimeBAT = 15,
+	.BoostDownHysteresisBAT = 5,
+	.MinTimeBeforeBoostDownBAT = 20,
+	.MinTimeAfterShiftDownBAT = 10,
+	.PendingTimeBAT = 5,
 };
 
 const struct AWCCConfig_t AWCCDefaultConfigBAT (void)
@@ -100,13 +117,26 @@ const struct AWCCConfig_t AWCCDefaultConfigBAT (void)
 	struct AWCCConfig_t conf = AWCCDefaultConfig;
 
 	conf.ModeIntervals = Internal.ModeIntervalsBAT;
-	conf._ModeIntervalCount = Internal._ModeIntervalsBATCount;
+	conf._ModeIntervalCount = Internal._ModeIntervalsCountBAT;
 
+	conf.FanConfigs [AWCCFanCPU].UpBoostShift = Internal.UpBoostShiftBAT;
+	conf.FanConfigs [AWCCFanCPU].UpBoostShiftTime = Internal.UpBoostShiftTimeBAT;
+	conf.FanConfigs [AWCCFanCPU].BoostDownHysteresis = Internal.BoostDownHysteresisBAT;
+	conf.FanConfigs [AWCCFanCPU].MinTimeBeforeBoostDown = Internal.MinTimeBeforeBoostDownBAT;
+	conf.FanConfigs [AWCCFanCPU].MinTimeAfterShiftDown = Internal.MinTimeAfterShiftDownBAT;
+	conf.FanConfigs [AWCCFanCPU].PendingTime = Internal.PendingTimeBAT;
+
+	conf.FanConfigs [AWCCFanGPU].UpBoostShift = Internal.UpBoostShiftBAT;
+	conf.FanConfigs [AWCCFanGPU].UpBoostShiftTime = Internal.UpBoostShiftTimeBAT;
+	conf.FanConfigs [AWCCFanGPU].BoostDownHysteresis = Internal.BoostDownHysteresisBAT;
+	conf.FanConfigs [AWCCFanGPU].MinTimeBeforeBoostDown = Internal.MinTimeBeforeBoostDownBAT;
+	conf.FanConfigs [AWCCFanGPU].MinTimeAfterShiftDown = Internal.MinTimeAfterShiftDownBAT;
+	conf.FanConfigs [AWCCFanGPU].PendingTime = Internal.PendingTimeBAT;
 
 	conf.FanConfigs [AWCCFanCPU].BoostIntervals = Internal.BoostIntervalsBAT;
-	conf.FanConfigs [AWCCFanCPU]._BoostIntervalCount = Internal._BoostIntervalsBATCount;
+	conf.FanConfigs [AWCCFanCPU]._BoostIntervalCount = Internal._BoostIntervalsCountBAT;
 	conf.FanConfigs [AWCCFanGPU].BoostIntervals = Internal.BoostIntervalsBAT;
-	conf.FanConfigs [AWCCFanGPU]._BoostIntervalCount = Internal._BoostIntervalsBATCount;
+	conf.FanConfigs [AWCCFanGPU]._BoostIntervalCount = Internal._BoostIntervalsCountBAT;
 
 	return conf;
 }

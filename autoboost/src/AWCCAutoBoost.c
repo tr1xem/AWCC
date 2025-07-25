@@ -6,7 +6,7 @@
 # include <time.h>
 
 # include "AWCC.h"
-#include "AWCCControl.h"
+# include "AWCCControl.h"
 
 # ifdef __STDC_NO_THREADS__
 # error this tool currently depends on threads.h
