@@ -14,7 +14,7 @@
 
 // # define DRY_RUN
 
-static void Start (const struct AWCCConfig_t *, const struct AWCCSystemLogger_t *, const struct AWCCControl_t *);
+static void Start (const struct AWCCConfig_t *, const struct AWCCConfig_t *, const struct AWCCSystemLogger_t *, const struct AWCCControl_t *);
 
 const struct AWCCAutoBoost_t AWCCAutoBoost = {
 	.Start = & Start,
@@ -28,6 +28,7 @@ static void HandleControl (void);
 
 struct {
 	const struct AWCCConfig_t * Config;
+	const struct AWCCConfig_t * Configs [2];
 	const struct AWCCSystemLogger_t * SystemLogger;
 	const struct AWCCControl_t * Control;
 
@@ -69,6 +70,7 @@ struct {
 		} ModePendingState;
 		time_t ModePendingTime;
 	} ModeInfo;
+	enum AWCCPowerState_t PowerState;
 	const char * FanNames [2];
 	void (* ManageFanBoost) (enum AWCCFan_t fan);
 	void (* ManageMode) (void);
@@ -77,6 +79,7 @@ struct {
 	void (* HandleControl) (void);
 } static Internal = {
 	.Config = NULL,
+	.Configs = { NULL },
 	.SystemLogger = NULL,
 	.Control = NULL,
 
@@ -111,11 +114,16 @@ struct {
 	.HandleControl = & HandleControl,
 };
 
-void Start (const struct AWCCConfig_t * config, const struct AWCCSystemLogger_t * systemLogger, const struct AWCCControl_t * control)
+void Start (const struct AWCCConfig_t * config_ac, const struct AWCCConfig_t * config_bat, const struct AWCCSystemLogger_t * systemLogger, const struct AWCCControl_t * control)
 {
-	Internal.Config = config;
 	Internal.SystemLogger = systemLogger;
 	Internal.Control = control;
+
+	Internal.Configs [AWCCPowerStateAC] = config_ac;
+	Internal.Configs [AWCCPowerStateBAT] = config_bat;
+	Internal.PowerState = AWCC.PowerState ();
+
+	Internal.Config = Internal.Configs [Internal.PowerState];
 
 	if (NULL != Internal.SystemLogger) {
 		mkdir (Internal.SystemLogger->Dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -125,8 +133,22 @@ void Start (const struct AWCCConfig_t * config, const struct AWCCSystemLogger_t 
 		Internal.BoostInfos [AWCCFanCPU].Temperature = AWCC.GetFanTemperature (AWCCFanCPU);
 		Internal.BoostInfos [AWCCFanGPU].Temperature = AWCC.GetFanTemperature (AWCCFanGPU);
 		Internal.ModeInfo.MaxTemp = Internal.BoostInfos [AWCCFanCPU].Temperature;
+
 		if (Internal.BoostInfos [AWCCFanGPU].Temperature > Internal.ModeInfo.MaxTemp) {
 			Internal.ModeInfo.MaxTemp = Internal.BoostInfos [AWCCFanGPU].Temperature;
+		}
+
+		const enum AWCCPowerState_t powerState = AWCC.PowerState ();
+
+		if (powerState != Internal.PowerState) {
+			Internal.Config = Internal.Configs [powerState];
+			Internal.BoostInfos [AWCCFanCPU].BoostPhase = AWCCBoostPhaseInitial;
+			Internal.BoostInfos [AWCCFanCPU].BoostInterval = -1;
+			Internal.BoostInfos [AWCCFanGPU].BoostPhase = AWCCBoostPhaseInitial;
+			Internal.BoostInfos [AWCCFanGPU].BoostInterval = -1;
+			Internal.ModeInfo.ModePhase = AWCCModePhaseInitial;
+			Internal.ModeInfo.ModeInterval = -1;
+			Internal.PowerState = powerState;
 		}
 
 		Internal.CurrentTime = time (NULL);

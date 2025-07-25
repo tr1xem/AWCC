@@ -35,6 +35,11 @@ struct AWCCFanConfig_t { // The fan specific options
 							 // to keep the implementation simple
 };
 
+struct AWCCNoBoostConfig_t {
+	enum AWCCMode_t Mode;
+	AWCCBoost_t * FanBoosts;
+};
+
 struct AWCCConfig_t {
 	int TemperatureCheckInterval; // The time interval in seconds between two
 								  // consecutive temperature checks
@@ -47,6 +52,10 @@ struct AWCCConfig_t {
 	struct AWCCModeInterval_t * ModeIntervals;
 	int _ModeIntervalCount; // Internal variable keeping mode intervals count
 							// to keep the implementation simple
+	struct AWCCNoBoostConfig_t NoBoostConf;
 } extern const AWCCDefaultConfig;
+
+extern const struct AWCCConfig_t AWCCDefaultConfigAC (void);
+extern const struct AWCCConfig_t AWCCDefaultConfigBAT (void);
 
 # endif // __AWCC_CONFIG_H

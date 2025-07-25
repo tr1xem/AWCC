@@ -6,7 +6,7 @@
 # include "AWCCSystemLogger.h"
 
 struct AWCCAutoBoost_t {
-	void (* Start) (const struct AWCCConfig_t *, const struct AWCCSystemLogger_t *, const struct AWCCControl_t *);
+	void (* Start) (const struct AWCCConfig_t *, const struct AWCCConfig_t *, const struct AWCCSystemLogger_t *, const struct AWCCControl_t *);
 } extern const AWCCAutoBoost;
 
 # endif // __AWCC_AUTOBOOST_H
