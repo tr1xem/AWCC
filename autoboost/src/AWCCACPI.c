@@ -8,6 +8,7 @@
 # include <time.h>
 
 # include "AWCC.h"
+# include "AWCCValueChecker.h"
 
 # ifdef __STDC_NO_THREADS__
 # error this tool currently depends on threads.h
@@ -200,6 +201,8 @@ unsigned int ParseHexValue (const char * response)
 
 AWCCBoost_t GetFanBoost (enum AWCCFan_t fan)
 {
+	AWCCValueChecker.AssertFan (fan);
+
 	static _Thread_local char cmd [256];
 	snprintf (
 		cmd,
@@ -226,12 +229,10 @@ AWCCBoost_t GetFanBoost (enum AWCCFan_t fan)
 
 void SetFanBoost (enum AWCCFan_t fan, AWCCBoost_t boost)
 {
-	static _Thread_local char cmd [256];
+	AWCCValueChecker.AssertFan (fan);
+	AWCCValueChecker.AssertBoost (boost);
 
-	if (AWCCFanBoostMin > boost || AWCCFanBoostMax < boost) {
-		fprintf (stderr, "Illegal fan boost value %d.\n", boost);
-		exit (-1);
-	}
+	static _Thread_local char cmd [256];
 
 	snprintf (
 		cmd,
@@ -264,6 +265,8 @@ enum AWCCMode_t GetMode (void)
 
 AWCCTemperature_t GetFanTemperature (enum AWCCFan_t fan)
 {
+	AWCCValueChecker.AssertFan (fan);
+
 	static _Thread_local char cmd [256];
 	snprintf (
 		cmd,
@@ -289,6 +292,8 @@ AWCCTemperature_t GetFanTemperature (enum AWCCFan_t fan)
 
 AWCCFanRpm_t GetFanRpm (enum AWCCFan_t fan)
 {
+	AWCCValueChecker.AssertFan (fan);
+
 	static _Thread_local char cmd [256];
 	snprintf (
 		cmd,
@@ -314,6 +319,8 @@ AWCCFanRpm_t GetFanRpm (enum AWCCFan_t fan)
 
 void SetMode (enum AWCCMode_t mode)
 {
+	AWCCValueChecker.AssertMode (mode);
+
 	static _Thread_local char cmd [256];
 	snprintf (
 		cmd,
