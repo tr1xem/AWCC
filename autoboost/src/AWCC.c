@@ -2,6 +2,7 @@
 
 # include <stdio.h>
 # include <stdlib.h>
+# include <string.h>
 
 # include "AWCCACPI.h"
 
@@ -28,6 +29,8 @@ static void SetMode (enum AWCCMode_t);
 static enum AWCCMode_t GetMode (void);
 static const char * GetModeName (enum AWCCMode_t);
 
+static enum AWCCPowerState_t PowerState (void);
+
 static void Deinitialize (void);
 
 const struct AWCC_t AWCC = {
@@ -53,6 +56,8 @@ const struct AWCC_t AWCC = {
 	.SetMode = & SetMode,
 	.GetMode = & GetMode,
 	.GetModeName = & GetModeName,
+
+	.PowerState = & PowerState,
 
 	.Deinitialize = & Deinitialize,
 };
@@ -151,4 +156,30 @@ enum AWCCMode_t GetMode (void)
 const char * GetModeName (enum AWCCMode_t mode)
 {
 	return Internal.ModeNames [mode];
+}
+
+enum AWCCPowerState_t PowerState (void)
+{
+	static _Thread_local char buffer [128];
+
+	FILE * fp = fopen ("/sys/class/power_supply/BAT0/status", "r");
+
+	if (NULL == fp) {
+		perror ("Unable to read /sys/class/power_supply/BAT0/status");
+		exit (EXIT_FAILURE);
+	}
+
+	fgets (buffer, sizeof (buffer), fp);
+	fclose (fp);
+
+	_Bool discharging = (
+		NULL != strstr (buffer, "Discharging")
+	);
+
+	if (1 == discharging) {
+		return AWCCPowerStateBAT;
+	}
+	else {
+		return AWCCPowerStateAC;
+	}
 }

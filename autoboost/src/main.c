@@ -18,6 +18,18 @@ int main (void)
 	AWCC.Initialize ();
 
 	if (0) {
+		while (1) {
+			if (AWCCPowerStateBAT == AWCC.PowerState ()) {
+				puts ("BAT");
+			}
+			else {
+				puts ("AC");
+			}
+			thrd_sleep (& (struct timespec) {.tv_sec = 2}, NULL);
+		}
+	}
+
+	if (0) {
 		enum AWCCMode_t modes [] = {
 			AWCCModeQuiet,
 			AWCCModeBatterySaver,
@@ -84,7 +96,9 @@ int main (void)
 	}
 
 	if (1) {
-		AWCCAutoBoost.Start (& AWCCDefaultConfig, & AWCCSystemLoggerDefault, & AWCCControlDefault);
+		struct AWCCConfig_t conf_ac = AWCCDefaultConfigAC ();
+		struct AWCCConfig_t conf_bat = AWCCDefaultConfigBAT ();
+		AWCCAutoBoost.Start (& conf_ac, & conf_bat, & AWCCSystemLoggerDefault, & AWCCControlDefault);
 		goto exit;
 	}
 

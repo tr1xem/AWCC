@@ -18,6 +18,11 @@ enum {
 	AWCCFanBoostMin = 0, AWCCFanBoostMax = 100
 };
 
+enum AWCCPowerState_t {
+	AWCCPowerStateAC = 0, // NOTE: these values are important to keep as is
+	AWCCPowerStateBAT = 1,
+};
+
 typedef int AWCCBoost_t;
 typedef int AWCCTemperature_t;
 typedef int AWCCFanRpm_t;
@@ -45,6 +50,8 @@ struct AWCC_t {
 	void (* SetMode) (enum AWCCMode_t);
 	enum AWCCMode_t (* GetMode) (void);
 	const char * (* GetModeName) (enum AWCCMode_t);
+
+	enum AWCCPowerState_t (* PowerState) (void);
 
 	void (* Deinitialize) (void);
 } extern const AWCC;
