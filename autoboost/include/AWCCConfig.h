@@ -19,6 +19,12 @@ struct AWCCModeInterval_t { // A temperature range to the desired mode mapping
 	enum AWCCMode_t Mode;
 };
 
+// WARN: This makes a connection between the configured boost intervals of cpu
+// and gpu
+struct AWCCSuperBoostConfig_t {
+	int BoostEqualizationZoneMax;
+};
+
 struct AWCCFanConfig_t { // The fan specific options
 	int UpBoostShift; // The amount of the additional boost after boost up
 	int UpBoostShiftTime; // The time interval of being the additional boost
@@ -48,6 +54,7 @@ struct AWCCConfig_t {
 	int ModeDownHysteresis; // Hysteresis for selecting a lower mode
 	int ModePendingTime; // The minimum time of being in a new temperature range
 					 // before switching to the corresponding mode
+	struct AWCCSuperBoostConfig_t SuperBoostConfig;
 	struct AWCCFanConfig_t FanConfigs [2];
 	struct AWCCModeInterval_t * ModeIntervals;
 	int _ModeIntervalCount; // Internal variable keeping mode intervals count
