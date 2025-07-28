@@ -46,7 +46,7 @@ struct {
 	const char * CmdGetCurrentMode;
 	const char * CmdSetCurrentMode;
 	const char * CmdGetTemperature;
-	const char * CmdGetRpm;
+	const char * CmdGetFanRpm;
 
 	unsigned * ModeToHexMap;
 	enum AWCCMode_t * HexToModeMap;
@@ -73,7 +73,7 @@ struct {
 	.CmdGetCurrentMode   =   "\\_SB.%s.WMAX 0 0x14 {0x0b, 0x00, 0x00, 0x00}"    ,
 	.CmdSetCurrentMode   =   "\\_SB.%s.WMAX 0 0x15 {0x01, 0x%02x, 0x00, 0x00}"  ,
 	.CmdGetTemperature   =   "\\_SB.%s.WMAX 0 0x14 {0x04, 0x%02x, 0x00, 0x00}"  ,
-	.CmdGetRpm           =   "\\_SB.%s.WMAX 0 0x14 {0x05, 0x%02x, 0x00, 0x00}",
+	.CmdGetFanRpm        =   "\\_SB.%s.WMAX 0 0x14 {0x05, 0x%02x, 0x00, 0x00}",
 
 	.ModeToHexMap = (unsigned []) {
 		[AWCCModeBalanced]       = 0xa0  ,
@@ -298,7 +298,7 @@ AWCCFanRpm_t GetFanRpm (enum AWCCFan_t fan)
 	snprintf (
 		cmd,
 		sizeof (cmd),
-		Internal.CmdGetRpm,
+		Internal.CmdGetFanRpm,
 		Internal.Prefix,
 		Internal.FanToRpmHexMap [fan]
 	);

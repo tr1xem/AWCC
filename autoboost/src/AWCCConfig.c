@@ -9,11 +9,15 @@ const struct AWCCConfig_t AWCCDefaultConfig = {
 	.ModePendingTime = 5,
 
 	.ModeIntervals = (struct AWCCModeInterval_t [2]) {
-		{ .TemperatureRange = { .Min =  0, .Max = 79  }, .Mode = AWCCModeBalanced },
-		{ .TemperatureRange = { .Min = 80, .Max = 100  }, .Mode = AWCCModePerformance },
+		{ .TemperatureRange = { .Min =  0, .Max = 69  }, .Mode = AWCCModeBalanced },
+		{ .TemperatureRange = { .Min = 70, .Max = 100  }, .Mode = AWCCModePerformance },
 		// { .TemperatureRange = { .Min = 90, .Max = 100 }, .Mode = AWCCModeG },
 	},
 	._ModeIntervalCount = 2,
+
+	.SuperBoostConfig = {
+		.BoostEqualizationZoneMax = 8,
+	},
 
 	.FanConfigs = {
 		[AWCCFanCPU] = {

@@ -20,6 +20,7 @@ const struct AWCCAutoBoost_t AWCCAutoBoost = {
 	.Start = & Start,
 };
 
+static void ManageSuperBoost (void);
 static void ManageFanBoost (enum AWCCFan_t);
 static void ManageMode (void);
 static void SetFanBoost (enum AWCCFan_t, int, _Bool);
@@ -72,6 +73,7 @@ struct {
 	} ModeInfo;
 	enum AWCCPowerState_t PowerState;
 	const char * FanNames [2];
+	void (* ManageSuperBoost) (void);
 	void (* ManageFanBoost) (enum AWCCFan_t fan);
 	void (* ManageMode) (void);
 	void (* SetFanBoost) (enum AWCCFan_t, int, _Bool);
@@ -107,6 +109,7 @@ struct {
 		[AWCCFanCPU] = "CPU",
 		[AWCCFanGPU] = "GPU",
 	},
+	.ManageSuperBoost = & ManageSuperBoost,
 	.ManageFanBoost = & ManageFanBoost,
 	.ManageMode = & ManageMode,
 	.SetFanBoost = & SetFanBoost,
@@ -190,6 +193,50 @@ void Start (const struct AWCCConfig_t * config_ac, const struct AWCCConfig_t * c
 
 		thrd_sleep (& (struct timespec) { .tv_sec = Internal.Config->TemperatureCheckInterval }, NULL);
 	}
+}
+
+void ManageSuperBoost (void)
+{
+# if 0
+	enum AWCCFan_t fans [2] = {AWCCFanCPU, AWCCFanGPU};
+
+	for (int j = 0; j < 2; j++) {
+		enum AWCCFan_t fan = fans [j];
+
+		for (int i = 0; i < Internal.Config->FanConfigs [fan]._BoostIntervalCount; i++) {
+			if (
+				Internal.Config->FanConfigs [fan].BoostIntervals [i].TemperatureRange.Min <= Internal.BoostInfos [fan].Temperature  &&
+				Internal.Config->FanConfigs [fan].BoostIntervals [i].TemperatureRange.Max >= Internal.BoostInfos [fan].Temperature
+			) {
+				Internal.BoostInfos [fan].BoostIntervalByTemperature = i;
+				break;
+			}
+		}
+	}
+
+	// int maxBoostZone = Internal.BoostInfos [AWCCFanCPU].BoostIntervalByTemperature;
+	// if (Internal.BoostInfos [AWCCFanGPU].BoostIntervalByTemperature > maxBoostZone) {
+	// 	maxBoostZone = Internal.BoostInfos [AWCCFanGPU].BoostIntervalByTemperature;
+	// }
+
+	int maxBoostZone = MaxInt (
+		  Internal.BoostInfos [AWCCFanCPU].BoostIntervalByTemperature
+		, Internal.BoostInfos [AWCCFanCPU].BoostIntervalByTemperature
+	);
+
+	int equalizedBoost = MinInt (
+		  Internal.Config->SuperBoostConfig.BoostEqualizationZoneMax
+		, maxBoostZone
+	);
+
+	Internal.BoostInfos [AWCCFanCPU].BoostIntervalBySuperBoost = MaxInt (
+		Internal.BoostInfos [AWCCFanCPU].BoostIntervalByTemperature, equalizedBoost
+	);
+
+	Internal.BoostInfos [AWCCFanGPU].BoostIntervalBySuperBoost = MaxInt (
+		Internal.BoostInfos [AWCCFanGPU].BoostIntervalByTemperature, equalizedBoost
+	);
+# endif // 0
 }
 
 void ManageFanBoost (enum AWCCFan_t fan)
