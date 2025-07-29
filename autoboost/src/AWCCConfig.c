@@ -92,6 +92,8 @@ struct {
 	struct AWCCBoostInterval_t BoostIntervalsBAT [6];
 	int _ModeIntervalsCountBAT;
 	int _BoostIntervalsCountBAT;
+
+	int BoostEqualizationZoneMaxBAT;
 } static Internal = {
 	.ModeIntervalsBAT = {
 		{ .TemperatureRange = { .Min =  0, .Max = 100 }, .Mode = AWCCModeBatterySaver },
@@ -114,6 +116,8 @@ struct {
 	.MinTimeBeforeBoostDownBAT = 20,
 	.MinTimeAfterShiftDownBAT = 10,
 	.PendingTimeBAT = 5,
+
+	.BoostEqualizationZoneMaxBAT = 2
 };
 
 const struct AWCCConfig_t AWCCDefaultConfigBAT (void)
@@ -141,6 +145,8 @@ const struct AWCCConfig_t AWCCDefaultConfigBAT (void)
 	conf.FanConfigs [AWCCFanCPU]._BoostIntervalCount = Internal._BoostIntervalsCountBAT;
 	conf.FanConfigs [AWCCFanGPU].BoostIntervals = Internal.BoostIntervalsBAT;
 	conf.FanConfigs [AWCCFanGPU]._BoostIntervalCount = Internal._BoostIntervalsCountBAT;
+
+	conf.SuperBoostConfig.BoostEqualizationZoneMax = Internal.BoostEqualizationZoneMaxBAT;
 
 	return conf;
 }
