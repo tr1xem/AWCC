@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include "thermal_modes.h"
-#include "fans.h"
+#include "AWCCUtils.h"
+#include "supported_devices.h"
 #include "lighting_controls.h"
 #include <stddef.h>
 #include <stdio.h>
@@ -95,7 +96,7 @@ device_capabilities_t detect_device_capabilities(void) {
                                 .has_cpu_fan_control = true,
                                 .acpi_prefix = "AMWW"};
 
-  detectCpuVendor();
+
   extern const char *acpi_prefix;
   caps.acpi_prefix = acpi_prefix;
 
@@ -195,7 +196,10 @@ int execute_thermal_mode(thermal_mode_id_t mode_id) {
   }
 
   if (mode->requires_root && geteuid() != 0) {
-    fprintf(stderr, "error: %s mode requires root privileges\n", mode->name);
+    // Use checkRoot to handle sudo elevation properly
+    char *fake_argv[] = {"awcc", (char*)mode->cli_command, NULL};
+    checkRoot(mode->cli_command, fake_argv);
+    // checkRoot will exec with elevated privileges or exit, so we shouldn't reach here
     return 1;
   }
 
@@ -220,6 +224,12 @@ int execute_thermal_mode(thermal_mode_id_t mode_id) {
 int execute_thermal_mode_by_command(const char *command) {
   thermal_mode_t *mode = find_mode_by_command(command);
   if (!mode) {
+    return 1;
+  }
+
+  // Check if this specific thermal mode is supported on current device
+  if (g_current_device && !is_thermal_mode_supported(command)) {
+    fprintf(stderr, "Error: Thermal mode '%s' not supported on %s\n", mode->name, get_device_name());
     return 1;
   }
 
@@ -306,6 +316,18 @@ void generate_full_help_menu(void) {
       printf("  gb                      Get GPU fan boost\n");
       printf("  sgb <value>             Set GPU fan boost (1-100)\n");
     }
+    printf("\n");
+    
+    printf("Fan RPM/Info Controls (Run as root):\n");
+    if (caps.has_cpu_fan_control) {
+      printf("  cr                      Get CPU fan RPM\n");
+    }
+    if (caps.has_gpu_fan_control) {
+      printf("  gr                      Get GPU fan RPM\n");
+    }
+    printf("  cfn                     Get CPU fan name\n");
+    printf("  gfn                     Get GPU fan name\n");
+    printf("  fans                    Show all fans status (RPM, boost, names)\n");
     printf("\n");
   }
 
