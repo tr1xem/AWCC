@@ -52,6 +52,7 @@ void checkRoot(const char *command, char **argv) {
         "getgpufanboost",
         "setcpufanboost",
         "setgpufanboost",
+        "autoboost",
     };
     size_t numCommands = sizeof(rootCommands) / sizeof(rootCommands[0]);
 

@@ -9,6 +9,7 @@
 
 # include "AWCC.h"
 # include "AWCCValueChecker.h"
+# include "supported_devices.h"
 
 # ifdef __STDC_NO_THREADS__
 # error this tool currently depends on threads.h
@@ -123,26 +124,30 @@ struct {
 	.ParseHexValue = & ParseHexValue,
 };
 
-void Initialize (void) // TODO: fix prefix and cpu/gpu specific codes in acpi calls
+void Initialize (void)
 {
-	FILE * cpuinfo = fopen ("/proc/cpuinfo", "r");
-	if (NULL == cpuinfo) {
-		perror ("Failed to open /proc/cpuinfo");
-		return;
-	}
-
-	char line [256];
-
-	while (NULL != fgets (line, sizeof(line), cpuinfo)) {
-		if (NULL != strstr (line, "vendor_id")) {
-			if (NULL != strstr (line, "AuthenticAMD")) {
-				Internal.Prefix = "AMW3"; // AMD detected
-			}
-			break;
+	// Use the global device detection instead of local CPU detection
+	if (g_current_device) {
+		Internal.Prefix = get_acpi_prefix();
+	} else {
+		// Fallback to basic CPU detection if device detection failed
+		FILE * cpuinfo = fopen ("/proc/cpuinfo", "r");
+		if (NULL == cpuinfo) {
+			perror ("Failed to open /proc/cpuinfo");
+			return;
 		}
-	}
 
-	fclose (cpuinfo);
+		char line [256];
+		while (NULL != fgets (line, sizeof(line), cpuinfo)) {
+			if (NULL != strstr (line, "vendor_id")) {
+				if (NULL != strstr (line, "AuthenticAMD")) {
+					Internal.Prefix = "AMW3"; // AMD detected
+				}
+				break;
+			}
+		}
+		fclose (cpuinfo);
+	}
 }
 
 void Execute (const char * command)
