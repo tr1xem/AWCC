@@ -52,7 +52,7 @@ void send_zone_select(uint8_t loop, uint16_t zone_count, ...);
 #define ACTION_PULSE 0x01
 #define ACTION_MORPH 0x02
 void send_add_action(uint16_t action, uint16_t duration, uint16_t tempo,
-					 uint32_t color);
+                     uint32_t color);
 
 #define SET_DIM 0x26
 #define BRIGHTNESS_OFF 0x64
