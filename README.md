@@ -112,8 +112,8 @@ Tested on:
 Dell G15 5530
 Dell G16 7630
 
-Should work in all Dell G15 models and some G16 models too
-Feel free to test and give feedback in [discussions](https://github.com/tr1xem/AWCC/discussions)!
+Should work in all Dell G15 models and some G16 models too <br>
+Feel free to test and give feedback in [discussions](https://github.com/tr1xem/AWCC/discussions)
 
 # FAQ and TIPS
 
