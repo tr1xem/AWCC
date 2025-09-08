@@ -139,31 +139,7 @@ awcc brightness "$ARG"
 
 and Bind it to a key preferrably F5
 
-Q. Can I keybind the gmode toggle to a key like windows?
-
-Ans: Ofc you can here is how i do it
-
-```bash
-#!/bin/bash
-
-# Run the command to get the current mode
-current_mode=$(sudo awcc qm | grep -oP 'Current mode: \K.*')
-echo "Current mode: $current_mode"
-# Check if the mode is "Gaming (G-Mode)" or not
-if [[ "$current_mode" != "Gaming (G-Mode)" ]]; then
-    # Mode is not Gaming (G-Mode), toggle to G-Mode
-    sudo /usr/bin/awcc gt
-    # Send notification for switching to Gaming Mode
-    notify-send "Alienware Command Centre" "Turning on G-Mode"
-else
-    # Mode is Gaming (G-Mode), toggle to G-Mode
-    sudo /usr/bin/awcc gt
-    # Send notification for staying in Gaming Mode
-    notify-send "Alienware Command Centre" "Turning off G-Mode"
-fi
-```
-
-now add the awcc executable with full path a in visudo so it dont ask for passwords and then when ever u run the bash script you swich between modes with a notification.
+### Got a suggestion or a feature request? link it up in [discussions](https://github.com/tr1xem/AWCC/discussions)
 
 # TODO
 
