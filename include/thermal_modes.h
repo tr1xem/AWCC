@@ -8,25 +8,25 @@
 //==============================================================================
 
 typedef enum {
-	THERMAL_MODE_QUIET,
-	THERMAL_MODE_BATTERY_SAVER,
-	THERMAL_MODE_BALANCED,
-	THERMAL_MODE_PERFORMANCE,
-	THERMAL_MODE_GAMING,
-	THERMAL_MODE_COUNT
+  THERMAL_MODE_QUIET,
+  THERMAL_MODE_BATTERY_SAVER,
+  THERMAL_MODE_BALANCED,
+  THERMAL_MODE_PERFORMANCE,
+  THERMAL_MODE_GAMING,
+  THERMAL_MODE_COUNT
 } thermal_mode_id_t;
 
 typedef struct {
-	thermal_mode_id_t id;
-	const char *name;
-	const char *hex_code;
-	const char *description;
-	const char *cli_command;
-	const char *cli_alias;
-	bool enabled;
-	bool requires_root;
-	int (*pre_check)(void);
-	void (*post_action)(void);
+  thermal_mode_id_t id;
+  const char *name;
+  const char *hex_code;
+  const char *description;
+  const char *cli_command;
+  const char *cli_alias;
+  bool enabled;
+  bool requires_root;
+  int (*pre_check)(void);
+  void (*post_action)(void);
 } thermal_mode_t;
 
 //==============================================================================
@@ -34,22 +34,22 @@ typedef struct {
 //==============================================================================
 
 typedef struct {
-	bool supports_quiet;
-	bool supports_gaming;
-	bool supports_battery_saver;
-	bool supports_performance;
-	bool supports_balanced;
-	bool has_gpu_fan_control;
-	bool has_cpu_fan_control;
-	const char *acpi_prefix;
+  bool supports_quiet;
+  bool supports_gaming;
+  bool supports_battery_saver;
+  bool supports_performance;
+  bool supports_balanced;
+  bool has_gpu_fan_control;
+  bool has_cpu_fan_control;
+  const char *acpi_prefix;
 } device_capabilities_t;
 
 typedef struct {
-	const char *device_id;
-	thermal_mode_t *available_modes;
-	size_t mode_count;
-	thermal_mode_id_t default_mode;
-	device_capabilities_t capabilities;
+  const char *device_id;
+  thermal_mode_t *available_modes;
+  size_t mode_count;
+  thermal_mode_id_t default_mode;
+  device_capabilities_t capabilities;
 } device_mode_map_t;
 
 //==============================================================================
