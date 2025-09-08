@@ -288,7 +288,8 @@ void generate_full_help_menu(void) {
   printf("\nAlienware Command Center for Dell G Series\n");
   printf("==========================================\n\n");
   printf("Usage:\n");
-  printf("  awcc [command] [arguments]...\n\n");
+  printf("  awcc [command] [arguments]...\n");
+  printf("  awcc --test-mode [command] [arguments]...\n\n");
 
   generate_lighting_help();
 
@@ -310,5 +311,14 @@ void generate_full_help_menu(void) {
 
   printf("Advanced Controls (Run as root):\n");
   printf("  autoboost               Start automatic thermal management daemon\n");
+  printf("\n");
+  
+  printf("System Information:\n");
+  printf("  device-info             Show detected device model and supported features\n");
+  printf("\n");
+  
+  printf("Options:\n");
+  printf("  --test-mode             Skip device detection and feature validation\n");
+  printf("                          (for testing on unsupported devices)\n");
   printf("\n");
 }
