@@ -51,6 +51,7 @@ struct AWCC_t {
 	void (* SetMode) (enum AWCCMode_t);
 	enum AWCCMode_t (* GetMode) (void);
 	const char * (* GetModeName) (enum AWCCMode_t);
+	void (* ToggleGMode) (void);
 
 	enum AWCCPowerState_t (* PowerState) (void);
 

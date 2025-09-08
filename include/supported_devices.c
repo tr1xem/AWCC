@@ -20,8 +20,19 @@ static device_config_t supported_devices[] = {
                   .has_autoboost = true,
                   .has_cpu_temp = true,
                   .has_gpu_temp = true,
-                  .has_gmode_toggle = true}},
-
+                  .has_gmode_toggle = true,
+                  .thermal_modes = {.quiet = true,
+                                    .balanced = true,
+                                    .performance = true,
+                                    .battery_saver = true,
+                                    .gmode = true},
+                  .lighting = {.brightness_control = true,
+                               .static_color = true,
+                               .spectrum_effect = true,
+                               .breathing_effect = true,
+                               .rainbow_effect = true,
+                               .wave_effect = true,
+                               .back_forth_effect = true}}},
 };
 
 // Forward declarations
@@ -204,6 +215,74 @@ bool is_feature_supported(const char *feature_name) {
   return false;
 }
 
+bool is_thermal_mode_supported(const char *mode_name) {
+  if (!g_current_device) {
+    return false;
+  }
+
+  // First check if thermal modes are supported at all
+  if (!g_current_device->features.has_thermal_modes) {
+    return false;
+  }
+
+  // Check specific thermal modes
+  if (strcmp(mode_name, "quiet") == 0 || strcmp(mode_name, "q") == 0) {
+    return g_current_device->features.thermal_modes.quiet;
+  }
+  if (strcmp(mode_name, "balanced") == 0 || strcmp(mode_name, "balance") == 0 ||
+      strcmp(mode_name, "b") == 0) {
+    return g_current_device->features.thermal_modes.balanced;
+  }
+  if (strcmp(mode_name, "performance") == 0 || strcmp(mode_name, "p") == 0) {
+    return g_current_device->features.thermal_modes.performance;
+  }
+  if (strcmp(mode_name, "battery_saver") == 0 ||
+      strcmp(mode_name, "battery") == 0 || strcmp(mode_name, "bs") == 0) {
+    return g_current_device->features.thermal_modes.battery_saver;
+  }
+  if (strcmp(mode_name, "gmode") == 0 || strcmp(mode_name, "g") == 0) {
+    return g_current_device->features.thermal_modes.gmode;
+  }
+
+  return false;
+}
+
+bool is_lighting_effect_supported(const char *effect_name) {
+  if (!g_current_device) {
+    return false;
+  }
+
+  // First check if lighting is supported at all
+  if (!g_current_device->features.has_lighting) {
+    return false;
+  }
+
+  // Check specific lighting effects
+  if (strcmp(effect_name, "brightness") == 0) {
+    return g_current_device->features.lighting.brightness_control;
+  }
+  if (strcmp(effect_name, "static") == 0) {
+    return g_current_device->features.lighting.static_color;
+  }
+  if (strcmp(effect_name, "spectrum") == 0) {
+    return g_current_device->features.lighting.spectrum_effect;
+  }
+  if (strcmp(effect_name, "breathe") == 0) {
+    return g_current_device->features.lighting.breathing_effect;
+  }
+  if (strcmp(effect_name, "rainbow") == 0) {
+    return g_current_device->features.lighting.rainbow_effect;
+  }
+  if (strcmp(effect_name, "wave") == 0) {
+    return g_current_device->features.lighting.wave_effect;
+  }
+  if (strcmp(effect_name, "bkf") == 0) {
+    return g_current_device->features.lighting.back_forth_effect;
+  }
+
+  return false;
+}
+
 void print_device_info(void) {
   if (!g_current_device) {
     printf("No device detected\n");
@@ -224,8 +303,43 @@ void print_device_info(void) {
          g_current_device->features.has_fan_boost ? "Yes" : "No");
   printf("  Thermal Modes: %s\n",
          g_current_device->features.has_thermal_modes ? "Yes" : "No");
+
+  if (g_current_device->features.has_thermal_modes) {
+    printf("    - Quiet Mode: %s\n",
+           g_current_device->features.thermal_modes.quiet ? "Yes" : "No");
+    printf("    - Balanced Mode: %s\n",
+           g_current_device->features.thermal_modes.balanced ? "Yes" : "No");
+    printf("    - Performance Mode: %s\n",
+           g_current_device->features.thermal_modes.performance ? "Yes" : "No");
+    printf("    - Battery Saver Mode: %s\n",
+           g_current_device->features.thermal_modes.battery_saver ? "Yes"
+                                                                  : "No");
+    printf("    - G-Mode: %s\n",
+           g_current_device->features.thermal_modes.gmode ? "Yes" : "No");
+  }
+
   printf("  RGB Lighting: %s\n",
          g_current_device->features.has_lighting ? "Yes" : "No");
+
+  if (g_current_device->features.has_lighting) {
+    printf("    - Brightness Control: %s\n",
+           g_current_device->features.lighting.brightness_control ? "Yes"
+                                                                  : "No");
+    printf("    - Static Colors: %s\n",
+           g_current_device->features.lighting.static_color ? "Yes" : "No");
+    printf("    - Spectrum Effect: %s\n",
+           g_current_device->features.lighting.spectrum_effect ? "Yes" : "No");
+    printf("    - Breathing Effect: %s\n",
+           g_current_device->features.lighting.breathing_effect ? "Yes" : "No");
+    printf("    - Rainbow Effect: %s\n",
+           g_current_device->features.lighting.rainbow_effect ? "Yes" : "No");
+    printf("    - Wave Effect: %s\n",
+           g_current_device->features.lighting.wave_effect ? "Yes" : "No");
+    printf("    - Back & Forth Effect: %s\n",
+           g_current_device->features.lighting.back_forth_effect ? "Yes"
+                                                                 : "No");
+  }
+
   printf("  Auto Boost: %s\n",
          g_current_device->features.has_autoboost ? "Yes" : "No");
   printf("  CPU Temperature: %s\n",
