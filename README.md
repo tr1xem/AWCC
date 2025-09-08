@@ -172,7 +172,8 @@ now add the awcc executable with full path a in visudo so it dont ask for passwo
 
 # Credits
 
-- https://github.com/tiagoporsch/humanfx
+- [GasparVardanyan](https://github.com/GasparVardanyan)
+- [humanfx](https://github.com/tiagoporsch/humanfx)
 - @meduk0
 - Arch Wiki
 
