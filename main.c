@@ -6,9 +6,9 @@
 #include "include/AWCCSystemLogger.h"
 #include "include/lighting_controls.h"
 #include "include/lights.h"
-#include "src/AWCCUtils.h"
 #include "include/supported_devices.h"
 #include "include/thermal_modes.h"
+#include "src/AWCCUtils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -202,12 +202,14 @@ int execute_via_daemon(int argc, char **argv) {
         response.status == 0) {
       printf("%s\n", response.data);
     }
-  } else if (strncmp(argv[1], "lights", 6) == 0 || strcmp(argv[1], "lighting") == 0) {
+  } else if (strncmp(argv[1], "lights", 6) == 0 ||
+             strcmp(argv[1], "lighting") == 0) {
     cmd.command_type = AWCC_CMD_LIGHTING;
     // Include the full command and arguments for lighting
     size_t pos = 0;
     for (int i = 1; i < argc && pos < sizeof(cmd.args) - 1; i++) {
-      if (i > 1) cmd.args[pos++] = ' ';
+      if (i > 1)
+        cmd.args[pos++] = ' ';
       size_t len = strlen(argv[i]);
       if (pos + len < sizeof(cmd.args) - 1) {
         strcpy(cmd.args + pos, argv[i]);
@@ -278,9 +280,16 @@ int main(int argc, char **argv) {
       printf("Device detected: %s\n", get_device_name());
       break;
     case DEVICE_DETECTION_UNSUPPORTED:
-      fprintf(stderr, "Error: Unsupported device detected\n");
-      fprintf(stderr, "Run 'awcc device-info' for more details\n");
-      return 1;
+      // Check if user wants device info before exiting
+      if (argc >= 2 && strcmp(argv[1], "device-info") == 0) {
+        fprintf(stderr, "Warning: Unsupported device detected\n");
+        // Continue to show device info
+      } else {
+        fprintf(stderr, "Error: Unsupported device detected\n");
+        fprintf(stderr, "Run 'awcc device-info' for more details\n");
+        return 1;
+      }
+      break;
     case DEVICE_DETECTION_ACPI_FAILED:
     case DEVICE_DETECTION_DMI_FAILED:
       fprintf(stderr,

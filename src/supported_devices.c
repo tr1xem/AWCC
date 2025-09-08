@@ -285,7 +285,81 @@ bool is_lighting_effect_supported(const char *effect_name) {
 
 void print_device_info(void) {
   if (!g_current_device) {
-    printf("No device detected\n");
+    printf("Device Detection Report:\n");
+    printf("======================\n");
+
+    // Show system information even for unsupported devices
+    // CPU Information
+    printf("CPU Vendor: ");
+    FILE *cpuinfo = fopen("/proc/cpuinfo", "r");
+    if (cpuinfo) {
+      char line[256];
+      bool found_vendor = false;
+      while (fgets(line, sizeof(line), cpuinfo)) {
+        if (strstr(line, "vendor_id")) {
+          if (strstr(line, "AuthenticAMD")) {
+            printf("AMD\n");
+          } else if (strstr(line, "GenuineIntel")) {
+            printf("Intel\n");
+          } else {
+            printf("Unknown\n");
+          }
+          found_vendor = true;
+          break;
+        }
+      }
+      if (!found_vendor)
+        printf("Unknown\n");
+      fclose(cpuinfo);
+    } else {
+      printf("Unable to detect\n");
+    }
+
+    // DMI Product Name
+    printf("DMI Product Name: ");
+    FILE *dmi = fopen("/sys/class/dmi/id/product_name", "r");
+    if (dmi) {
+      char product_name[64];
+      if (fgets(product_name, sizeof(product_name), dmi)) {
+        // Remove newline
+        char *newline = strchr(product_name, '\n');
+        if (newline)
+          *newline = '\0';
+        printf("%s\n", product_name);
+      } else {
+        printf("Unable to read\n");
+      }
+      fclose(dmi);
+    } else {
+      printf("Not available\n");
+    }
+
+    // Determine ACPI prefix based on CPU
+    const char *acpi_prefix = "AMWW"; // Default Intel
+    cpuinfo = fopen("/proc/cpuinfo", "r");
+    if (cpuinfo) {
+      char line[256];
+      while (fgets(line, sizeof(line), cpuinfo)) {
+        if (strstr(line, "vendor_id") && strstr(line, "AuthenticAMD")) {
+          acpi_prefix = "AMW3";
+          break;
+        }
+      }
+      fclose(cpuinfo);
+    }
+
+    printf("ACPI Prefix: %s\n", acpi_prefix);
+
+    printf("Device Support Status: UNSUPPORTED\n");
+    printf("\nTo get ACPI device ID, please run:\n");
+    printf("echo \"\\\\_SB.%s.WMAX 0 0x1a {0x02, 0xa02, 0x00, 0x00}\" | sudo "
+           "tee /proc/acpi/call && sudo cat /proc/acpi/call\n",
+           acpi_prefix);
+
+    printf("\nTo add support for this device:\n");
+    printf("1. Run the ACPI command above to get the device ID\n");
+    printf("2. Report the device info at the project repository\n");
+    printf("3. Include your DMI product name and ACPI response\n");
     return;
   }
 
