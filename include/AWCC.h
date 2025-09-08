@@ -46,6 +46,7 @@ struct AWCC_t {
 	void (* SetFanBoost) (enum AWCCFan_t, AWCCBoost_t);
 	AWCCTemperature_t (* GetFanTemperature) (enum AWCCFan_t);
 	AWCCFanRpm_t (* GetFanRpm) (enum AWCCFan_t);
+	const char * (* GetFanName) (enum AWCCFan_t);
 
 	void (* SetMode) (enum AWCCMode_t);
 	enum AWCCMode_t (* GetMode) (void);

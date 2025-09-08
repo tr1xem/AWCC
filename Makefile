@@ -4,8 +4,8 @@ SOURCE := $(wildcard *.c ./include/*.c)
 INCLUDE := ./include
 
 # Compiler and linker flags
-CFLAGS := -Wall -Wextra -I$(INCLUDE)
-LDFLAGS := -lusb-1.0
+CFLAGS := -std=c18 -pedantic-errors -Werror=pedantic -Wall -Wextra -I$(INCLUDE)
+LDFLAGS := -lusb-1.0 -lpcre2-32
 
 all: $(TARGET)
 
