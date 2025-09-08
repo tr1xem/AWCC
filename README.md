@@ -24,7 +24,7 @@ Depnedencies:
 - `libpcap`
 - `gccp-libs`
 - `gitp`
-- `makpe`
+- `make`
 
 ```bash
 git clone https://github.com/tr1xem/AWCC
@@ -47,7 +47,7 @@ Then execute these cmds to add urself in plugdev
  sudo usermod -aG plugdev $USER
 ```
 
-> ![IMPORTANT]
+> [!NOTE]
 > If you dont want to run it as root you can use the `awccd` daemon
 > that will run it as a user and will not require root privileges
 > to run it.
