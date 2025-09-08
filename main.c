@@ -1,14 +1,14 @@
-#include "AWCC.h"
-#include "AWCCAutoBoost.h"
-#include "AWCCConfig.h"
-#include "AWCCControl.h"
-#include "AWCCDaemon.h"
-#include "AWCCSystemLogger.h"
-#include "lighting_controls.h"
-#include "lights.h"
+#include "include/AWCC.h"
+#include "include/AWCCAutoBoost.h"
+#include "include/AWCCConfig.h"
+#include "include/AWCCControl.h"
+#include "include/AWCCDaemon.h"
+#include "include/AWCCSystemLogger.h"
+#include "include/lighting_controls.h"
+#include "include/lights.h"
 #include "src/AWCCUtils.h"
-#include "supported_devices.h"
-#include "thermal_modes.h"
+#include "include/supported_devices.h"
+#include "include/thermal_modes.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -182,6 +182,38 @@ int execute_via_daemon(int argc, char **argv) {
     }
   } else if (strcmp(argv[1], "device-info") == 0) {
     cmd.command_type = AWCC_CMD_DEVICE_INFO;
+    cmd.response_needed = 1;
+
+    if (awcc_daemon_send_command(&cmd, &response) == 0 &&
+        response.status == 0) {
+      printf("%s\n", response.data);
+    }
+  } else if (strcmp(argv[1], "autoboost") == 0) {
+    cmd.command_type = AWCC_CMD_AUTOBOOST;
+    // Include any additional arguments for autoboost
+    if (argc > 2) {
+      snprintf(cmd.args, sizeof(cmd.args), "%s", argv[2]);
+    } else {
+      strcpy(cmd.args, "status"); // default to status if no args
+    }
+    cmd.response_needed = 1;
+
+    if (awcc_daemon_send_command(&cmd, &response) == 0 &&
+        response.status == 0) {
+      printf("%s\n", response.data);
+    }
+  } else if (strncmp(argv[1], "lights", 6) == 0 || strcmp(argv[1], "lighting") == 0) {
+    cmd.command_type = AWCC_CMD_LIGHTING;
+    // Include the full command and arguments for lighting
+    size_t pos = 0;
+    for (int i = 1; i < argc && pos < sizeof(cmd.args) - 1; i++) {
+      if (i > 1) cmd.args[pos++] = ' ';
+      size_t len = strlen(argv[i]);
+      if (pos + len < sizeof(cmd.args) - 1) {
+        strcpy(cmd.args + pos, argv[i]);
+        pos += len;
+      }
+    }
     cmd.response_needed = 1;
 
     if (awcc_daemon_send_command(&cmd, &response) == 0 &&
