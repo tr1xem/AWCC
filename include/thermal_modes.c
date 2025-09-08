@@ -1,8 +1,8 @@
 #define _GNU_SOURCE
 #include "thermal_modes.h"
 #include "AWCCUtils.h"
-#include "supported_devices.h"
 #include "lighting_controls.h"
+#include "supported_devices.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -95,7 +95,6 @@ device_capabilities_t detect_device_capabilities(void) {
                                 .has_gpu_fan_control = true,
                                 .has_cpu_fan_control = true,
                                 .acpi_prefix = "AMWW"};
-
 
   extern const char *acpi_prefix;
   caps.acpi_prefix = acpi_prefix;
@@ -197,9 +196,10 @@ int execute_thermal_mode(thermal_mode_id_t mode_id) {
 
   if (mode->requires_root && geteuid() != 0) {
     // Use checkRoot to handle sudo elevation properly
-    char *fake_argv[] = {"awcc", (char*)mode->cli_command, NULL};
+    char *fake_argv[] = {"awcc", (char *)mode->cli_command, NULL};
     checkRoot(mode->cli_command, fake_argv);
-    // checkRoot will exec with elevated privileges or exit, so we shouldn't reach here
+    // checkRoot will exec with elevated privileges or exit, so we shouldn't
+    // reach here
     return 1;
   }
 
@@ -208,6 +208,7 @@ int execute_thermal_mode(thermal_mode_id_t mode_id) {
   }
 
   if (check_current_mode(mode->hex_code)) {
+    printf("%s mode is already active.\n", mode->name);
     return 0;
   }
 
@@ -229,7 +230,8 @@ int execute_thermal_mode_by_command(const char *command) {
 
   // Check if this specific thermal mode is supported on current device
   if (g_current_device && !is_thermal_mode_supported(command)) {
-    fprintf(stderr, "Error: Thermal mode '%s' not supported on %s\n", mode->name, get_device_name());
+    fprintf(stderr, "Error: Thermal mode '%s' not supported on %s\n",
+            mode->name, get_device_name());
     return 1;
   }
 
@@ -317,7 +319,7 @@ void generate_full_help_menu(void) {
       printf("  sgb <value>             Set GPU fan boost (1-100)\n");
     }
     printf("\n");
-    
+
     printf("Fan RPM/Info Controls (Run as root):\n");
     if (caps.has_cpu_fan_control) {
       printf("  cr                      Get CPU fan RPM\n");
@@ -327,20 +329,24 @@ void generate_full_help_menu(void) {
     }
     printf("  cfn                     Get CPU fan name\n");
     printf("  gfn                     Get GPU fan name\n");
-    printf("  fans                    Show all fans status (RPM, boost, names)\n");
+    printf(
+        "  fans                    Show all fans status (RPM, boost, names)\n");
     printf("\n");
   }
 
   printf("Advanced Controls (Run as root):\n");
-  printf("  autoboost               Start automatic thermal management daemon\n");
+  printf(
+      "  autoboost               Start automatic thermal management daemon\n");
   printf("\n");
-  
+
   printf("System Information:\n");
-  printf("  device-info             Show detected device model and supported features\n");
+  printf("  device-info             Show detected device model and supported "
+         "features\n");
   printf("\n");
-  
+
   printf("Options:\n");
-  printf("  --test-mode             Skip device detection and feature validation\n");
+  printf("  --test-mode             Skip device detection and feature "
+         "validation\n");
   printf("                          (for testing on unsupported devices)\n");
   printf("\n");
 }

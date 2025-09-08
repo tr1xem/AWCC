@@ -45,8 +45,6 @@ int check_current_mode(const char *desired_hex) {
   char *response = readAcpiResponse();
 
   if (strstr(response, desired_hex)) {
-    const char *mode_name = get_current_mode_name();
-    printf("%s mode is already active.\n", mode_name);
     return 1;
   }
   return 0;
