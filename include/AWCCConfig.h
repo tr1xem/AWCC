@@ -19,10 +19,24 @@ struct AWCCModeInterval_t { // A temperature range to the desired mode mapping
 	enum AWCCMode_t Mode;
 };
 
+struct AWCCSuperBoostShiftToLower_t {
+	int PendingTime;
+	int Time;
+	int IntervalOffset;
+};
+
 // WARN: This makes a connection between the configured boost intervals of cpu
 // and gpu
 struct AWCCSuperBoostConfig_t {
-	int BoostEqualizationZoneMax;
+	int BoostEqualizationZoneMax; // The maximum boost interval to be active to
+								  // equalize the another boost interval if it's
+								  // lower
+
+	// TODO: Skeleton. When BoostDownHysteresis isn't satisfied for a certain
+	// amount of time, and the only condition preventing boost down is it, shift
+	// up the boost level by the offset for a certain amount of time to drop the
+	// temperature and set lower boost level.
+	struct AWCCSuperBoostShiftToLower_t ShiftToLower [2];
 };
 
 struct AWCCFanConfig_t { // The fan specific options

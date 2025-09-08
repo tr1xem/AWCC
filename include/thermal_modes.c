@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "thermal_modes.h"
 #include "fans.h"
 #include "lighting_controls.h"
@@ -306,4 +307,8 @@ void generate_full_help_menu(void) {
     }
     printf("\n");
   }
+
+  printf("Advanced Controls (Run as root):\n");
+  printf("  autoboost               Start automatic thermal management daemon\n");
+  printf("\n");
 }

@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "thermal_modes.h"
 #include <ctype.h>
 #include <stdint.h>
