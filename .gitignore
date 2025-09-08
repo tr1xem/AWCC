@@ -1,5 +1,8 @@
 .vscode
 awcc
+awccd
+compile_commands.json
 .aider*
 Agents.md
 AGENTS.md
+.cache
