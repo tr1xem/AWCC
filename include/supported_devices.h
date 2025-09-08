@@ -17,6 +17,26 @@ typedef struct {
         bool has_cpu_temp;
         bool has_gpu_temp;
         bool has_gmode_toggle;
+        
+        // Per-thermal-mode support
+        struct {
+            bool quiet;
+            bool balanced;
+            bool performance;
+            bool battery_saver;
+            bool gmode;
+        } thermal_modes;
+        
+        // Per-lighting-feature support
+        struct {
+            bool brightness_control;
+            bool static_color;
+            bool spectrum_effect;
+            bool breathing_effect;
+            bool rainbow_effect;
+            bool wave_effect;
+            bool back_forth_effect;
+        } lighting;
     } features;
 } device_config_t;
 
@@ -33,6 +53,8 @@ extern device_config_t *g_current_device;
 // Function declarations
 device_detection_result_t detect_device_model(void);
 bool is_feature_supported(const char* feature_name);
+bool is_thermal_mode_supported(const char* mode_name);
+bool is_lighting_effect_supported(const char* effect_name);
 void print_device_info(void);
 const char* get_device_name(void);
 const char* get_acpi_prefix(void);
