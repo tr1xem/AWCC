@@ -1,8 +1,8 @@
 TARGET := awcc
 DAEMON_TARGET := awccd
 PREFIX ?= $(HOME)/.local
-SOURCE := main.c $(wildcard ./include/*.c)
-DAEMON_SOURCE := awccd.c $(wildcard ./include/*.c)
+SOURCE := main.c $(wildcard ./src/*.c)
+DAEMON_SOURCE := awccd.c $(wildcard ./src/*.c)
 INCLUDE := ./include
 
 # Compiler and linker flags

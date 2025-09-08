@@ -1,7 +1,7 @@
-#include "include/AWCC.h"
-#include "include/AWCCDaemon.h"
-#include "include/supported_devices.h"
-#include "include/lights.h"
+#include "AWCC.h"
+#include "AWCCDaemon.h"
+#include "supported_devices.h"
+#include "lights.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
