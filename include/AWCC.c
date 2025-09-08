@@ -24,6 +24,7 @@ static AWCCBoost_t GetFanBoost (enum AWCCFan_t);
 static void SetFanBoost (enum AWCCFan_t, AWCCBoost_t);
 static AWCCTemperature_t GetFanTemperature (enum AWCCFan_t);
 static AWCCFanRpm_t GetFanRpm (enum AWCCFan_t);
+static const char * GetFanName (enum AWCCFan_t);
 
 static void SetMode (enum AWCCMode_t);
 static enum AWCCMode_t GetMode (void);
@@ -52,6 +53,7 @@ const struct AWCC_t AWCC = {
 	.SetFanBoost = & SetFanBoost,
 	.GetFanTemperature = & GetFanTemperature,
 	.GetFanRpm = & GetFanRpm,
+	.GetFanName = & GetFanName,
 
 	.SetMode = & SetMode,
 	.GetMode = & GetMode,
@@ -63,8 +65,13 @@ const struct AWCC_t AWCC = {
 };
 
 struct {
+	const char * const * FanNames;
 	const char * const * ModeNames;
 } static Internal = {
+	.FanNames = (const char * []) {
+		[AWCCFanCPU] = "CPU",
+		[AWCCFanGPU] = "GPU",
+	},
 	.ModeNames = (const char * []) {
 		[AWCCModeQuiet]          =   "Quiet",
 		[AWCCModeBatterySaver]   =   "BatterySaver",
@@ -141,6 +148,10 @@ AWCCTemperature_t GetFanTemperature (enum AWCCFan_t fan)
 AWCCFanRpm_t GetFanRpm (enum AWCCFan_t fan)
 {
 	return AWCCACPI.GetFanRpm (fan);
+}
+
+const char * GetFanName (enum AWCCFan_t fan) {
+	return Internal.FanNames [fan];
 }
 
 void SetMode (enum AWCCMode_t mode)

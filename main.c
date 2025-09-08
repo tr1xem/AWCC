@@ -2,6 +2,11 @@
 #include "include/lighting_controls.h"
 #include "include/lights.h"
 #include "include/thermal_modes.h"
+#include "include/AWCC.h"
+#include "include/AWCCAutoBoost.h"
+#include "include/AWCCConfig.h"
+#include "include/AWCCControl.h"
+#include "include/AWCCSystemLogger.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -56,6 +61,13 @@ int main(int argc, char **argv) {
       int value = atoi(argv[2]);
       checkRoot(argv[1], argv);
       setFanBoost("gpu", value);
+    } else if (strcmp(argv[1], "autoboost") == 0) {
+      checkRoot(argv[1], argv);
+      AWCC.Initialize();
+      struct AWCCConfig_t conf_ac = AWCCDefaultConfigAC();
+      struct AWCCConfig_t conf_bat = AWCCDefaultConfigBAT();
+      AWCCAutoBoost.Start(&conf_ac, &conf_bat, &AWCCSystemLoggerDefault, &AWCCControlDefault);
+      AWCC.Deinitialize();
     } else {
       print_usage();
     }

@@ -17,6 +17,18 @@ const struct AWCCConfig_t AWCCDefaultConfig = {
 
 	.SuperBoostConfig = {
 		.BoostEqualizationZoneMax = 8,
+		.ShiftToLower = {
+			[AWCCFanCPU] = {
+				.PendingTime = 60,
+				.Time = 30,
+				.IntervalOffset = 3,
+			},
+			[AWCCFanGPU] = {
+				.PendingTime = 60,
+				.Time = 30,
+				.IntervalOffset = 3,
+			},
+		},
 	},
 
 	.FanConfigs = {
@@ -94,6 +106,7 @@ struct {
 	int _BoostIntervalsCountBAT;
 
 	int BoostEqualizationZoneMaxBAT;
+	int ShiftToLowerOffsetBAT;
 } static Internal = {
 	.ModeIntervalsBAT = {
 		{ .TemperatureRange = { .Min =  0, .Max = 100 }, .Mode = AWCCModeBatterySaver },
@@ -117,7 +130,8 @@ struct {
 	.MinTimeAfterShiftDownBAT = 10,
 	.PendingTimeBAT = 5,
 
-	.BoostEqualizationZoneMaxBAT = 2
+	.BoostEqualizationZoneMaxBAT = 2,
+	.ShiftToLowerOffsetBAT = 2,
 };
 
 const struct AWCCConfig_t AWCCDefaultConfigBAT (void)
@@ -147,6 +161,8 @@ const struct AWCCConfig_t AWCCDefaultConfigBAT (void)
 	conf.FanConfigs [AWCCFanGPU]._BoostIntervalCount = Internal._BoostIntervalsCountBAT;
 
 	conf.SuperBoostConfig.BoostEqualizationZoneMax = Internal.BoostEqualizationZoneMaxBAT;
+	conf.SuperBoostConfig.ShiftToLower [AWCCFanCPU].IntervalOffset = Internal.ShiftToLowerOffsetBAT;
+	conf.SuperBoostConfig.ShiftToLower [AWCCFanGPU].IntervalOffset = Internal.ShiftToLowerOffsetBAT;
 
 	return conf;
 }

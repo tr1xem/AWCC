@@ -125,7 +125,6 @@ void LogCpuBoost (AWCCBoost_t boost)
 	static _Thread_local char value [8];
 	snprintf (value, sizeof (value), "%d", (int) boost);
 	Internal.WriteToFile (path, value);
-
 }
 
 void LogGpuBoost (AWCCBoost_t boost)
