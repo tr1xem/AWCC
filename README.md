@@ -10,7 +10,7 @@ For Arch Based Distros
 paru -S awcc-git
 ```
 
-For other Distros see #manual-installation
+For other Distros see below
 
 ## Manual Installation
 
