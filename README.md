@@ -1,20 +1,20 @@
 # AWCC for Dell G series
 
-Alienware Command Center for Dell G series with keybords USB 187c:0550 and USB 187c:0551 that auto detects if ur using intel or amd and with this you could set manual fan speeds too
+AWCC is an alternative to Alienware Command Centre of Windows for the Dell G series, supporting almost all features that the Windows version supports, including custom fan controls, light effects,g-mode, and autoboost
 
 # Building And Installation
 
-For Arch Based Distros
+For Arch-Based Distros
 
 ```bash
 paru -S awcc-git
 ```
 
-For other Distros see below
+For other Distros, see below.
 
 ## Manual Installation
 
-Depnedencies:
+Dependencies:
 
 - `acpi_call-dkms`
 - `libusb`
@@ -32,7 +32,7 @@ cd  AWCC
 sudo make install
 ```
 
-Make a udev rule for it.(make sure to replace 0551 by 0550 if ur using that)
+Make a udev rule for it. (make sure to replace 0551 by 0550 if ur using that)
 
 ```bash
 # /etc/udev/rules.d/99-awcc.rules
@@ -40,7 +40,7 @@ SUBSYSTEM=="usb", ATTRS{idVendor}=="187c", ATTRS{idProduct}=="0551", MODE="0660"
 
 ```
 
-Then execute these cmds to add urself in plugdev
+Then execute these commands to add urself to plugdev
 
 ```bash
  sudo groupadd plugdev
@@ -48,7 +48,7 @@ Then execute these cmds to add urself in plugdev
 ```
 
 > [!NOTE]
-> If you dont want to run it as root you can use the `awccd` daemon
+> If you don't want to run it as root, you can use the `awccd` daemon
 > that will run it as a user and will not require root privileges
 > to run it.
 
@@ -112,18 +112,18 @@ Tested on:
 Dell G15 5530
 Dell G16 7630
 
-Should Work in all Dell G15 models and some G16 too
-Feel Free to test and give suggestions!
+Should work in all Dell G15 models and some G16 models too
+Feel free to test and give feedback in [discussions](https://github.com/tr1xem/AWCC/discussions)!
 
 # FAQ and TIPS
 
-Q: This works on my device I want to add it to support officially?
+Q: This works on my device. I want to add it to support officially?
 
-Ans: Yes you can just run `sudo awcc device-info` and open pull request with the output
+Ans: Yes, you can just run `sudo awcc device-info` and open a discussion with the output
 
-Q: How do a keybind for Light Toggle ?
+Q: How do I create a keybind for Light toggle?
 
-Ans : Install it and make a script under `~/.local/share/bin` as follows
+Ans: Install it and make a script under `~/.local/share/bin` as follows
 
 ```bash
 #!/bin/bash
@@ -137,9 +137,9 @@ echo "Executing command with argument: $ARG"
 awcc brightness "$ARG"
 ```
 
-and Bind it to a key preferrably F5
+And bind it to a key, preferably F5
 
-### Got a suggestion or a feature request? link it up in [discussions](https://github.com/tr1xem/AWCC/discussions)
+### Got a suggestion or a feature request? Link it up in [discussions](https://github.com/tr1xem/AWCC/discussions)
 
 # TODO
 
