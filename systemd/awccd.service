@@ -20,23 +20,5 @@ WorkingDirectory=/var/run/awcc
 RuntimeDirectory=awcc
 RuntimeDirectoryMode=0755
 
-# Security
-NoNewPrivileges=yes
-ProtectSystem=strict
-ProtectHome=yes
-PrivateTmp=yes
-ProtectKernelTunables=yes
-ProtectKernelModules=yes
-ProtectControlGroups=yes
-RestrictSUIDSGID=yes
-RestrictRealtime=yes
-RestrictNamespaces=yes
-LockPersonality=yes
-
-# Device access - needed for AWCC hardware communication
-DeviceAllow=/dev/usb
-DeviceAllow=char-usb_device rw
-DevicePolicy=closed
-
 [Install]
 WantedBy=multi-user.target

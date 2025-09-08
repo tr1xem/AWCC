@@ -1,7 +1,7 @@
-#include "AWCC.h"
-#include "AWCCDaemon.h"
-#include "supported_devices.h"
-#include "lights.h"
+#include "include/AWCC.h"
+#include "include/AWCCDaemon.h"
+#include "include/supported_devices.h"
+#include "include/lights.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +19,7 @@ static int daemon_running = 1;
 static int server_socket = -1;
 static int verbose_mode = 0;
 static int debug_mode = 0;
+static int quiet_mode = 0;
 
 void print_usage(void) {
     printf("AWCC Daemon - Alienware Command Center Daemon\n");
@@ -26,11 +27,12 @@ void print_usage(void) {
     printf("Options:\n");
     printf("  --verbose, -v    Enable verbose output\n");
     printf("  --debug, -d      Enable debug mode (includes verbose)\n");
+    printf("  --quiet, -q      Suppress non-essential output\n");
     printf("  --help, -h       Show this help message\n\n");
 }
 
 void log_verbose(const char *format, ...) {
-    if (!verbose_mode && !debug_mode) return;
+    if (quiet_mode || (!verbose_mode && !debug_mode)) return;
     
     va_list args;
     va_start(args, format);
@@ -41,7 +43,7 @@ void log_verbose(const char *format, ...) {
 }
 
 void log_debug(const char *format, ...) {
-    if (!debug_mode) return;
+    if (quiet_mode || !debug_mode) return;
     
     va_list args;
     va_start(args, format);
@@ -93,8 +95,13 @@ void handle_command(int client_fd, const struct AWCCCommand_t *cmd) {
             if (mode >= AWCCModeQuiet && mode <= AWCCModeG) {
                 AWCC.SetMode((enum AWCCMode_t)mode);
                 response.status = 0;
-                snprintf(response.data, sizeof(response.data), "Mode set to %s", 
-                        AWCC.GetModeName((enum AWCCMode_t)mode));
+                const char* mode_name = AWCC.GetModeName((enum AWCCMode_t)mode);
+                snprintf(response.data, sizeof(response.data), "Mode set to %s", mode_name);
+                
+                // Show status update (unless in quiet mode)
+                if (!quiet_mode) {
+                    printf("Thermal mode changed to: %s\n", mode_name);
+                }
                 log_debug("Mode set successfully: %s", response.data);
             } else {
                 response.status = -1;
@@ -108,8 +115,18 @@ void handle_command(int client_fd, const struct AWCCCommand_t *cmd) {
             log_verbose("Toggling G-Mode");
             AWCC.ToggleGMode();
             response.status = 0;
-            snprintf(response.data, sizeof(response.data), "G-Mode toggled");
-            log_debug("G-Mode toggled successfully");
+            
+            // Get current mode after toggle to show status
+            enum AWCCMode_t current_mode = AWCC.GetMode();
+            const char* mode_name = AWCC.GetModeName(current_mode);
+            
+            snprintf(response.data, sizeof(response.data), "G-Mode toggled - Current mode: %s", mode_name);
+            
+            // Show status update (unless in quiet mode)
+            if (!quiet_mode) {
+                printf("G-Mode toggled - Current thermal mode: %s\n", mode_name);
+            }
+            log_debug("G-Mode toggled successfully - Current mode: %s", mode_name);
             break;
             
         case AWCC_CMD_GET_FAN_BOOST: {
@@ -133,6 +150,12 @@ void handle_command(int client_fd, const struct AWCCCommand_t *cmd) {
                     response.status = 0;
                     snprintf(response.data, sizeof(response.data), "%s fan boost set to %d%%", 
                             fan_str, boost_value);
+                    
+                    // Show status update (unless in quiet mode)
+                    if (!quiet_mode) {
+                        printf("%s fan boost changed to %d%%\n", 
+                               AWCC.GetFanName(fan), boost_value);
+                    }
                     log_debug("Fan boost set successfully: %s", response.data);
                 } else {
                     response.status = -1;
@@ -199,6 +222,32 @@ void handle_command(int client_fd, const struct AWCCCommand_t *cmd) {
             log_debug("Shutdown initiated");
             break;
             
+        case AWCC_CMD_AUTOBOOST:
+            log_verbose("AutoBoost command received: %s", cmd->args);
+            // TODO: Implement autoboost functionality
+            // For now, acknowledge the command but indicate it needs implementation
+            response.status = 0;
+            snprintf(response.data, sizeof(response.data), "AutoBoost: %s", cmd->args);
+            
+            if (!quiet_mode) {
+                printf("AutoBoost command executed: %s\n", cmd->args);
+            }
+            log_debug("AutoBoost command processed: %s", cmd->args);
+            break;
+            
+        case AWCC_CMD_LIGHTING:
+            log_verbose("Lighting command received: %s", cmd->args);
+            // TODO: Implement lighting control functionality
+            // For now, acknowledge the command but indicate it needs implementation
+            response.status = 0;
+            snprintf(response.data, sizeof(response.data), "Lighting: %s", cmd->args);
+            
+            if (!quiet_mode) {
+                printf("Lighting command executed: %s\n", cmd->args);
+            }
+            log_debug("Lighting command processed: %s", cmd->args);
+            break;
+            
         default:
             response.status = -1;
             snprintf(response.data, sizeof(response.data), "Unknown command: %d", cmd->command_type);
@@ -232,6 +281,8 @@ int main(int argc, char **argv) {
         } else if (strcmp(argv[i], "--debug") == 0 || strcmp(argv[i], "-d") == 0) {
             debug_mode = 1;
             verbose_mode = 1; // debug includes verbose
+        } else if (strcmp(argv[i], "--quiet") == 0 || strcmp(argv[i], "-q") == 0) {
+            quiet_mode = 1;
         } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
             print_usage();
             return 0;
@@ -278,6 +329,19 @@ int main(int argc, char **argv) {
     log_verbose("Initializing device and AWCC");
     device_open();
     AWCC.Initialize();
+    
+    // Display current system status
+    if (!quiet_mode) {
+        enum AWCCMode_t current_mode = AWCC.GetMode();
+        const char* mode_name = AWCC.GetModeName(current_mode);
+        printf("Current thermal mode: %s\n", mode_name);
+        
+        printf("Fan status:\n");
+        printf("  %s: %d RPM (%d%% boost)\n", 
+               AWCC.GetFanName(AWCCFanCPU), AWCC.GetFanRpm(AWCCFanCPU), AWCC.GetFanBoost(AWCCFanCPU));
+        printf("  %s: %d RPM (%d%% boost)\n", 
+               AWCC.GetFanName(AWCCFanGPU), AWCC.GetFanRpm(AWCCFanGPU), AWCC.GetFanBoost(AWCCFanGPU));
+    }
     
     // Create socket directory
     log_verbose("Creating socket directory");
@@ -343,7 +407,6 @@ int main(int argc, char **argv) {
         timeout.tv_sec = 1;
         timeout.tv_usec = 0;
         
-        log_debug("Waiting for socket activity (1s timeout)");
         int activity = select(server_socket + 1, &read_fds, NULL, NULL, &timeout);
         
         if (activity < 0 && errno != EINTR) {
