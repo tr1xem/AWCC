@@ -17,13 +17,13 @@ For other Distros see below
 Depnedencies:
 
 - `acpi_call-dkms`
-- `libpusb`
-- `pcrpe2`
-- `sysptemd-libs`
-- `glipbc`
-- `libpcap`
-- `gccp-libs`
-- `gitp`
+- `libusb`
+- `pcre2`
+- `systemd-libs`
+- `glibc`
+- `libcap`
+- `gcc-libs`
+- `git`
 - `make`
 
 ```bash
