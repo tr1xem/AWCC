@@ -17,6 +17,14 @@ $(TARGET): $(SOURCE)
 $(DAEMON_TARGET): $(DAEMON_SOURCE)
 	gcc $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
+# Generate compilation database using compiledb
+compile_commands.json: Makefile
+	@echo "Generating compilation database..."
+	compiledb make $(TARGET) $(DAEMON_TARGET)
+	@echo "Generated compile_commands.json"
+
+compdb: compile_commands.json
+
 run: $(TARGET)
 	./$(TARGET)
 
@@ -33,4 +41,6 @@ uninstall:
 	rm --force "$(PREFIX)/bin/$(DAEMON_TARGET)"
 
 clean:
-	rm --force "$(TARGET)" "$(DAEMON_TARGET)"
+	rm --force "$(TARGET)" "$(DAEMON_TARGET)" compile_commands.json
+
+.PHONY: all run run-daemon install uninstall clean compile_commands.json compdb

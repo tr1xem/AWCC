@@ -4,9 +4,9 @@
 #include "AWCCControl.h"
 #include "AWCCDaemon.h"
 #include "AWCCSystemLogger.h"
-#include "src/AWCCUtils.h"
 #include "lighting_controls.h"
 #include "lights.h"
+#include "src/AWCCUtils.h"
 #include "supported_devices.h"
 #include "thermal_modes.h"
 #include <stdio.h>
