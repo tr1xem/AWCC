@@ -8,6 +8,7 @@
 #include "include/lights.h"
 #include "include/supported_devices.h"
 #include "include/thermal_modes.h"
+#include "include/AWCCDaemon.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,7 +39,150 @@ int is_thermal_mode_command(const char *command) {
 
 void print_usage(void) { generate_full_help_menu(); }
 
+int execute_via_daemon(int argc, char **argv) {
+  struct AWCCCommand_t cmd = {0};
+  struct AWCCResponse_t response = {0};
+  
+  if (argc < 2) {
+    print_usage();
+    return 0;
+  }
+  
+  // Map command line arguments to daemon commands
+  if (strcmp(argv[1], "qm") == 0 || strcmp(argv[1], "query") == 0) {
+    cmd.command_type = AWCC_CMD_GET_MODE;
+    cmd.response_needed = 1;
+    
+    if (awcc_daemon_send_command(&cmd, &response) == 0 && response.status == 0) {
+      int mode = atoi(response.data);
+      const char *mode_names[] = {"Quiet", "Battery Saver", "Balanced", "Performance", "G-Mode"};
+      printf("Current mode: %s\n", mode_names[mode]);
+    }
+  } else if (strcmp(argv[1], "modes") == 0) {
+    cmd.command_type = AWCC_CMD_LIST_MODES;
+    cmd.response_needed = 1;
+    
+    if (awcc_daemon_send_command(&cmd, &response) == 0) {
+      printf("%s\n", response.data);
+    }
+  } else if (is_thermal_mode_command(argv[1])) {
+    cmd.command_type = AWCC_CMD_SET_MODE;
+    enum AWCCMode_t mode = command_to_awcc_mode(argv[1]);
+    snprintf(cmd.args, sizeof(cmd.args), "%d", mode);
+    cmd.response_needed = 1;
+    
+    if (awcc_daemon_send_command(&cmd, &response) == 0 && response.status == 0) {
+      printf("%s\n", response.data);
+    }
+  } else if (strcmp(argv[1], "gt") == 0) {
+    cmd.command_type = AWCC_CMD_TOGGLE_GMODE;
+    cmd.response_needed = 1;
+    
+    if (awcc_daemon_send_command(&cmd, &response) == 0) {
+      printf("%s\n", response.data);
+    }
+  } else if (strcmp(argv[1], "cb") == 0 || strcmp(argv[1], "getcpufanboost") == 0) {
+    cmd.command_type = AWCC_CMD_GET_FAN_BOOST;
+    strcpy(cmd.args, "cpu");
+    cmd.response_needed = 1;
+    
+    if (awcc_daemon_send_command(&cmd, &response) == 0 && response.status == 0) {
+      printf("CPU fan boost: %s%%\n", response.data);
+    }
+  } else if (strcmp(argv[1], "gb") == 0 || strcmp(argv[1], "getgpufanboost") == 0) {
+    cmd.command_type = AWCC_CMD_GET_FAN_BOOST;
+    strcpy(cmd.args, "gpu");
+    cmd.response_needed = 1;
+    
+    if (awcc_daemon_send_command(&cmd, &response) == 0 && response.status == 0) {
+      printf("GPU fan boost: %s%%\n", response.data);
+    }
+  } else if (strcmp(argv[1], "scb") == 0 || strcmp(argv[1], "setcpufanboost") == 0) {
+    if (argc < 3) {
+      fprintf(stderr, "error: missing value for CPU fan boost\n");
+      return 1;
+    }
+    cmd.command_type = AWCC_CMD_SET_FAN_BOOST;
+    snprintf(cmd.args, sizeof(cmd.args), "cpu %s", argv[2]);
+    cmd.response_needed = 1;
+    
+    if (awcc_daemon_send_command(&cmd, &response) == 0 && response.status == 0) {
+      printf("%s\n", response.data);
+    }
+  } else if (strcmp(argv[1], "sgb") == 0 || strcmp(argv[1], "setgpufanboost") == 0) {
+    if (argc < 3) {
+      fprintf(stderr, "error: missing value for GPU fan boost\n");
+      return 1;
+    }
+    cmd.command_type = AWCC_CMD_SET_FAN_BOOST;
+    snprintf(cmd.args, sizeof(cmd.args), "gpu %s", argv[2]);
+    cmd.response_needed = 1;
+    
+    if (awcc_daemon_send_command(&cmd, &response) == 0 && response.status == 0) {
+      printf("%s\n", response.data);
+    }
+  } else if (strcmp(argv[1], "cr") == 0 || strcmp(argv[1], "getcpufanrpm") == 0) {
+    cmd.command_type = AWCC_CMD_GET_FAN_RPM;
+    strcpy(cmd.args, "cpu");
+    cmd.response_needed = 1;
+    
+    if (awcc_daemon_send_command(&cmd, &response) == 0 && response.status == 0) {
+      printf("CPU fan RPM: %s\n", response.data);
+    }
+  } else if (strcmp(argv[1], "gr") == 0 || strcmp(argv[1], "getgpufanrpm") == 0) {
+    cmd.command_type = AWCC_CMD_GET_FAN_RPM;
+    strcpy(cmd.args, "gpu");
+    cmd.response_needed = 1;
+    
+    if (awcc_daemon_send_command(&cmd, &response) == 0 && response.status == 0) {
+      printf("GPU fan RPM: %s\n", response.data);
+    }
+  } else if (strcmp(argv[1], "cfn") == 0 || strcmp(argv[1], "getcpufanname") == 0) {
+    cmd.command_type = AWCC_CMD_GET_FAN_NAME;
+    strcpy(cmd.args, "cpu");
+    cmd.response_needed = 1;
+    
+    if (awcc_daemon_send_command(&cmd, &response) == 0 && response.status == 0) {
+      printf("CPU fan name: %s\n", response.data);
+    }
+  } else if (strcmp(argv[1], "gfn") == 0 || strcmp(argv[1], "getgpufanname") == 0) {
+    cmd.command_type = AWCC_CMD_GET_FAN_NAME;
+    strcpy(cmd.args, "gpu");
+    cmd.response_needed = 1;
+    
+    if (awcc_daemon_send_command(&cmd, &response) == 0 && response.status == 0) {
+      printf("GPU fan name: %s\n", response.data);
+    }
+  } else if (strcmp(argv[1], "fans") == 0) {
+    cmd.command_type = AWCC_CMD_FAN_STATUS;
+    cmd.response_needed = 1;
+    
+    if (awcc_daemon_send_command(&cmd, &response) == 0 && response.status == 0) {
+      printf("Fan Status:\n%s\n", response.data);
+    }
+  } else if (strcmp(argv[1], "device-info") == 0) {
+    cmd.command_type = AWCC_CMD_DEVICE_INFO;
+    cmd.response_needed = 1;
+    
+    if (awcc_daemon_send_command(&cmd, &response) == 0 && response.status == 0) {
+      printf("%s\n", response.data);
+    }
+  } else {
+    printf("Command '%s' not supported via daemon, falling back to direct execution\n", argv[1]);
+    return -1; // Indicate fallback needed
+  }
+  
+  if (response.status != 0) {
+    fprintf(stderr, "Error: %s\n", response.data);
+    return 1;
+  }
+  
+  return 0;
+}
+
 int main(int argc, char **argv) {
+  int use_daemon = 0;
+  
   // Check for --test-mode flag first
   for (int i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--test-mode") == 0) {
@@ -52,6 +196,22 @@ int main(int argc, char **argv) {
       argc--;
       break;
     }
+  }
+
+  // Check if daemon is running and we should use it
+  if (!test_mode && awcc_daemon_is_running()) {
+    use_daemon = 1;
+  }
+
+  // If using daemon, try daemon execution first
+  if (use_daemon && argc >= 2) {
+    int daemon_result = execute_via_daemon(argc, argv);
+    if (daemon_result != -1) {
+      // Command was handled by daemon (successfully or with error)
+      return daemon_result;
+    }
+    // If daemon_result == -1, fallback to direct execution
+    printf("Falling back to direct execution\n");
   }
 
   // Skip device detection in test mode

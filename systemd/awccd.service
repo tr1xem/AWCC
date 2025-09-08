@@ -1,0 +1,42 @@
+[Unit]
+Description=AWCC Daemon
+Documentation=https://github.com/your-repo/awcc
+After=multi-user.target
+Wants=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/awccd
+ExecStop=/bin/kill -TERM $MAINPID
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+User=root
+Group=root
+WorkingDirectory=/var/run/awcc
+
+# Create runtime directory
+RuntimeDirectory=awcc
+RuntimeDirectoryMode=0755
+
+# Security
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+
+# Device access - needed for AWCC hardware communication
+DeviceAllow=/dev/usb
+DeviceAllow=char-usb_device rw
+DevicePolicy=closed
+
+[Install]
+WantedBy=multi-user.target
