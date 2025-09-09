@@ -1,6 +1,6 @@
 # AWCC for Dell G series
 
-AWCC is an alternative to Alienware Command Centre of Windows for the Dell G series, supporting almost all features that the Windows version supports, including custom fan controls, light effects,g-mode, and autoboost
+AWCC is an unofficial alternative to Alienware Command Centre of Windows for the Dell G series on Linux, supporting almost all features that the Windows version supports, including custom fan controls, light effects, g-mode, and autoboost
 
 # Building And Installation
 
