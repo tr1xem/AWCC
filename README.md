@@ -52,6 +52,10 @@ Then execute these commands to add urself to plugdev
 > that will run it as a user and will not require root privileges
 > to run it.
 
+## Keybinding To G-Key
+
+Copy the script from `scripts/main.py` to a desired location and install `evdev` package from pip or aur then run the script with `python3 main.py`. This will make your G-Key and Light Key work as it used to work in Windows.
+
 # Usage
 
 ```bash
@@ -108,11 +112,13 @@ Options:
 
 # Device Tested
 
-Tested on:
-Dell G15 5530
-Dell G16 7630
+**Tested on:**
 
-Should work in all Dell G15 models and some G16 models too <br>
+- Dell G15 5530
+- Dell G16 7630
+
+Should work in all Dell G15 models and some G16 models too
+
 Feel free to test and give feedback in [discussions](https://github.com/tr1xem/AWCC/discussions)
 
 # FAQ and TIPS
@@ -120,24 +126,6 @@ Feel free to test and give feedback in [discussions](https://github.com/tr1xem/A
 Q: This works on my device. I want to add it to support officially?
 
 Ans: Yes, you can just run `sudo awcc device-info` and open a discussion with the output
-
-Q: How do I create a keybind for Light toggle?
-
-Ans: Install it and make a script under `~/.local/share/bin` as follows
-
-```bash
-#!/bin/bash
-STATE_FILE="rotate_state.txt"
-VALUES=(0 50 100)
-CURRENT_INDEX=$(cat "$STATE_FILE" 2>/dev/null || echo -1)
-NEXT_INDEX=$(( (CURRENT_INDEX + 1) % ${#VALUES[@]} ))
-echo $NEXT_INDEX > "$STATE_FILE"
-ARG=${VALUES[$NEXT_INDEX]}
-echo "Executing command with argument: $ARG"
-awcc brightness "$ARG"
-```
-
-And bind it to a key, preferably F5
 
 ### Got a suggestion or a feature request? Link it up in [discussions](https://github.com/tr1xem/AWCC/discussions)
 
@@ -150,8 +138,7 @@ And bind it to a key, preferably F5
 
 - [GasparVardanyan](https://github.com/GasparVardanyan)
 - [humanfx](https://github.com/tiagoporsch/humanfx)
-- @meduk0
-- Arch Wiki
+- [meduk0](https://github.com/meduk0)
 
 “Intelligence is the ability to avoid doing work, yet getting the work done.”
 
