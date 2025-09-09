@@ -116,6 +116,7 @@ Options:
 
 - Dell G15 5530
 - Dell G16 7630
+- Dell G15 5511
 
 Should work in all Dell G15 models and some G16 models too
 
