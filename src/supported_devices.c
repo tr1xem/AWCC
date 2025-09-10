@@ -36,7 +36,7 @@ static device_config_t supported_devices[] = {
 
     {.identifier = "Dell G15 5511",
      .acpi_prefix = "AMWW",
-     .acpi_model_id = 0xb75,
+     .acpi_model_id = 0x0b75,
      .is_dmi_fallback = false,
      .features = {.has_fan_boost = true,
                   .has_thermal_modes = true,
