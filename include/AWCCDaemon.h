@@ -8,7 +8,7 @@
 #define AWCC_SOCKET_PATH "/var/run/awcc/awccd.sock"
 #define AWCC_SOCKET_DIR "/var/run/awcc"
 #define AWCC_MAX_COMMAND_ARGS 256
-#define AWCC_MAX_RESPONSE_DATA 512
+#define AWCC_MAX_RESPONSE_DATA 2048
 
 enum AWCCCommandType_t {
     AWCC_CMD_GET_MODE = 1,
