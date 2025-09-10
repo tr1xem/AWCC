@@ -300,6 +300,9 @@ int main(int argc, char **argv) {
   fd_set read_fds;
   struct timeval timeout;
 
+  // Set the global flag to allow ACPI operations inside daemon
+  awcc_running_inside_daemon = 1;
+
   // Parse command line arguments
   for (int i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--verbose") == 0 || strcmp(argv[i], "-v") == 0) {

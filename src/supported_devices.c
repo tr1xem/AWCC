@@ -26,7 +26,7 @@ static device_config_t supported_devices[] = {
                                     .performance = true,
                                     .battery_saver = true,
                                     .gmode = true},
-                  .lighting = {.brightness_control = false,
+                  .lighting = {.brightness_control = true,
                                .static_color = true,
                                .spectrum_effect = true,
                                .breathing_effect = true,

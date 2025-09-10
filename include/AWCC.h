@@ -60,4 +60,7 @@ struct AWCC_t {
 
 extern const struct AWCC_t AWCC;
 
+// Global flag to allow daemon to bypass daemon detection
+extern int awcc_running_inside_daemon;
+
 # endif // __AWCC_H
