@@ -29,6 +29,9 @@ static AWCCFanRpm_t GetFanRpm (enum AWCCFan_t);
 // Forward declaration for daemon check
 extern int awcc_daemon_is_running(void);
 
+// Global flag to allow daemon to bypass the daemon check
+int awcc_running_inside_daemon = 0;
+
 const struct AWCCACPI_t AWCCACPI = {
 	.Initialize = & Initialize,
 	.GetMode = & GetMode,
@@ -155,8 +158,8 @@ void Initialize (void)
 
 void Execute (const char * command)
 {
-	// Check if daemon is running first
-	if (awcc_daemon_is_running()) {
+	// Allow daemon to bypass daemon check
+	if (!awcc_running_inside_daemon && awcc_daemon_is_running()) {
 		// For now, still prevent direct ACPI when daemon is running
 		// In a full implementation, we could translate ACPI commands to daemon commands
 		fprintf(stderr, "AWCC daemon is running. ACPI operations should go through the daemon.\n");
