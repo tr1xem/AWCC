@@ -223,9 +223,8 @@ void handle_command(int client_fd, const struct AWCCCommand_t *cmd) {
   case AWCC_CMD_DEVICE_INFO:
     log_verbose("Getting device information");
     response.status = 0;
-    snprintf(response.data, sizeof(response.data), "Device: %s",
-             get_device_name());
-    log_debug("Device info: %s", response.data);
+    build_device_info_string(response.data, sizeof(response.data));
+    log_debug("Device info generated (length: %zu)", strlen(response.data));
     break;
 
   case AWCC_CMD_SHUTDOWN:
@@ -325,45 +324,11 @@ int main(int argc, char **argv) {
   signal(SIGINT, signal_handler);
   signal(SIGPIPE, SIG_IGN);
 
-  // Detect device
-  log_verbose("Starting device detection");
-  device_detection_result_t detection_result = detect_device_model();
-  if (detection_result == DEVICE_DETECTION_UNSUPPORTED) {
-    fprintf(stderr, "Error: Unsupported device detected\n");
-    return 1;
-  }
-
-  if (detection_result == DEVICE_DETECTION_SUCCESS) {
-    printf("Device detected: %s\n", get_device_name());
-    log_debug("Device detection successful: %s", get_device_name());
-  } else {
-    printf("Warning: Device detection failed, using basic functionality\n");
-    log_debug("Device detection failed, falling back to basic functionality");
-  }
-
-  // Initialize device and AWCC
-  log_verbose("Initializing device and AWCC");
-  device_open();
-  AWCC.Initialize();
-
-  // Display current system status
-  if (!quiet_mode) {
-    enum AWCCMode_t current_mode = AWCC.GetMode();
-    const char *mode_name = AWCC.GetModeName(current_mode);
-    printf("Current thermal mode: %s\n", mode_name);
-
-    printf("Fan status:\n");
-    printf("  %s: %d RPM (%d%% boost)\n", AWCC.GetFanName(AWCCFanCPU),
-           AWCC.GetFanRpm(AWCCFanCPU), AWCC.GetFanBoost(AWCCFanCPU));
-    printf("  %s: %d RPM (%d%% boost)\n", AWCC.GetFanName(AWCCFanGPU),
-           AWCC.GetFanRpm(AWCCFanGPU), AWCC.GetFanBoost(AWCCFanGPU));
-  }
+  // Daemon is now a pure utility - no device detection or initialization at startup
 
   // Create socket directory
   log_verbose("Creating socket directory");
   if (create_socket_dir() != 0) {
-    AWCC.Deinitialize();
-    device_close();
     return 1;
   }
 
@@ -372,8 +337,6 @@ int main(int argc, char **argv) {
   server_socket = socket(AF_UNIX, SOCK_STREAM, 0);
   if (server_socket == -1) {
     fprintf(stderr, "Error creating socket: %s\n", strerror(errno));
-    AWCC.Deinitialize();
-    device_close();
     return 1;
   }
 
@@ -392,8 +355,6 @@ int main(int argc, char **argv) {
   if (bind(server_socket, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
     fprintf(stderr, "Error binding socket: %s\n", strerror(errno));
     close(server_socket);
-    AWCC.Deinitialize();
-    device_close();
     return 1;
   }
 
@@ -407,8 +368,6 @@ int main(int argc, char **argv) {
     fprintf(stderr, "Error listening on socket: %s\n", strerror(errno));
     close(server_socket);
     unlink(AWCC_SOCKET_PATH);
-    AWCC.Deinitialize();
-    device_close();
     return 1;
   }
 
@@ -467,11 +426,6 @@ int main(int argc, char **argv) {
   close(server_socket);
   unlink(AWCC_SOCKET_PATH);
   log_debug("Socket closed and removed");
-
-  AWCC.Deinitialize();
-  device_close();
-  cleanup_device_detection();
-  log_debug("Device and AWCC deinitialized");
 
   printf("AWCC daemon stopped\n");
   return 0;
