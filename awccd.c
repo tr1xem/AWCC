@@ -92,24 +92,35 @@ void handle_command(int client_fd, const struct AWCCCommand_t *cmd) {
     break;
 
   case AWCC_CMD_SET_MODE: {
-    int mode = atoi(cmd->args);
-    log_verbose("Setting thermal mode to: %d", mode);
-    if (mode >= AWCCModeQuiet && mode <= AWCCModeG) {
-      AWCC.SetMode((enum AWCCMode_t)mode);
-      response.status = 0;
-      const char *mode_name = AWCC.GetModeName((enum AWCCMode_t)mode);
-      snprintf(response.data, sizeof(response.data), "Mode set to %s",
-               mode_name);
-
-      // Show status update (unless in quiet mode)
-      if (!quiet_mode) {
-        printf("Thermal mode changed to: %s\n", mode_name);
+    int requested_mode = atoi(cmd->args);
+    log_verbose("Checking thermal mode: %d", requested_mode);
+    if (requested_mode >= AWCCModeQuiet && requested_mode <= AWCCModeG) {
+      enum AWCCMode_t current_mode = AWCC.GetMode();
+      
+      if (current_mode == (enum AWCCMode_t)requested_mode) {
+        response.status = 0;
+        const char *mode_name = AWCC.GetModeName(current_mode);
+        snprintf(response.data, sizeof(response.data), "Already in %s mode.",
+                 mode_name);
+        log_debug("Already in requested mode: %s", mode_name);
+      } else {
+        AWCC.SetMode((enum AWCCMode_t)requested_mode);
+        response.status = 0;
+        const char *old_name = AWCC.GetModeName(current_mode);
+        const char *new_name = AWCC.GetModeName((enum AWCCMode_t)requested_mode);
+        snprintf(response.data, sizeof(response.data), "Switched from %s to %s mode.",
+                 old_name, new_name);
+        
+        // Show status update (unless in quiet mode)
+        if (!quiet_mode) {
+          printf("Thermal mode changed from %s to %s\n", old_name, new_name);
+        }
+        log_debug("Mode switched successfully: %s to %s", old_name, new_name);
       }
-      log_debug("Mode set successfully: %s", response.data);
     } else {
       response.status = -1;
-      snprintf(response.data, sizeof(response.data), "Invalid mode: %d", mode);
-      log_debug("Invalid mode requested: %d", mode);
+      snprintf(response.data, sizeof(response.data), "Invalid mode: %d", requested_mode);
+      log_debug("Invalid mode requested: %d", requested_mode);
     }
     break;
   }
