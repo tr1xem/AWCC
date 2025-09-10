@@ -60,7 +60,7 @@ static device_config_t supported_devices[] = {
 };
 
 // Forward declarations
-static uint32_t try_acpi_detection(const char *acpi_prefix);
+static uint32_t try_acpi_detection(const char *acpi_prefix, bool debug);
 static char *read_dmi_product_name(void);
 static device_config_t *find_device_by_acpi_id(uint32_t acpi_id);
 static device_config_t *find_device_by_dmi_name(const char *dmi_name);
@@ -85,7 +85,7 @@ device_detection_result_t detect_device_model(void) {
   }
 
   // Try ACPI detection first
-  uint32_t acpi_model_id = try_acpi_detection(acpi_prefix);
+  uint32_t acpi_model_id = try_acpi_detection(acpi_prefix, false);
 
   if (acpi_model_id != 0) {
     // Found device via ACPI
@@ -120,30 +120,67 @@ device_detection_result_t detect_device_model(void) {
   return DEVICE_DETECTION_SUCCESS;
 }
 
-static uint32_t try_acpi_detection(const char *acpi_prefix) {
-  char cmd[256];
-  snprintf(cmd, sizeof(cmd),
-           "acpi_call -p '\\_SB.%s.WMAX' -a '0 0x1a {0x02, 0xa02, 0x00, 0x00}' "
-           "2>/dev/null",
-           acpi_prefix);
+static uint32_t try_acpi_detection(const char *acpi_prefix, bool debug) {
+  if (debug)
+    printf("Trying /proc/acpi/call method...\n");
 
-  FILE *fp = popen(cmd, "r");
-  if (!fp) {
-    return 0;
-  }
+  char acpi_command[256];
+  snprintf(acpi_command, sizeof(acpi_command),
+           "\\_SB.%s.WMAX 0 0x1a {0x02, 0xa02, 0x00, 0x00}", acpi_prefix);
 
-  char output[64];
-  if (fgets(output, sizeof(output), fp)) {
-    // Parse hex output
-    char *hex_start = strstr(output, "0x");
-    if (hex_start) {
-      uint32_t result = (uint32_t)strtoul(hex_start, NULL, 16);
-      pclose(fp);
-      return result;
+  // Try to write to /proc/acpi/call
+  FILE *call_fp = fopen("/proc/acpi/call", "w");
+  if (call_fp) {
+    fputs(acpi_command, call_fp);
+    fclose(call_fp);
+
+    // Read the result
+    call_fp = fopen("/proc/acpi/call", "r");
+    if (call_fp) {
+      char result[128];
+      if (fgets(result, sizeof(result), call_fp)) {
+        fclose(call_fp);
+
+        // Remove trailing whitespace and % character
+        char *end = result + strlen(result) - 1;
+        while (end >= result && (*end == '\n' || *end == '\r' || *end == ' ' ||
+                                 *end == '\t' || *end == '%')) {
+          *end = '\0';
+          end--;
+        }
+
+        if (debug)
+          printf("ACPI response via /proc/acpi/call: '%s'\n", result);
+
+        // Parse hex output
+        char *hex_start = strstr(result, "0x");
+        if (hex_start) {
+          char *endptr;
+          uint32_t parsed_result = (uint32_t)strtoul(hex_start, &endptr, 16);
+          if (debug)
+            printf("Parsed ACPI model ID: 0x%04x\n", parsed_result);
+          return parsed_result;
+        } else {
+          if (debug)
+            printf("No hex value found in /proc/acpi/call response\n");
+        }
+      } else {
+        fclose(call_fp);
+        if (debug)
+          printf("No output from /proc/acpi/call\n");
+      }
+    } else {
+      if (debug)
+        printf("Failed to read /proc/acpi/call\n");
     }
+  } else {
+    if (debug)
+      printf(
+          "Failed to write to /proc/acpi/call (may need root permissions)\n");
   }
 
-  pclose(fp);
+  if (debug)
+    printf("ACPI detection failed - no valid response received\n");
   return 0;
 }
 
@@ -374,13 +411,11 @@ void print_device_info(void) {
 
     printf("ACPI Prefix: %s\n", acpi_prefix);
 
-    printf("Device Support Status: UNSUPPORTED\n");
-    printf("\nTo get ACPI device ID, please run:\n");
-    printf("echo \"\\\\_SB.%s.WMAX 0 0x1a {0x02, 0xa02, 0x00, 0x00}\" | sudo "
-           "tee /proc/acpi/call && sudo cat /proc/acpi/call\n",
-           acpi_prefix);
+    // Try ACPI detection without debug output and show result
+    uint32_t detected_id = try_acpi_detection(acpi_prefix, false);
+    printf("Parsed ACPI model ID: 0x%04x\n", detected_id);
 
-    printf("\nTo add support for this device:\n");
+    printf("\n\nTo add support for this device:\n");
     printf("1. Run the ACPI command above to get the device ID\n");
     printf("2. Report the device info at the project repository\n");
     printf("3. Include your DMI product name and ACPI response\n");
@@ -395,6 +430,16 @@ void print_device_info(void) {
          g_current_device->is_dmi_fallback ? "DMI" : "ACPI");
   if (!g_current_device->is_dmi_fallback) {
     printf("ACPI Model ID: 0x%04x\n", g_current_device->acpi_model_id);
+  }
+
+  // Show ACPI detection debug for all devices
+  printf("\nACPI Detection Debug:\n");
+  uint32_t detected_id =
+      try_acpi_detection(g_current_device->acpi_prefix, true);
+  if (detected_id != 0) {
+    printf("ACPI detection result: 0x%04x\n", detected_id);
+  } else {
+    printf("ACPI detection result: No response or failed\n");
   }
   printf("\nSupported Features:\n");
   printf("  Fan Boost Control: %s\n",

@@ -273,6 +273,11 @@ int main(int argc, char **argv) {
 
   // Skip device detection in test mode
   if (!test_mode) {
+    // Check for device-info command and elevate privileges if needed
+    if (argc >= 2 && strcmp(argv[1], "device-info") == 0) {
+      checkRoot(argv[1], argv);
+    }
+    
     device_detection_result_t detection_result = detect_device_model();
 
     switch (detection_result) {

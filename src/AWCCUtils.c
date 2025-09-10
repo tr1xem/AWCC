@@ -53,6 +53,7 @@ int check_current_mode(const char *desired_hex) {
 void checkRoot(const char *command, char **argv) {
   if (geteuid() != 0) {
     const char *rootCommands[] = {
+        "device-info",
         "q",
         "quiet",
         "p",
