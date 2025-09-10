@@ -37,6 +37,65 @@ int is_thermal_mode_command(const char *command) {
   return mode != (enum AWCCMode_t)(-1);
 }
 
+// Helper function to validate command feature support
+int validate_command_features(const char *command) {
+  if (test_mode || !g_current_device) {
+    return 0; // Skip validation in test mode or if no device detected
+  }
+
+  // Thermal mode commands
+  if (is_thermal_mode_command(command)) {
+    if (!is_feature_supported("thermal_modes")) {
+      fprintf(stderr, "Error: Thermal modes not supported on %s\n", get_device_name());
+      return 1;
+    }
+    if (!is_thermal_mode_supported(command)) {
+      fprintf(stderr, "Error: Thermal mode '%s' not supported on %s\n", command, get_device_name());
+      return 1;
+    }
+  }
+  // Query and modes commands
+  else if (strcmp(command, "qm") == 0 || strcmp(command, "query") == 0 || strcmp(command, "modes") == 0) {
+    if (!is_feature_supported("thermal_modes")) {
+      fprintf(stderr, "Error: Thermal modes not supported on %s\n", get_device_name());
+      return 1;
+    }
+  }
+  // G-mode toggle
+  else if (strcmp(command, "gt") == 0) {
+    if (!is_feature_supported("gmode_toggle")) {
+      fprintf(stderr, "Error: G-Mode toggle not supported on %s\n", get_device_name());
+      return 1;
+    }
+    if (!is_thermal_mode_supported("gmode")) {
+      fprintf(stderr, "Error: G-Mode thermal mode not supported on %s\n", get_device_name());
+      return 1;
+    }
+  }
+  // Fan boost commands
+  else if (strcmp(command, "cb") == 0 || strcmp(command, "getcpufanboost") == 0 ||
+           strcmp(command, "gb") == 0 || strcmp(command, "getgpufanboost") == 0 ||
+           strcmp(command, "sb") == 0 || strcmp(command, "setcpufanboost") == 0 ||
+           strcmp(command, "sgb") == 0 || strcmp(command, "setgpufanboost") == 0 ||
+           strcmp(command, "fan") == 0 || strcmp(command, "fanspeed") == 0 ||
+           strcmp(command, "fanname") == 0) {
+    if (!is_feature_supported("fan_boost")) {
+      fprintf(stderr, "Error: Fan boost control not supported on %s\n", get_device_name());
+      return 1;
+    }
+  }
+  // AutoBoost commands
+  else if (strncmp(command, "autoboost", 9) == 0) {
+    if (!is_feature_supported("autoboost")) {
+      fprintf(stderr, "Error: AutoBoost not supported on %s\n", get_device_name());
+      return 1;
+    }
+  }
+  // Lighting commands are handled by execute_lighting_command with their own validation
+
+  return 0; // Command is supported
+}
+
 void print_usage(void) { generate_full_help_menu(); }
 
 int execute_via_daemon(int argc, char **argv) {
@@ -255,6 +314,32 @@ int main(int argc, char **argv) {
     }
   }
 
+  // EARLY VALIDATION PHASE - Run device detection before any command execution
+  // Skip only for test mode and device-info command
+  if (!test_mode && argc >= 2 && strcmp(argv[1], "device-info") != 0) {
+    device_detection_result_t detection_result = detect_device_model();
+    
+    switch (detection_result) {
+    case DEVICE_DETECTION_SUCCESS:
+      printf("Device detected: %s\n", get_device_name());
+      
+      // Level 2: Feature validation for supported devices
+      if (validate_command_features(argv[1]) != 0) {
+        return 1; // Feature not supported
+      }
+      break;
+    case DEVICE_DETECTION_UNSUPPORTED:
+      fprintf(stderr, "Error: Unsupported device detected\n");
+      fprintf(stderr, "Run 'awcc device-info' for more details\n");
+      return 1;
+    case DEVICE_DETECTION_ACPI_FAILED:
+    case DEVICE_DETECTION_DMI_FAILED:
+      fprintf(stderr, "Warning: Device detection failed, using basic functionality\n");
+      // Continue with limited functionality - skip feature validation
+      break;
+    }
+  }
+
   // Check if daemon is running and we should use it
   if (!test_mode && awcc_daemon_is_running()) {
     use_daemon = 1;
@@ -271,36 +356,11 @@ int main(int argc, char **argv) {
     printf("Falling back to direct execution\n");
   }
 
-  // Skip device detection in test mode
+  // Skip device detection in test mode - handle device-info elevation
   if (!test_mode) {
     // Check for device-info command and elevate privileges if needed
     if (argc >= 2 && strcmp(argv[1], "device-info") == 0) {
       checkRoot(argv[1], argv);
-    }
-    
-    device_detection_result_t detection_result = detect_device_model();
-
-    switch (detection_result) {
-    case DEVICE_DETECTION_SUCCESS:
-      printf("Device detected: %s\n", get_device_name());
-      break;
-    case DEVICE_DETECTION_UNSUPPORTED:
-      // Check if user wants device info before exiting
-      if (argc >= 2 && strcmp(argv[1], "device-info") == 0) {
-        fprintf(stderr, "Warning: Unsupported device detected\n");
-        // Continue to show device info
-      } else {
-        fprintf(stderr, "Error: Unsupported device detected\n");
-        fprintf(stderr, "Run 'awcc device-info' for more details\n");
-        return 1;
-      }
-      break;
-    case DEVICE_DETECTION_ACPI_FAILED:
-    case DEVICE_DETECTION_DMI_FAILED:
-      fprintf(stderr,
-              "Warning: Device detection failed, using basic functionality\n");
-      // Continue with limited functionality
-      break;
     }
   } else {
     printf("Skipping device detection in test mode\n");

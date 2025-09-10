@@ -344,14 +344,15 @@ bool is_lighting_effect_supported(const char *effect_name) {
   return false;
 }
 
-void print_device_info(void) {
-  if (!g_current_device) {
-    printf("Device Detection Report:\n");
-    printf("======================\n");
+void build_device_info_string(char *buffer, size_t buffer_size) {
+  int offset = 0;
 
-    // Show system information even for unsupported devices
+  if (!g_current_device) {
+    offset += snprintf(buffer + offset, buffer_size - offset,
+                       "Device Detection Report:\n======================\n");
+
     // CPU Information
-    printf("CPU Vendor: ");
+    offset += snprintf(buffer + offset, buffer_size - offset, "CPU Vendor: ");
     FILE *cpuinfo = fopen("/proc/cpuinfo", "r");
     if (cpuinfo) {
       char line[256];
@@ -359,25 +360,29 @@ void print_device_info(void) {
       while (fgets(line, sizeof(line), cpuinfo)) {
         if (strstr(line, "vendor_id")) {
           if (strstr(line, "AuthenticAMD")) {
-            printf("AMD\n");
+            offset += snprintf(buffer + offset, buffer_size - offset, "AMD\n");
           } else if (strstr(line, "GenuineIntel")) {
-            printf("Intel\n");
+            offset +=
+                snprintf(buffer + offset, buffer_size - offset, "Intel\n");
           } else {
-            printf("Unknown\n");
+            offset +=
+                snprintf(buffer + offset, buffer_size - offset, "Unknown\n");
           }
           found_vendor = true;
           break;
         }
       }
       if (!found_vendor)
-        printf("Unknown\n");
+        offset += snprintf(buffer + offset, buffer_size - offset, "Unknown\n");
       fclose(cpuinfo);
     } else {
-      printf("Unable to detect\n");
+      offset +=
+          snprintf(buffer + offset, buffer_size - offset, "Unable to detect\n");
     }
 
     // DMI Product Name
-    printf("DMI Product Name: ");
+    offset +=
+        snprintf(buffer + offset, buffer_size - offset, "DMI Product Name: ");
     FILE *dmi = fopen("/sys/class/dmi/id/product_name", "r");
     if (dmi) {
       char product_name[64];
@@ -386,13 +391,16 @@ void print_device_info(void) {
         char *newline = strchr(product_name, '\n');
         if (newline)
           *newline = '\0';
-        printf("%s\n", product_name);
+        offset += snprintf(buffer + offset, buffer_size - offset, "%s\n",
+                           product_name);
       } else {
-        printf("Unable to read\n");
+        offset +=
+            snprintf(buffer + offset, buffer_size - offset, "Unable to read\n");
       }
       fclose(dmi);
     } else {
-      printf("Not available\n");
+      offset +=
+          snprintf(buffer + offset, buffer_size - offset, "Not available\n");
     }
 
     // Determine ACPI prefix based on CPU
@@ -409,88 +417,111 @@ void print_device_info(void) {
       fclose(cpuinfo);
     }
 
-    printf("ACPI Prefix: %s\n", acpi_prefix);
+    offset += snprintf(buffer + offset, buffer_size - offset,
+                       "ACPI Prefix: %s\n", acpi_prefix);
 
     // Try ACPI detection without debug output and show result
     uint32_t detected_id = try_acpi_detection(acpi_prefix, false);
-    printf("Parsed ACPI model ID: 0x%04x\n", detected_id);
+    offset += snprintf(buffer + offset, buffer_size - offset,
+                       "Parsed ACPI model ID: 0x%04x\n", detected_id);
 
-    printf("\n\nTo add support for this device:\n");
-    printf("1. Run the ACPI command above to get the device ID\n");
-    printf("2. Report the device info at the project repository\n");
-    printf("3. Include your DMI product name and ACPI response\n");
+    offset += snprintf(buffer + offset, buffer_size - offset,
+                       "\n\nTo add support for this device:\n"
+                       "1. Run the ACPI command above to get the device ID\n"
+                       "2. Report the device info at the project repository\n"
+                       "3. Include your DMI product name and ACPI response\n");
     return;
   }
 
-  printf("Device Information:\n");
-  printf("==================\n");
-  printf("Model: %s\n", g_current_device->identifier);
-  printf("ACPI Prefix: %s\n", g_current_device->acpi_prefix);
-  printf("Detection Method: %s\n",
-         g_current_device->is_dmi_fallback ? "DMI" : "ACPI");
+  offset += snprintf(buffer + offset, buffer_size - offset,
+                     "Device Information:\n==================\n");
+  offset += snprintf(buffer + offset, buffer_size - offset, "Model: %s\n",
+                     g_current_device->identifier);
+  offset += snprintf(buffer + offset, buffer_size - offset, "ACPI Prefix: %s\n",
+                     g_current_device->acpi_prefix);
+  offset +=
+      snprintf(buffer + offset, buffer_size - offset, "Detection Method: %s\n",
+               g_current_device->is_dmi_fallback ? "DMI" : "ACPI");
   if (!g_current_device->is_dmi_fallback) {
-    printf("ACPI Model ID: 0x%04x\n", g_current_device->acpi_model_id);
+    offset +=
+        snprintf(buffer + offset, buffer_size - offset,
+                 "ACPI Model ID: 0x%04x\n", g_current_device->acpi_model_id);
   }
 
-  // Show ACPI detection debug for all devices
-  printf("\nACPI Detection Debug:\n");
-  uint32_t detected_id =
-      try_acpi_detection(g_current_device->acpi_prefix, true);
-  if (detected_id != 0) {
-    printf("ACPI detection result: 0x%04x\n", detected_id);
-  } else {
-    printf("ACPI detection result: No response or failed\n");
-  }
-  printf("\nSupported Features:\n");
-  printf("  Fan Boost Control: %s\n",
-         g_current_device->features.has_fan_boost ? "Yes" : "No");
-  printf("  Thermal Modes: %s\n",
-         g_current_device->features.has_thermal_modes ? "Yes" : "No");
+  offset += snprintf(buffer + offset, buffer_size - offset,
+                     "\nSupported Features:\n");
+  offset += snprintf(buffer + offset, buffer_size - offset,
+                     "  Fan Boost Control: %s\n",
+                     g_current_device->features.has_fan_boost ? "Yes" : "No");
+  offset +=
+      snprintf(buffer + offset, buffer_size - offset, "  Thermal Modes: %s\n",
+               g_current_device->features.has_thermal_modes ? "Yes" : "No");
 
   if (g_current_device->features.has_thermal_modes) {
-    printf("    - Quiet Mode: %s\n",
-           g_current_device->features.thermal_modes.quiet ? "Yes" : "No");
-    printf("    - Balanced Mode: %s\n",
-           g_current_device->features.thermal_modes.balanced ? "Yes" : "No");
-    printf("    - Performance Mode: %s\n",
-           g_current_device->features.thermal_modes.performance ? "Yes" : "No");
-    printf("    - Battery Saver Mode: %s\n",
-           g_current_device->features.thermal_modes.battery_saver ? "Yes"
-                                                                  : "No");
-    printf("    - G-Mode: %s\n",
-           g_current_device->features.thermal_modes.gmode ? "Yes" : "No");
+    offset += snprintf(
+        buffer + offset, buffer_size - offset, "    - Quiet Mode: %s\n",
+        g_current_device->features.thermal_modes.quiet ? "Yes" : "No");
+    offset += snprintf(
+        buffer + offset, buffer_size - offset, "    - Balanced Mode: %s\n",
+        g_current_device->features.thermal_modes.balanced ? "Yes" : "No");
+    offset += snprintf(
+        buffer + offset, buffer_size - offset, "    - Performance Mode: %s\n",
+        g_current_device->features.thermal_modes.performance ? "Yes" : "No");
+    offset += snprintf(
+        buffer + offset, buffer_size - offset, "    - Battery Saver Mode: %s\n",
+        g_current_device->features.thermal_modes.battery_saver ? "Yes" : "No");
+    offset +=
+        snprintf(buffer + offset, buffer_size - offset, "    - G-Mode: %s\n",
+                 g_current_device->features.thermal_modes.gmode ? "Yes" : "No");
   }
 
-  printf("  RGB Lighting: %s\n",
-         g_current_device->features.has_lighting ? "Yes" : "No");
+  offset +=
+      snprintf(buffer + offset, buffer_size - offset, "  RGB Lighting: %s\n",
+               g_current_device->features.has_lighting ? "Yes" : "No");
 
   if (g_current_device->features.has_lighting) {
-    printf("    - Brightness Control: %s\n",
-           g_current_device->features.lighting.brightness_control ? "Yes"
-                                                                  : "No");
-    printf("    - Static Colors: %s\n",
-           g_current_device->features.lighting.static_color ? "Yes" : "No");
-    printf("    - Spectrum Effect: %s\n",
-           g_current_device->features.lighting.spectrum_effect ? "Yes" : "No");
-    printf("    - Breathing Effect: %s\n",
-           g_current_device->features.lighting.breathing_effect ? "Yes" : "No");
-    printf("    - Rainbow Effect: %s\n",
-           g_current_device->features.lighting.rainbow_effect ? "Yes" : "No");
-    printf("    - Wave Effect: %s\n",
-           g_current_device->features.lighting.wave_effect ? "Yes" : "No");
-    printf("    - Back & Forth Effect: %s\n",
-           g_current_device->features.lighting.back_forth_effect ? "Yes"
-                                                                 : "No");
+    offset += snprintf(
+        buffer + offset, buffer_size - offset, "    - Brightness Control: %s\n",
+        g_current_device->features.lighting.brightness_control ? "Yes" : "No");
+    offset += snprintf(
+        buffer + offset, buffer_size - offset, "    - Static Colors: %s\n",
+        g_current_device->features.lighting.static_color ? "Yes" : "No");
+    offset += snprintf(
+        buffer + offset, buffer_size - offset, "    - Spectrum Effect: %s\n",
+        g_current_device->features.lighting.spectrum_effect ? "Yes" : "No");
+    offset += snprintf(
+        buffer + offset, buffer_size - offset, "    - Breathing Effect: %s\n",
+        g_current_device->features.lighting.breathing_effect ? "Yes" : "No");
+    offset += snprintf(
+        buffer + offset, buffer_size - offset, "    - Rainbow Effect: %s\n",
+        g_current_device->features.lighting.rainbow_effect ? "Yes" : "No");
+    offset += snprintf(
+        buffer + offset, buffer_size - offset, "    - Wave Effect: %s\n",
+        g_current_device->features.lighting.wave_effect ? "Yes" : "No");
+    offset += snprintf(
+        buffer + offset, buffer_size - offset,
+        "    - Back & Forth Effect: %s\n",
+        g_current_device->features.lighting.back_forth_effect ? "Yes" : "No");
   }
 
-  printf("  Auto Boost: %s\n",
-         g_current_device->features.has_autoboost ? "Yes" : "No");
-  printf("  CPU Temperature: %s\n",
-         g_current_device->features.has_cpu_temp ? "Yes" : "No");
-  printf("  GPU Temperature: %s\n",
-         g_current_device->features.has_gpu_temp ? "Yes" : "No");
-  printf("  G-Mode Toggle: %s\n",
-         g_current_device->features.has_gmode_toggle ? "Yes" : "No");
+  offset +=
+      snprintf(buffer + offset, buffer_size - offset, "  Auto Boost: %s\n",
+               g_current_device->features.has_autoboost ? "Yes" : "No");
+  offset +=
+      snprintf(buffer + offset, buffer_size - offset, "  CPU Temperature: %s\n",
+               g_current_device->features.has_cpu_temp ? "Yes" : "No");
+  offset +=
+      snprintf(buffer + offset, buffer_size - offset, "  GPU Temperature: %s\n",
+               g_current_device->features.has_gpu_temp ? "Yes" : "No");
+  offset +=
+      snprintf(buffer + offset, buffer_size - offset, "  G-Mode Toggle: %s\n",
+               g_current_device->features.has_gmode_toggle ? "Yes" : "No");
+}
+
+void print_device_info(void) {
+  char buffer[4096]; // Large buffer for the device info
+  build_device_info_string(buffer, sizeof(buffer));
+  printf("%s", buffer);
 }
 
 const char *get_device_name(void) {
