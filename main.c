@@ -240,13 +240,8 @@ int execute_via_daemon(int argc, char **argv) {
       printf("Fan Status:\n%s\n", response.data);
     }
   } else if (strcmp(argv[1], "device-info") == 0) {
-    cmd.command_type = AWCC_CMD_DEVICE_INFO;
-    cmd.response_needed = 1;
-
-    if (awcc_daemon_send_command(&cmd, &response) == 0 &&
-        response.status == 0) {
-      printf("%s\n", response.data);
-    }
+    // Device-info always uses direct execution to ensure proper device detection
+    return -1; // Fallback to direct execution
   } else if (strcmp(argv[1], "autoboost") == 0) {
     cmd.command_type = AWCC_CMD_AUTOBOOST;
     // Include any additional arguments for autoboost
@@ -340,6 +335,11 @@ int main(int argc, char **argv) {
     }
   }
 
+  // Device detection for device-info command (always runs regardless of support status)
+  if (!test_mode && argc >= 2 && strcmp(argv[1], "device-info") == 0) {
+    detect_device_model(); // Run detection but don't exit on unsupported - let device-info handle the display
+  }
+
   // Check if daemon is running and we should use it
   if (!test_mode && awcc_daemon_is_running()) {
     use_daemon = 1;
@@ -356,12 +356,9 @@ int main(int argc, char **argv) {
     printf("Falling back to direct execution\n");
   }
 
-  // Skip device detection in test mode - handle device-info elevation
+  // Skip device detection in test mode
   if (!test_mode) {
-    // Check for device-info command and elevate privileges if needed
-    if (argc >= 2 && strcmp(argv[1], "device-info") == 0) {
-      checkRoot(argv[1], argv);
-    }
+    // Device-info no longer needs privilege elevation for diagnostic purposes
   } else {
     printf("Skipping device detection in test mode\n");
   }
