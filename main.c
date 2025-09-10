@@ -366,6 +366,30 @@ int main(int argc, char **argv) {
   // EARLY VALIDATION PHASE - Run device detection before any command execution
   // Skip only for test mode and device-info command
   if (!test_mode && argc >= 2 && strcmp(argv[1], "device-info") != 0) {
+    // Check if we need sudo for ACPI detection
+    if (getuid() != 0 && access("/proc/acpi/call", W_OK) != 0) {
+      printf("ACPI detection requires root privileges. Re-running with sudo...\n");
+
+      // Rebuild command with sudo
+      char **sudo_args = malloc((argc + 2) * sizeof(char *));
+      if (!sudo_args) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(1);
+      }
+
+      sudo_args[0] = "sudo";
+      sudo_args[1] = argv[0]; // Original program path
+      for (int i = 1; i < argc; i++) {
+        sudo_args[i + 1] = argv[i];
+      }
+      sudo_args[argc + 1] = NULL;
+
+      execvp("sudo", sudo_args);
+      perror("Failed to execute with sudo");
+      free(sudo_args);
+      exit(1);
+    }
+
     device_detection_result_t detection_result = detect_device_model();
 
     switch (detection_result) {
@@ -393,31 +417,6 @@ int main(int argc, char **argv) {
   // Device detection for device-info command (always runs regardless of support
   // status)
   if (!test_mode && argc >= 2 && strcmp(argv[1], "device-info") == 0) {
-    // Check if we need sudo for ACPI detection
-    if (getuid() != 0 && access("/proc/acpi/call", W_OK) != 0) {
-      printf(
-          "ACPI detection requires root privileges. Re-running with sudo...\n");
-
-      // Rebuild command with sudo
-      char **sudo_args = malloc((argc + 2) * sizeof(char *));
-      if (!sudo_args) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(1);
-      }
-
-      sudo_args[0] = "sudo";
-      sudo_args[1] = argv[0]; // Original program path
-      for (int i = 1; i < argc; i++) {
-        sudo_args[i + 1] = argv[i];
-      }
-      sudo_args[argc + 1] = NULL;
-
-      execvp("sudo", sudo_args);
-      perror("Failed to execute with sudo");
-      free(sudo_args);
-      exit(1);
-    }
-
     detect_device_model(); // Run detection but don't exit on unsupported - let
                            // device-info handle the display
   }
