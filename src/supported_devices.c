@@ -26,7 +26,7 @@ static device_config_t supported_devices[] = {
                                     .performance = true,
                                     .battery_saver = true,
                                     .gmode = true},
-                  .lighting = {.brightness_control = true,
+                  .lighting = {.brightness_control = false,
                                .static_color = true,
                                .spectrum_effect = true,
                                .breathing_effect = true,
@@ -87,7 +87,7 @@ device_detection_result_t detect_device_model(void) {
   // Try ACPI detection first
   uint32_t acpi_model_id = try_acpi_detection(acpi_prefix, false);
 
-  if (acpi_model_id != 0) {
+  if (acpi_model_id != 2) {
     // Found device via ACPI
     device_config_t *device = find_device_by_acpi_id(acpi_model_id);
     if (device) {
@@ -536,6 +536,65 @@ const char *get_acpi_prefix(void) {
     return "AMWW"; // Default fallback
   }
   return g_current_device->acpi_prefix;
+}
+
+bool validate_lighting_via_dmi(const char *effect_name) {
+  // Read DMI product name
+  char *dmi_name = read_dmi_product_name();
+  if (!dmi_name) {
+    return false; // Can't read DMI, assume not supported
+  }
+
+  // Find device in supported_devices array by DMI name
+  size_t num_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);
+  device_config_t *device = NULL;
+
+  for (size_t i = 0; i < num_devices; i++) {
+    if (strcmp(supported_devices[i].identifier, dmi_name) == 0) {
+      device = &supported_devices[i];
+      break;
+    }
+  }
+
+  free(dmi_name);
+
+  if (!device) {
+    return false; // Device not in our database
+  }
+
+  // Check if lighting is supported at all
+  if (!device->features.has_lighting) {
+    return false;
+  }
+
+  // Check specific lighting effects
+  if (strcmp(effect_name, "brightness") == 0) {
+    return device->features.lighting.brightness_control;
+  }
+  if (strcmp(effect_name, "static") == 0) {
+    return device->features.lighting.static_color;
+  }
+  if (strcmp(effect_name, "spectrum") == 0) {
+    return device->features.lighting.spectrum_effect;
+  }
+  if (strcmp(effect_name, "breathe") == 0) {
+    return device->features.lighting.breathing_effect;
+  }
+  if (strcmp(effect_name, "rainbow") == 0) {
+    return device->features.lighting.rainbow_effect;
+  }
+  if (strcmp(effect_name, "wave") == 0) {
+    return device->features.lighting.wave_effect;
+  }
+  if (strcmp(effect_name, "bkf") == 0) {
+    return device->features.lighting.back_forth_effect;
+  }
+  if (strcmp(effect_name, "defaultblue") == 0) {
+    return device->features.lighting
+        .static_color; // Uses static color capability
+  }
+
+  return false; // Unknown effect
 }
 
 void cleanup_device_detection(void) { g_current_device = NULL; }

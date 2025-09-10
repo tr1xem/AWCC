@@ -29,6 +29,10 @@ static const lighting_command_t *find_lighting_command(const char *command) {
   return NULL;
 }
 
+bool is_lighting_command(const char *command) {
+  return find_lighting_command(command) != NULL;
+}
+
 static int execute_brightness_command(__attribute__((unused)) int argc,
                                       char **argv) {
   int input_value = atoi(argv[1]);

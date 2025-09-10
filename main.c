@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>  // for getuid, access, execvp
+#include <unistd.h> // for getuid, access, execvp
 
 int test_mode = 0;
 
@@ -47,52 +47,65 @@ int validate_command_features(const char *command) {
   // Thermal mode commands
   if (is_thermal_mode_command(command)) {
     if (!is_feature_supported("thermal_modes")) {
-      fprintf(stderr, "Error: Thermal modes not supported on %s\n", get_device_name());
+      fprintf(stderr, "Error: Thermal modes not supported on %s\n",
+              get_device_name());
       return 1;
     }
     if (!is_thermal_mode_supported(command)) {
-      fprintf(stderr, "Error: Thermal mode '%s' not supported on %s\n", command, get_device_name());
+      fprintf(stderr, "Error: Thermal mode '%s' not supported on %s\n", command,
+              get_device_name());
       return 1;
     }
   }
   // Query and modes commands
-  else if (strcmp(command, "qm") == 0 || strcmp(command, "query") == 0 || strcmp(command, "modes") == 0) {
+  else if (strcmp(command, "qm") == 0 || strcmp(command, "query") == 0 ||
+           strcmp(command, "modes") == 0) {
     if (!is_feature_supported("thermal_modes")) {
-      fprintf(stderr, "Error: Thermal modes not supported on %s\n", get_device_name());
+      fprintf(stderr, "Error: Thermal modes not supported on %s\n",
+              get_device_name());
       return 1;
     }
   }
   // G-mode toggle
   else if (strcmp(command, "gt") == 0) {
     if (!is_feature_supported("gmode_toggle")) {
-      fprintf(stderr, "Error: G-Mode toggle not supported on %s\n", get_device_name());
+      fprintf(stderr, "Error: G-Mode toggle not supported on %s\n",
+              get_device_name());
       return 1;
     }
     if (!is_thermal_mode_supported("gmode")) {
-      fprintf(stderr, "Error: G-Mode thermal mode not supported on %s\n", get_device_name());
+      fprintf(stderr, "Error: G-Mode thermal mode not supported on %s\n",
+              get_device_name());
       return 1;
     }
   }
   // Fan boost commands
-  else if (strcmp(command, "cb") == 0 || strcmp(command, "getcpufanboost") == 0 ||
-           strcmp(command, "gb") == 0 || strcmp(command, "getgpufanboost") == 0 ||
-           strcmp(command, "sb") == 0 || strcmp(command, "setcpufanboost") == 0 ||
-           strcmp(command, "sgb") == 0 || strcmp(command, "setgpufanboost") == 0 ||
+  else if (strcmp(command, "cb") == 0 ||
+           strcmp(command, "getcpufanboost") == 0 ||
+           strcmp(command, "gb") == 0 ||
+           strcmp(command, "getgpufanboost") == 0 ||
+           strcmp(command, "sb") == 0 ||
+           strcmp(command, "setcpufanboost") == 0 ||
+           strcmp(command, "sgb") == 0 ||
+           strcmp(command, "setgpufanboost") == 0 ||
            strcmp(command, "fan") == 0 || strcmp(command, "fanspeed") == 0 ||
            strcmp(command, "fanname") == 0) {
     if (!is_feature_supported("fan_boost")) {
-      fprintf(stderr, "Error: Fan boost control not supported on %s\n", get_device_name());
+      fprintf(stderr, "Error: Fan boost control not supported on %s\n",
+              get_device_name());
       return 1;
     }
   }
   // AutoBoost commands
   else if (strncmp(command, "autoboost", 9) == 0) {
     if (!is_feature_supported("autoboost")) {
-      fprintf(stderr, "Error: AutoBoost not supported on %s\n", get_device_name());
+      fprintf(stderr, "Error: AutoBoost not supported on %s\n",
+              get_device_name());
       return 1;
     }
   }
-  // Lighting commands are handled by execute_lighting_command with their own validation
+  // Lighting commands are handled by execute_lighting_command with their own
+  // validation
 
   return 0; // Command is supported
 }
@@ -133,20 +146,20 @@ int execute_via_daemon(int argc, char **argv) {
     struct AWCCResponse_t query_response = {0};
     query_cmd.command_type = AWCC_CMD_GET_MODE;
     query_cmd.response_needed = 1;
-    
-    if (awcc_daemon_send_command(&query_cmd, &query_response) == 0 && 
+
+    if (awcc_daemon_send_command(&query_cmd, &query_response) == 0 &&
         query_response.status == 0) {
       int current_mode = atoi(query_response.data);
       int requested_mode = command_to_awcc_mode(argv[1]);
-      
+
       if (current_mode == requested_mode) {
         const char *mode_names[] = {"Quiet", "Battery Saver", "Balanced",
                                     "Performance", "G-Mode"};
         printf("Already in %s mode.\n", mode_names[current_mode]);
-        return 0;  // Exit without sending SET command
+        return 0; // Exit without sending SET command
       }
     }
-    
+
     // Different mode or query failed - proceed with SET command
     cmd.command_type = AWCC_CMD_SET_MODE;
     enum AWCCMode_t mode = command_to_awcc_mode(argv[1]);
@@ -261,7 +274,8 @@ int execute_via_daemon(int argc, char **argv) {
       printf("Fan Status:\n%s\n", response.data);
     }
   } else if (strcmp(argv[1], "device-info") == 0) {
-    // Device-info always uses direct execution to ensure proper device detection
+    // Device-info always uses direct execution to ensure proper device
+    // detection
     return -1; // Fallback to direct execution
   } else if (strcmp(argv[1], "autoboost") == 0) {
     cmd.command_type = AWCC_CMD_AUTOBOOST;
@@ -330,15 +344,34 @@ int main(int argc, char **argv) {
     }
   }
 
+  // Open device for hardware communication
+  device_open();
+
+  // Initialize AWCC interface
+  AWCC.Initialize();
+
+  // LIGHTING COMMANDS - Handle before device detection to avoid ACPI issues
+  if (!test_mode && argc >= 2 && is_lighting_command(argv[1])) {
+    // Validate lighting feature support via DMI BEFORE execution
+    if (!validate_lighting_via_dmi(argv[1])) {
+      fprintf(stderr, "Error: Lighting effect '%s' not supported on this device\n", argv[1]);
+      device_close();
+      return 1;
+    }
+    // Execute lighting command after validation passes
+    int result = execute_lighting_command(argc - 1, argv + 1);
+    return result;
+  }
+
   // EARLY VALIDATION PHASE - Run device detection before any command execution
   // Skip only for test mode and device-info command
   if (!test_mode && argc >= 2 && strcmp(argv[1], "device-info") != 0) {
     device_detection_result_t detection_result = detect_device_model();
-    
+
     switch (detection_result) {
     case DEVICE_DETECTION_SUCCESS:
       printf("Device detected: %s\n", get_device_name());
-      
+
       // Level 2: Feature validation for supported devices
       if (validate_command_features(argv[1]) != 0) {
         return 1; // Feature not supported
@@ -350,39 +383,43 @@ int main(int argc, char **argv) {
       return 1;
     case DEVICE_DETECTION_ACPI_FAILED:
     case DEVICE_DETECTION_DMI_FAILED:
-      fprintf(stderr, "Warning: Device detection failed, using basic functionality\n");
+      fprintf(stderr,
+              "Warning: Device detection failed, using basic functionality\n");
       // Continue with limited functionality - skip feature validation
       break;
     }
   }
 
-  // Device detection for device-info command (always runs regardless of support status)
+  // Device detection for device-info command (always runs regardless of support
+  // status)
   if (!test_mode && argc >= 2 && strcmp(argv[1], "device-info") == 0) {
     // Check if we need sudo for ACPI detection
     if (getuid() != 0 && access("/proc/acpi/call", W_OK) != 0) {
-      printf("ACPI detection requires root privileges. Re-running with sudo...\n");
-      
+      printf(
+          "ACPI detection requires root privileges. Re-running with sudo...\n");
+
       // Rebuild command with sudo
-      char **sudo_args = malloc((argc + 2) * sizeof(char*));
+      char **sudo_args = malloc((argc + 2) * sizeof(char *));
       if (!sudo_args) {
         fprintf(stderr, "Memory allocation failed\n");
         exit(1);
       }
-      
+
       sudo_args[0] = "sudo";
-      sudo_args[1] = argv[0];  // Original program path
+      sudo_args[1] = argv[0]; // Original program path
       for (int i = 1; i < argc; i++) {
         sudo_args[i + 1] = argv[i];
       }
       sudo_args[argc + 1] = NULL;
-      
+
       execvp("sudo", sudo_args);
       perror("Failed to execute with sudo");
       free(sudo_args);
       exit(1);
     }
-    
-    detect_device_model(); // Run detection but don't exit on unsupported - let device-info handle the display
+
+    detect_device_model(); // Run detection but don't exit on unsupported - let
+                           // device-info handle the display
   }
 
   // Check if daemon is running and we should use it
@@ -408,23 +445,10 @@ int main(int argc, char **argv) {
     printf("Skipping device detection in test mode\n");
   }
 
-  device_open();
-
-  // Initialize AWCC interface
-  AWCC.Initialize();
-
   if (argc >= 2) {
     // Device info command
     if (strcmp(argv[1], "device-info") == 0) {
       print_device_info();
-      // Try lighting commands first
-    } else if (execute_lighting_command(argc - 1, argv + 1) == 0) {
-      // Check if lighting is supported (skip in test mode)
-      if (!test_mode && !is_feature_supported("lighting") && g_current_device) {
-        fprintf(stderr, "Warning: RGB lighting not supported on %s\n",
-                get_device_name());
-      }
-      // Successfully handled by modular lighting system
     } else if (strcmp(argv[1], "qm") == 0 || strcmp(argv[1], "query") == 0) {
       if (!test_mode && g_current_device &&
           !is_feature_supported("thermal_modes")) {
@@ -463,13 +487,12 @@ int main(int argc, char **argv) {
       checkRoot(argv[1], argv);
       enum AWCCMode_t current_mode = AWCC.GetMode();
       enum AWCCMode_t requested_mode = command_to_awcc_mode(argv[1]);
-      
+
       if (current_mode == requested_mode) {
         printf("Already in %s mode.\n", AWCC.GetModeName(current_mode));
       } else {
         AWCC.SetMode(requested_mode);
-        printf("Switched from %s to %s mode.\n", 
-               AWCC.GetModeName(current_mode), 
+        printf("Switched from %s to %s mode.\n", AWCC.GetModeName(current_mode),
                AWCC.GetModeName(requested_mode));
       }
     } else if (strcmp(argv[1], "gt") == 0) {

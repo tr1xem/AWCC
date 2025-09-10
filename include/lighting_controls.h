@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef enum {
   LIGHTING_BRIGHTNESS,
@@ -24,5 +25,6 @@ typedef struct {
 } lighting_command_t;
 
 int execute_lighting_command(int argc, char **argv);
+bool is_lighting_command(const char *command);
 void list_lighting_commands(void);
 void generate_lighting_help(void);
