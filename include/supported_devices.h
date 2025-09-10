@@ -56,6 +56,7 @@ device_detection_result_t detect_device_model(void);
 bool is_feature_supported(const char *feature_name);
 bool is_thermal_mode_supported(const char *mode_name);
 bool is_lighting_effect_supported(const char *effect_name);
+bool validate_lighting_via_dmi(const char *effect_name);
 void print_device_info(void);
 void build_device_info_string(char *buffer, size_t buffer_size);
 const char *get_device_name(void);
