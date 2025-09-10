@@ -344,28 +344,54 @@ int main(int argc, char **argv) {
     }
   }
 
-  // Open device for hardware communication
-  device_open();
+  // Check if daemon is running FIRST before any ACPI operations
+  if (!test_mode && awcc_daemon_is_running()) {
+    use_daemon = 1;
+    printf("AWCC daemon detected, using daemon interface\n");
+  }
 
-  // Initialize AWCC interface
-  AWCC.Initialize();
+  // If using daemon, try daemon execution first and avoid ACPI initialization
+  if (use_daemon && argc >= 2) {
+    int daemon_result = execute_via_daemon(argc, argv);
+    if (daemon_result != -1) {
+      // Command was handled by daemon (successfully or with error)
+      return daemon_result;
+    }
+    // If daemon_result == -1, fallback to direct execution
+    printf("Daemon execution failed, falling back to direct execution\n");
+    use_daemon = 0; // Disable daemon for fallback
+  }
+
+  // Only initialize ACPI if not using daemon or daemon failed
+  if (!use_daemon) {
+    // Open device for hardware communication
+    device_open();
+
+    // Initialize AWCC interface
+    AWCC.Initialize();
+  }
 
   // LIGHTING COMMANDS - Handle before device detection to avoid ACPI issues
   if (!test_mode && argc >= 2 && is_lighting_command(argv[1])) {
-    // Validate lighting feature support via DMI BEFORE execution
-    if (!validate_lighting_via_dmi(argv[1])) {
-      fprintf(stderr, "Error: Lighting effect '%s' not supported on this device\n", argv[1]);
-      device_close();
-      return 1;
+    // For lighting commands, we need device validation via DMI even with daemon
+    if (!use_daemon) {
+      // Validate lighting feature support via DMI BEFORE execution
+      if (!validate_lighting_via_dmi(argv[1])) {
+        fprintf(stderr, "Error: Lighting effect '%s' not supported on this device\n", argv[1]);
+        if (!use_daemon) {
+          device_close();
+        }
+        return 1;
+      }
     }
     // Execute lighting command after validation passes
     int result = execute_lighting_command(argc - 1, argv + 1);
     return result;
   }
 
-  // EARLY VALIDATION PHASE - Run device detection before any command execution
-  // Skip only for test mode and device-info command
-  if (!test_mode && argc >= 2 && strcmp(argv[1], "device-info") != 0) {
+  // EARLY VALIDATION PHASE - Run device detection only if not using daemon
+  // Skip for test mode and device-info command
+  if (!use_daemon && !test_mode && argc >= 2 && strcmp(argv[1], "device-info") != 0) {
     // Check if we need sudo for ACPI detection
     if (getuid() != 0 && access("/proc/acpi/call", W_OK) != 0) {
       printf("ACPI detection requires root privileges. Re-running with sudo...\n");
@@ -414,33 +440,39 @@ int main(int argc, char **argv) {
     }
   }
 
-  // Device detection for device-info command (always runs regardless of support
-  // status)
+  // Device detection for device-info command 
   if (!test_mode && argc >= 2 && strcmp(argv[1], "device-info") == 0) {
-    detect_device_model(); // Run detection but don't exit on unsupported - let
-                           // device-info handle the display
-  }
+    // device-info always needs device detection regardless of daemon status
+    if (!use_daemon) {
+      // When daemon is off, device-info needs ACPI access for proper detection
+      if (getuid() != 0 && access("/proc/acpi/call", W_OK) != 0) {
+        printf("Device detection requires root privileges for ACPI access. Re-running with sudo...\n");
 
-  // Check if daemon is running and we should use it
-  if (!test_mode && awcc_daemon_is_running()) {
-    use_daemon = 1;
-  }
+        // Rebuild command with sudo
+        char **sudo_args = malloc((argc + 2) * sizeof(char *));
+        if (!sudo_args) {
+          fprintf(stderr, "Memory allocation failed\n");
+          exit(1);
+        }
 
-  // If using daemon, try daemon execution first
-  if (use_daemon && argc >= 2) {
-    int daemon_result = execute_via_daemon(argc, argv);
-    if (daemon_result != -1) {
-      // Command was handled by daemon (successfully or with error)
-      return daemon_result;
+        sudo_args[0] = "sudo";
+        sudo_args[1] = argv[0]; // Original program path
+        for (int i = 1; i < argc; i++) {
+          sudo_args[i + 1] = argv[i];
+        }
+        sudo_args[argc + 1] = NULL;
+
+        execvp("sudo", sudo_args);
+        perror("Failed to execute with sudo");
+        free(sudo_args);
+        exit(1);
+      }
     }
-    // If daemon_result == -1, fallback to direct execution
-    printf("Falling back to direct execution\n");
+    detect_device_model(); // Run detection for device-info
   }
 
   // Skip device detection in test mode
-  if (!test_mode) {
-    // Device-info no longer needs privilege elevation for diagnostic purposes
-  } else {
+  if (test_mode) {
     printf("Skipping device detection in test mode\n");
   }
 
@@ -453,17 +485,21 @@ int main(int argc, char **argv) {
           !is_feature_supported("thermal_modes")) {
         fprintf(stderr, "Error: Thermal modes not supported on %s\n",
                 get_device_name());
-        device_close();
+        if (!use_daemon) {
+          device_close();
+        }
         return 1;
       }
-      checkRoot(argv[1], argv);
+      if (!use_daemon) checkRoot(argv[1], argv);
       printf("Current mode: %s\n", AWCC.GetModeName(AWCC.GetMode()));
     } else if (strcmp(argv[1], "modes") == 0) {
       if (!test_mode && g_current_device &&
           !is_feature_supported("thermal_modes")) {
         fprintf(stderr, "Error: Thermal modes not supported on %s\n",
                 get_device_name());
-        device_close();
+        if (!use_daemon) {
+          device_close();
+        }
         return 1;
       }
       list_available_modes();
@@ -638,8 +674,11 @@ int main(int argc, char **argv) {
     print_usage();
   }
 
-  AWCC.Deinitialize();
-  device_close();
-  cleanup_device_detection();
+  // Cleanup only if we initialized ACPI (not using daemon)
+  if (!use_daemon) {
+    AWCC.Deinitialize();
+    device_close();
+    cleanup_device_detection();
+  }
   return 0;
 }
