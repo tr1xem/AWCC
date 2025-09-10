@@ -128,6 +128,26 @@ int execute_via_daemon(int argc, char **argv) {
       printf("%s\n", response.data);
     }
   } else if (is_thermal_mode_command(argv[1])) {
+    // Get current mode first to check if we need to switch
+    struct AWCCCommand_t query_cmd = {0};
+    struct AWCCResponse_t query_response = {0};
+    query_cmd.command_type = AWCC_CMD_GET_MODE;
+    query_cmd.response_needed = 1;
+    
+    if (awcc_daemon_send_command(&query_cmd, &query_response) == 0 && 
+        query_response.status == 0) {
+      int current_mode = atoi(query_response.data);
+      int requested_mode = command_to_awcc_mode(argv[1]);
+      
+      if (current_mode == requested_mode) {
+        const char *mode_names[] = {"Quiet", "Battery Saver", "Balanced",
+                                    "Performance", "G-Mode"};
+        printf("Already in %s mode.\n", mode_names[current_mode]);
+        return 0;  // Exit without sending SET command
+      }
+    }
+    
+    // Different mode or query failed - proceed with SET command
     cmd.command_type = AWCC_CMD_SET_MODE;
     enum AWCCMode_t mode = command_to_awcc_mode(argv[1]);
     snprintf(cmd.args, sizeof(cmd.args), "%d", mode);
@@ -441,9 +461,17 @@ int main(int argc, char **argv) {
         return 1;
       }
       checkRoot(argv[1], argv);
-      enum AWCCMode_t mode = command_to_awcc_mode(argv[1]);
-      AWCC.SetMode(mode);
-      printf("%s mode activated.\n", AWCC.GetModeName(mode));
+      enum AWCCMode_t current_mode = AWCC.GetMode();
+      enum AWCCMode_t requested_mode = command_to_awcc_mode(argv[1]);
+      
+      if (current_mode == requested_mode) {
+        printf("Already in %s mode.\n", AWCC.GetModeName(current_mode));
+      } else {
+        AWCC.SetMode(requested_mode);
+        printf("Switched from %s to %s mode.\n", 
+               AWCC.GetModeName(current_mode), 
+               AWCC.GetModeName(requested_mode));
+      }
     } else if (strcmp(argv[1], "gt") == 0) {
       if (!test_mode && g_current_device &&
           !is_feature_supported("gmode_toggle")) {
