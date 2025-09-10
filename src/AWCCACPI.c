@@ -26,6 +26,9 @@ static unsigned int ParseHexValue (const char *);
 static AWCCTemperature_t GetFanTemperature (enum AWCCFan_t);
 static AWCCFanRpm_t GetFanRpm (enum AWCCFan_t);
 
+// Forward declaration for daemon check
+extern int awcc_daemon_is_running(void);
+
 const struct AWCCACPI_t AWCCACPI = {
 	.Initialize = & Initialize,
 	.GetMode = & GetMode,
@@ -152,6 +155,15 @@ void Initialize (void)
 
 void Execute (const char * command)
 {
+	// Check if daemon is running first
+	if (awcc_daemon_is_running()) {
+		// For now, still prevent direct ACPI when daemon is running
+		// In a full implementation, we could translate ACPI commands to daemon commands
+		fprintf(stderr, "AWCC daemon is running. ACPI operations should go through the daemon.\n");
+		fprintf(stderr, "Use the awcc client to communicate with the daemon instead.\n");
+		exit(EXIT_FAILURE);
+	}
+
 	FILE * acpi_file = fopen ("/proc/acpi/call", "w");
 
 # ifdef ENABLE_ACPI_LOGS
