@@ -25,7 +25,8 @@ static device_config_t supported_devices[] = {
                                     .balanced = true,
                                     .performance = true,
                                     .battery_saver = true,
-                                    .gmode = true},
+                                    .gmode = true,
+                                    .cool = false},
                   .lighting = {.brightness_control = true,
                                .static_color = true,
                                .spectrum_effect = true,
@@ -48,8 +49,9 @@ static device_config_t supported_devices[] = {
                   .thermal_modes = {.quiet = true,
                                     .balanced = true,
                                     .performance = true,
-                                    .battery_saver = true,
-                                    .gmode = true},
+                                    .battery_saver = false,
+                                    .gmode = true,
+                                    .cool = true},
                   .lighting = {.brightness_control = true,
                                .static_color = true,
                                .spectrum_effect = true,
@@ -304,6 +306,9 @@ bool is_thermal_mode_supported(const char *mode_name) {
   if (strcmp(mode_name, "gmode") == 0 || strcmp(mode_name, "g") == 0) {
     return g_current_device->features.thermal_modes.gmode;
   }
+  if (strcmp(mode_name, "cool") == 0 || strcmp(mode_name, "c") == 0) {
+    return g_current_device->features.thermal_modes.cool;
+  }
 
   return false;
 }
@@ -473,6 +478,9 @@ void build_device_info_string(char *buffer, size_t buffer_size) {
     offset +=
         snprintf(buffer + offset, buffer_size - offset, "    - G-Mode: %s\n",
                  g_current_device->features.thermal_modes.gmode ? "Yes" : "No");
+    offset +=
+        snprintf(buffer + offset, buffer_size - offset, "    - Cool Mode: %s\n",
+                 g_current_device->features.thermal_modes.cool ? "Yes" : "No");
   }
 
   offset +=

@@ -13,6 +13,7 @@ typedef enum {
   THERMAL_MODE_BALANCED,
   THERMAL_MODE_PERFORMANCE,
   THERMAL_MODE_GAMING,
+  THERMAL_MODE_COOL,
   THERMAL_MODE_COUNT
 } thermal_mode_id_t;
 
@@ -39,6 +40,7 @@ typedef struct {
   bool supports_battery_saver;
   bool supports_performance;
   bool supports_balanced;
+  bool supports_cool;
   bool has_gpu_fan_control;
   bool has_cpu_fan_control;
   const char *acpi_prefix;

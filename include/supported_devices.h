@@ -26,6 +26,7 @@ typedef struct {
       bool performance;
       bool battery_saver;
       bool gmode;
+      bool cool;
     } thermal_modes;
 
     // Per-lighting-feature support

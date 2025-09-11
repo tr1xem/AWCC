@@ -80,6 +80,18 @@ static void initialize_mode_definitions(void) {
                        .requires_root = true,
                        .pre_check = NULL,
                        .post_action = NULL};
+
+  g_thermal_modes[THERMAL_MODE_COOL] =
+      (thermal_mode_t){.id = THERMAL_MODE_COOL,
+                       .name = "Cool",
+                       .hex_code = "0xa2",
+                       .description = "Cool mode for enhanced cooling",
+                       .cli_command = "cool",
+                       .cli_alias = "c",
+                       .enabled = true,
+                       .requires_root = true,
+                       .pre_check = NULL,
+                       .post_action = NULL};
 }
 
 //==============================================================================
@@ -92,6 +104,7 @@ device_capabilities_t detect_device_capabilities(void) {
                                 .supports_battery_saver = true,
                                 .supports_performance = true,
                                 .supports_balanced = true,
+                                .supports_cool = true,
                                 .has_gpu_fan_control = true,
                                 .has_cpu_fan_control = true,
                                 .acpi_prefix = "AMWW"};
@@ -111,6 +124,7 @@ static void apply_device_capabilities(void) {
   g_thermal_modes[THERMAL_MODE_PERFORMANCE].enabled =
       g_device_caps.supports_performance;
   g_thermal_modes[THERMAL_MODE_GAMING].enabled = g_device_caps.supports_gaming;
+  g_thermal_modes[THERMAL_MODE_COOL].enabled = g_device_caps.supports_cool;
 }
 
 //==============================================================================
