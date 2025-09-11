@@ -82,7 +82,8 @@ struct {
 		[AWCCModeBatterySaver]   =   "BatterySaver",
 		[AWCCModeBalanced]       =   "Balanced",
 		[AWCCModePerformance]    =   "Performance",
-		[AWCCModeG]              =   "G"
+		[AWCCModeG]              =   "G",
+		[AWCCModeCool]           =   "Cool"
 	},
 };
 

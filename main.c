@@ -28,6 +28,8 @@ enum AWCCMode_t command_to_awcc_mode(const char *command) {
     return AWCCModeG;
   } else if (strcmp(command, "bs") == 0 || strcmp(command, "battery") == 0) {
     return AWCCModeBatterySaver;
+  } else if (strcmp(command, "c") == 0 || strcmp(command, "cool") == 0) {
+    return AWCCModeCool;
   }
   return -1; // Invalid mode
 }

@@ -94,7 +94,7 @@ void handle_command(int client_fd, const struct AWCCCommand_t *cmd) {
   case AWCC_CMD_SET_MODE: {
     int requested_mode = atoi(cmd->args);
     log_verbose("Checking thermal mode: %d", requested_mode);
-    if (requested_mode >= AWCCModeQuiet && requested_mode <= AWCCModeG) {
+    if (requested_mode >= AWCCModeQuiet && requested_mode <= AWCCModeCool) {
       enum AWCCMode_t current_mode = AWCC.GetMode();
       
       if (current_mode == (enum AWCCMode_t)requested_mode) {
@@ -227,7 +227,7 @@ void handle_command(int client_fd, const struct AWCCCommand_t *cmd) {
     response.status = 0;
     snprintf(
         response.data, sizeof(response.data),
-        "Available modes: Quiet, Battery Saver, Balanced, Performance, G-Mode");
+        "Available modes: Quiet, Battery Saver, Balanced, Performance, G-Mode, Cool");
     log_debug("Mode list provided");
     break;
 
