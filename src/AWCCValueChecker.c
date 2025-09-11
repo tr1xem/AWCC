@@ -37,7 +37,8 @@ void AssertMode (enum AWCCMode_t mode)
 		AWCCModeBatterySaver != mode &&
 		AWCCModeBalanced != mode &&
 		AWCCModePerformance != mode &&
-		AWCCModeG != mode
+		AWCCModeG != mode &&
+		AWCCModeCool != mode
 	) {
 		fprintf (stderr, "Illegal mode value %d.\n", mode);
 		exit (EXIT_FAILURE);
