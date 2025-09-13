@@ -7,6 +7,7 @@ enum AWCCMode_t {
 	AWCCModeBalanced,
 	AWCCModePerformance,
 	AWCCModeG,
+	AWCCModeCool,
 };
 
 enum AWCCFan_t {
