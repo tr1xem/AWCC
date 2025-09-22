@@ -27,6 +27,7 @@ auto AcpiUtils::getPrefix() -> const char * {
         }
     }
     LOG_S(FATAL) << "Cannot get vendor from /proc/cpuinfo";
+    return "";
 }
 
 auto AcpiUtils::m_getDeviceName() -> const char * {
@@ -164,10 +165,11 @@ auto AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4)
     std::array<char, 128> buffer{};
     std::string result;
     std::string command =
-        std::format("echo '\\_SB.{}.WMAX 0 {:#x} {{{:#x}, {:#x},{:#x}, "
-                    "0x00}}' | pkexec tee /proc/acpi/call > /dev/null 2>&1 && "
-                    "sudo cat /proc/acpi/call",
+        std::format("pkexec sh -c 'echo \"\\_SB.{}.WMAX 0 {:#x} "
+                    "{{{:#x},{:#x},{:#x},0x00}}\" "
+                    "> /proc/acpi/call && cat /proc/acpi/call'",
                     m_acpiPrefix, arg1, arg2, arg3, arg4);
+
     LOG_S(INFO) << "Executing command: " << command;
 
 #ifndef NDEBUG
