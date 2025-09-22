@@ -3,6 +3,7 @@
 enum class Prefix {
     Intel,
     AMD,
+    Unknown,
 };
 
 enum class FeatureSet {

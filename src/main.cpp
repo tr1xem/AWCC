@@ -6,6 +6,6 @@ int main(int argc, char *argv[]) {
     loguru::init(argc, argv);
 
     Thermals awccthermals;
-    awccthermals.setThermalMode(ThermalModes::Cool);
-    // awccthermals.setThermalMode(ThermalModes::Performance);
+    // awccthermals.setThermalMode(ThermalModes::Cool);
+    awccthermals.setThermalMode(ThermalModes::Performance);
 }
