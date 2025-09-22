@@ -1,0 +1,25 @@
+{
+    "Dell G15 5530": {
+        "acpi_prefix": "AMWW",
+        "acpi_model_id": "0x0000",
+        "is_dmi_fallback": true,
+        "featureSet": "1111111",
+        "thermalModes": "11001111",
+        "lightingModes": "111111"
+    },
+    "Dell G15 5511": {
+        "acpi_prefix": "AMWW",
+        "acpi_model_id": "0x0b75",
+        "is_dmi_fallback": false,
+        "featureSet": "1111111",
+        "thermalModes": "11010111",
+        "lightingModes": "111111"
+    },
+    "Dell G16 7630": {
+        "acpi_prefix": "AMWW",
+        "is_dmi_fallback": true,
+        "featureSet": "1111111",
+        "thermalModes": "11001111",
+        "lightingModes": "111111"
+    }
+}
