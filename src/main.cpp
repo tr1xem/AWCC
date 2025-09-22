@@ -11,7 +11,16 @@ int main(int argc, char *argv[]) {
     AcpiUtils acpiUtils;
 
     Thermals awccthermals(acpiUtils);
+    LOG_S(INFO) << "Current Thermal Mode: "
+                << awccthermals.getCurrentModeName();
     awccthermals.setThermalMode(ThermalModes::Cool);
+    LOG_S(INFO) << "Current Thermal Mode: "
+                << awccthermals.getCurrentModeName();
+    awccthermals.setThermalMode(ThermalModes::Quiet);
+    LOG_S(INFO) << "Current Thermal Mode: "
+                << awccthermals.getCurrentModeName();
     awccthermals.setThermalMode(ThermalModes::Performance);
+    // awccthermals.setThermalMode(ThermalModes::Gmode);
+
     return 0;
 }
