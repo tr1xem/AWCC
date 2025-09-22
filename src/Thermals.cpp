@@ -4,7 +4,7 @@
 Thermals::Thermals() { LOG_S(INFO) << "Thermals Module initialized"; }
 
 void Thermals::setThermalMode(ThermalModes mode) {
-    m_acpiUtils.deviceInfo();
+    // m_acpiUtils.deviceInfo();
     LOG_S(INFO) << "Setting thermal mode to: " << thermalModeToString(mode);
     if (!supportsThemeralMode(mode)) {
         LOG_S(ERROR) << thermalModeToString(mode)
