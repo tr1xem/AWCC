@@ -63,6 +63,7 @@ void AcpiUtils::executeAcpiCommand(const char *prefix, int arg1, int arg2,
         FILE *pipe = popen(command.c_str(), "r");
         if (!pipe)
             LOG_S(ERROR) << "Failed to execute command";
+        return;
         else {
             int status = pclose(pipe);
             if (status == 0) {
@@ -73,6 +74,7 @@ void AcpiUtils::executeAcpiCommand(const char *prefix, int arg1, int arg2,
         }
     } else {
         LOG_S(ERROR) << "ACPI module not found in kernel";
+        return;
     }
 #endif
 }

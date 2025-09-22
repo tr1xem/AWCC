@@ -1,21 +1,7 @@
 #pragma once
 #include "AcpiUtils.h"
+#include "database.h"
 
-enum ThermalModes {
-    Quiet = 0xa3,
-    BatterySaver = 0xa5,
-    Balanced = 0xa0,
-    Performance = 0xa1,
-    Gmode = 0xab,
-    Cool = 0xa2,
-    Manual = 0x0,
-    USTT_FullSpeed = 0xa4, // Legacy
-};
-
-enum Prefix {
-    Intel,
-    AMD,
-};
 class Thermals {
   private:
     AcpiUtils m_acpiUtils;
@@ -32,7 +18,7 @@ class Thermals {
             return b_BatterySaver;
         case Cool:
             return b_Cool;
-        case USTT_FullSpeed:
+        case FullSpeed:
             return b_FullSpeed; // if needed
         case Gmode:
             return b_GMode;
@@ -56,10 +42,10 @@ class Thermals {
         case Cool:
             return "Cool";
         case Gmode:
-            return "GMode";
+            return "G-Mode";
         case Manual:
             return "Manual";
-        case USTT_FullSpeed:
+        case FullSpeed:
             return "Full Speed";
         default:
             return "Unknown";
