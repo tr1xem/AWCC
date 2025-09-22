@@ -29,38 +29,129 @@ auto AcpiUtils::getPrefix() -> const char * {
     throw std::runtime_error("Cannot get vendor from /proc/cpuinfo");
 }
 
-AcpiUtils::AcpiUtils() {
-    // TODO: Construct a map of supported modes
-    // get_devices -> map it with config -> extract that part out of the config
-    // to the map -> make it publically accesseble
-    std::ifstream file("/home/saumya/work/awcc-rewrite/database.json");
+auto AcpiUtils::m_getDeviceName() -> const char * {
+
+    static std::string deviceName;
+    std::ifstream dmiFile("/sys/class/dmi/id/product_name");
+    if (!dmiFile.is_open()) {
+        throw std::runtime_error("Cannot read /sys/class/dmi/id/product_name");
+    }
+
+    std::stringstream buffer;
+    buffer << dmiFile.rdbuf();
+    deviceName = buffer.str();
+
+    if (!deviceName.empty() && deviceName.back() == '\n') {
+        deviceName.pop_back();
+    }
+
+    return deviceName.c_str();
+};
+
+auto AcpiUtils::m_getDeviceAcpiCode() -> int {
+    return executeAcpiCommand(0x1a, 0x02, 0x02, 0x00);
+};
+
+auto AcpiUtils::m_resolveDevicefromDatabase() -> int {
+
+    m_deviceName = m_getDeviceName();
+    const char *home = std::getenv("HOME");
+    std::string path = std::string(home) + "/work/awcc-rewrite/database.json";
+    std::ifstream file(path);
+
     if (!file) {
         LOG_S(ERROR) << "Failed to open database.json";
-        return;
+        return -1;
     }
     json jsonHandel;
     file >> jsonHandel;
-    json device = jsonHandel["Dell G15 5530"];
 
-    if (device.contains("acpi_model_id")) {
-        std::string hexStr = device["acpi_model_id"].get<std::string>();
-        acpiModelId = std::stoi(hexStr, nullptr, 16);
+    if (!jsonHandel.contains(m_deviceName)) {
+        LOG_S(ERROR) << "Device not found: " << m_deviceName;
+        return -1;
     }
 
-    if (device.contains("featureSet"))
-        m_featureSetBits =
-            std::bitset<7>(device["featureSet"].get<std::string>());
+    json &device = jsonHandel[m_deviceName];
 
-    if (device.contains("thermalModes"))
-        m_thermalModeBits =
-            std::bitset<8>(device["thermalModes"].get<std::string>());
+    if (!device.empty()) {
+        bool found = false;
 
-    if (device.contains("lightingModes"))
-        m_lightingModesBits =
-            std::bitset<6>(device["lightingModes"].get<std::string>());
+        for (const auto &[key, entry] : device.items()) {
+            if (key == "0x0000") {
+                LOG_S(INFO) << m_deviceName << " uses DMI.";
+                m_acpiModelId = 0x0000;
+                // Use the "0x0000" entry for bitsets if it exists
+                if (!entry.is_null()) {
+                    if (entry.contains("featureSet"))
+                        m_featureSetBits = std::bitset<7>(
+                            entry["featureSet"].get<std::string>());
+
+                    if (entry.contains("thermalModes"))
+                        m_thermalModeBits = std::bitset<8>(
+                            entry["thermalModes"].get<std::string>());
+
+                    if (entry.contains("lightingModes"))
+                        m_lightingModesBits = std::bitset<6>(
+                            entry["lightingModes"].get<std::string>());
+                }
+                found = true;
+                break;
+            } else {
+                int deviceHex = std::stoi(key, nullptr, 16);
+                int deviceAcpi =
+                    m_getDeviceAcpiCode(); // ACPI code of the running system
+
+                if (deviceHex == deviceAcpi) {
+                    LOG_S(INFO) << m_deviceName << " uses ACPI key: " << key;
+                    m_acpiModelId = deviceHex;
+
+                    // Set bitsets from the matched entry
+                    if (!entry.is_null()) {
+                        if (entry.contains("featureSet"))
+                            m_featureSetBits = std::bitset<7>(
+                                entry["featureSet"].get<std::string>());
+
+                        if (entry.contains("thermalModes"))
+                            m_thermalModeBits = std::bitset<8>(
+                                entry["thermalModes"].get<std::string>());
+
+                        if (entry.contains("lightingModes"))
+                            m_lightingModesBits = std::bitset<6>(
+                                entry["lightingModes"].get<std::string>());
+                    }
+
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        if (!found) {
+            LOG_S(ERROR) << m_deviceName << " currently not supported";
+            return -1;
+        } else {
+            LOG_S(INFO) << "Device info resolved from database";
+            m_deviceResolved = true;
+            return 0;
+        }
+    } else {
+        LOG_S(ERROR) << m_deviceName << " currently not supported";
+        return -1;
+    }
+    return 0;
+};
+
+AcpiUtils::AcpiUtils() {
+    LOG_S(INFO) << "Initializing ACPIUtils Module";
+    m_acpiPrefix = getPrefix();
+    int resolveStatus = m_resolveDevicefromDatabase();
+
+    if (!m_deviceResolved || resolveStatus == -1)
+        throw std::runtime_error("Device resolution failed");
 
     LOG_S(INFO)
-        << "AcpiUtils Module initialized got device info and feature supported";
+        << "AcpiUtils Module initialization completed got device info and "
+           "feature supported";
     LOG_S(INFO) << "FeatureSet: " << m_featureSetBits;
     LOG_S(INFO) << "ThermalModes: " << m_thermalModeBits;
     LOG_S(INFO) << "LightingModes: " << m_lightingModesBits;
@@ -68,38 +159,64 @@ AcpiUtils::AcpiUtils() {
 
 // INFO: Any check for ACPI support should be done before calling this function
 // it is just a interface to execute a command
-void AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4) {
+auto AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4)
+    -> int {
+    std::array<char, 128> buffer{};
+    std::string result;
     std::string command =
         std::format("echo '\\_SB.{}.WMAX 0 {:#x} {{{:#x}, {:#x},{:#x}, "
                     "0x00}}' | pkexec tee /proc/acpi/call > /dev/null 2>&1",
-                    AcpiUtils::getPrefix(), arg1, arg2, arg3, arg4);
+                    m_acpiPrefix, arg1, arg2, arg3, arg4);
     LOG_S(INFO) << "Executing command: " << command;
 
 #ifndef NDEBUG
     LOG_S(WARNING) << "In debug mode, not executing command";
+    return 0;
 #else
     if (std::filesystem::exists("/proc/acpi/call")) {
         FILE *pipe = popen(command.c_str(), "r");
         if (!pipe)
             LOG_S(ERROR) << "Failed to execute command";
-        return;
+        return -1;
+
         else {
+            while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
+                result += buffer.data();
+            }
             int status = pclose(pipe);
             if (status == 0) {
-                LOG_S(INFO) << "Command executed successfully";
+                if (!result.empty() && result.back() == '\n')
+                    result.pop_back();
+                try {
+                    if (result.rfind("0x", 0) == 0) { // starts with 0x
+                        LOG_S(INFO) << "Command executed successfully";
+                        return std::stoi(result, nullptr, 16);
+                    } else {
+                        LOG_S(INFO) << "Command executed successfully";
+                        return std::stoi(result); // decimal
+                    }
+                } catch (const std::exception &e) {
+                    LOG_S(ERROR) << "Failed to parse ACPI output: " << e.what();
+                    return -1;
+                }
             } else {
                 LOG_S(ERROR) << "Command failed with status: " << status;
+                return -1;
             }
         }
     } else {
         LOG_S(ERROR) << "ACPI module not found in kernel";
-        return;
+        return -1;
     }
 #endif
 }
 
 void AcpiUtils::deviceInfo() const {
-    std::cout << "ACPI Model ID: 0x" << std::hex << acpiModelId << std::dec
+    if (!m_deviceResolved) {
+        return;
+    }
+    std::cout << "Device Name: " << m_deviceName << "\n";
+    std::cout << "ACPI Model ID: 0x" << std::hex << m_acpiModelId << std::dec
               << "\n";
 
     std::cout << "Features enabled:\n";
