@@ -6,3 +6,5 @@ compile_commands.json
 Agents.md
 AGENTS.md
 .cache
+build/
+.cache/
