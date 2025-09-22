@@ -12,7 +12,8 @@ void Thermals::setThermalMode(ThermalModes mode) {
                      << " mode not supported by device, aborting";
         return;
     } else {
-        m_acpiUtils.executeAcpiCommand("AWMM", 0x15, 0x01, mode);
+        m_acpiUtils.executeAcpiCommand("AWMM", 0x15, 0x01,
+                                       static_cast<int>(mode));
     }
 }
 

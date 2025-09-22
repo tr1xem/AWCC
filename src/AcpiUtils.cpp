@@ -84,50 +84,50 @@ void AcpiUtils::deviceInfo() const {
               << "\n";
 
     std::cout << "Features enabled:\n";
-    if (hasFeature(b_FanBoost))
+    if (hasFeature(FeatureSet::FanBoost))
         std::cout << "  Fan Boost\n";
-    if (hasFeature(b_ThermalModes))
+    if (hasFeature(FeatureSet::ThermalModes))
         std::cout << "  Thermal Modes\n";
-    if (hasFeature(b_AutoBoost))
+    if (hasFeature(FeatureSet::AutoBoost))
         std::cout << "  Auto Boost\n";
-    if (hasFeature(b_CpuTemp))
+    if (hasFeature(FeatureSet::CpuTemp))
         std::cout << "  CPU Temp\n";
-    if (hasFeature(b_GpuTemp))
+    if (hasFeature(FeatureSet::GpuTemp))
         std::cout << "  GPU Temp\n";
-    if (hasFeature(b_BrightnessControl))
+    if (hasFeature(FeatureSet::BrightnessControl))
         std::cout << "  Brightness Control\n";
-    if (hasFeature(b_GModeToggle))
+    if (hasFeature(FeatureSet::GModeToggle))
         std::cout << "  GMode Toggle\n";
 
     std::cout << "Thermal modes enabled:\n";
-    if (hasThermalMode(b_Quiet))
+    if (hasThermalMode(ThermalModeSet::Quiet))
         std::cout << "  Quiet\n";
-    if (hasThermalMode(b_Balanced))
+    if (hasThermalMode(ThermalModeSet::Balanced))
         std::cout << "  Balanced\n";
-    if (hasThermalMode(b_Performance))
+    if (hasThermalMode(ThermalModeSet::Performance))
         std::cout << "  Performance\n";
-    if (hasThermalMode(b_BatterySaver))
+    if (hasThermalMode(ThermalModeSet::BatterySaver))
         std::cout << "  Battery Saver\n";
-    if (hasThermalMode(b_Cool))
+    if (hasThermalMode(ThermalModeSet::Cool))
         std::cout << "  Cool\n";
-    if (hasThermalMode(b_FullSpeed))
+    if (hasThermalMode(ThermalModeSet::FullSpeed))
         std::cout << "  Full Speed\n";
-    if (hasThermalMode(b_GMode))
+    if (hasThermalMode(ThermalModeSet::GMode))
         std::cout << "  GMode\n";
-    if (hasThermalMode(b_Manual))
+    if (hasThermalMode(ThermalModeSet::Manual))
         std::cout << "  Manual\n";
 
     std::cout << "Lighting modes enabled:\n";
-    if (hasLightingMode(b_StaticColor))
+    if (hasLightingMode(LightingSet::StaticColor))
         std::cout << "  Static Color\n";
-    if (hasLightingMode(b_SpectrumEffect))
+    if (hasLightingMode(LightingSet::SpectrumEffect))
         std::cout << "  Spectrum Effect\n";
-    if (hasLightingMode(b_BreathingEffect))
+    if (hasLightingMode(LightingSet::BreathingEffect))
         std::cout << "  Breathing Effect\n";
-    if (hasLightingMode(b_RainbowEffect))
+    if (hasLightingMode(LightingSet::RainbowEffect))
         std::cout << "  Rainbow Effect\n";
-    if (hasLightingMode(b_WaveEffect))
+    if (hasLightingMode(LightingSet::WaveEffect))
         std::cout << "  Wave Effect\n";
-    if (hasLightingMode(b_BackForthEffect))
+    if (hasLightingMode(LightingSet::BackForthEffect))
         std::cout << "  Back Forth Effect\n";
 }
