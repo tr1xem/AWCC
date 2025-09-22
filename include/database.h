@@ -1,21 +1,21 @@
 #pragma once
 
-enum Prefix {
+enum class Prefix {
     Intel,
     AMD,
 };
 
-enum FeatureSet {
-    b_FanBoost = 0b00000001,          // byte 0
-    b_ThermalModes = 0b00000010,      // byte 1
-    b_AutoBoost = 0b00000100,         // byte 2
-    b_CpuTemp = 0b00001000,           // byte 3
-    b_GpuTemp = 0b00010000,           // byte 4
-    b_BrightnessControl = 0b00100000, // byte 5
-    b_GModeToggle = 0b01000000        // byte 6
+enum class FeatureSet {
+    FanBoost = 0b00000001,          // byte 0
+    ThermalModes = 0b00000010,      // byte 1
+    AutoBoost = 0b00000100,         // byte 2
+    CpuTemp = 0b00001000,           // byte 3
+    GpuTemp = 0b00010000,           // byte 4
+    BrightnessControl = 0b00100000, // byte 5
+    GModeToggle = 0b01000000        // byte 6
 };
 
-enum ThermalModes {
+enum class ThermalModes {
     Quiet = 0xa3,
     Balanced = 0xa0,
     Performance = 0xa1,
@@ -26,22 +26,22 @@ enum ThermalModes {
     Manual = 0x0,
 };
 
-enum ThermalModeSet {
-    b_Quiet = 0b00000001,        // byte 0
-    b_Balanced = 0b00000010,     // byte 1
-    b_Performance = 0b00000100,  // byte 2
-    b_BatterySaver = 0b00001000, // byte 3
-    b_Cool = 0b00010000,         // byte 4
-    b_FullSpeed = 0b00100000,    // byte 5
-    b_GMode = 0b01000000,        // byte 6
-    b_Manual = 0b10000000        // byte 7
+enum class ThermalModeSet {
+    Quiet = 0b00000001,        // byte 0
+    Balanced = 0b00000010,     // byte 1
+    Performance = 0b00000100,  // byte 2
+    BatterySaver = 0b00001000, // byte 3
+    Cool = 0b00010000,         // byte 4
+    FullSpeed = 0b00100000,    // byte 5
+    GMode = 0b01000000,        // byte 6
+    Manual = 0b10000000        // byte 7
 };
 
-enum LightingSet {
-    b_StaticColor = 0b000001,     // byte 0
-    b_SpectrumEffect = 0b000010,  // byte 1
-    b_BreathingEffect = 0b000100, // byte 2
-    b_RainbowEffect = 0b001000,   // byte 3
-    b_WaveEffect = 0b010000,      // byte 4
-    b_BackForthEffect = 0b100000  // byte 5
+enum class LightingSet {
+    StaticColor = 0b000001,     // byte 0
+    SpectrumEffect = 0b000010,  // byte 1
+    BreathingEffect = 0b000100, // byte 2
+    RainbowEffect = 0b001000,   // byte 3
+    WaveEffect = 0b010000,      // byte 4
+    BackForthEffect = 0b100000  // byte 5
 };
