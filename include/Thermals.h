@@ -6,7 +6,7 @@ class Thermals {
   private:
     AcpiUtils m_acpiUtils;
 
-    ThermalModeSet m_mapToBitset(ThermalModes mode) {
+    static auto m_mapToBitset(ThermalModes mode) -> ThermalModeSet {
         switch (mode) {
         case ThermalModes::Quiet:
             return ThermalModeSet::Quiet;
@@ -29,7 +29,7 @@ class Thermals {
         }
     }
 
-    const char *thermalModeToString(ThermalModes mode) {
+    static auto thermalModeToString(ThermalModes mode) -> const char * {
         switch (mode) {
         case ThermalModes::Quiet:
             return "Quiet";
@@ -55,5 +55,5 @@ class Thermals {
   public:
     Thermals();
     void setThermalMode(ThermalModes mode);
-    bool supportsThemeralMode(ThermalModes mode);
+    auto supportsThemeralMode(ThermalModes mode) -> bool;
 };

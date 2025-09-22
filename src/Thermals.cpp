@@ -6,7 +6,7 @@ Thermals::Thermals() { LOG_S(INFO) << "Thermals Module initialized"; }
 void Thermals::setThermalMode(ThermalModes mode) {
     m_acpiUtils.deviceInfo();
     LOG_S(INFO) << "Setting thermal mode to: " << thermalModeToString(mode);
-    if (supportsThemeralMode(mode) == false) {
+    if (!supportsThemeralMode(mode)) {
         LOG_S(ERROR) << thermalModeToString(mode)
                      << " mode not supported by device, aborting";
         return;
@@ -15,7 +15,7 @@ void Thermals::setThermalMode(ThermalModes mode) {
     }
 }
 
-bool Thermals::supportsThemeralMode(ThermalModes mode) {
+auto Thermals::supportsThemeralMode(ThermalModes mode) -> bool {
     ThermalModeSet bit = m_mapToBitset(mode);
     return m_acpiUtils.hasThermalMode(bit);
 }

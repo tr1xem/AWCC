@@ -1,12 +1,7 @@
 #pragma once
+#include <cstdint>
 
-enum class Prefix {
-    Intel,
-    AMD,
-    Unknown,
-};
-
-enum class FeatureSet {
+enum class FeatureSet : std::uint8_t {
     FanBoost = 0b00000001,          // byte 0
     ThermalModes = 0b00000010,      // byte 1
     AutoBoost = 0b00000100,         // byte 2
@@ -16,7 +11,7 @@ enum class FeatureSet {
     GModeToggle = 0b01000000        // byte 6
 };
 
-enum class ThermalModes {
+enum class ThermalModes : std::uint8_t {
     Quiet = 0xa3,
     Balanced = 0xa0,
     Performance = 0xa1,
@@ -27,7 +22,7 @@ enum class ThermalModes {
     Manual = 0x0,
 };
 
-enum class ThermalModeSet {
+enum class ThermalModeSet : std::uint8_t {
     Quiet = 0b00000001,        // byte 0
     Balanced = 0b00000010,     // byte 1
     Performance = 0b00000100,  // byte 2
@@ -38,7 +33,7 @@ enum class ThermalModeSet {
     Manual = 0b10000000        // byte 7
 };
 
-enum class LightingSet {
+enum class LightingSet : std::uint8_t {
     StaticColor = 0b000001,     // byte 0
     SpectrumEffect = 0b000010,  // byte 1
     BreathingEffect = 0b000100, // byte 2
