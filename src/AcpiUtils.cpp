@@ -12,7 +12,7 @@ using json = nlohmann::json;
 auto AcpiUtils::getPrefix() -> const char * {
     std::ifstream cpuinfo("/proc/cpuinfo");
     if (!cpuinfo.is_open())
-        throw std::runtime_error("Cannot read /proc/cpuinfo");
+        LOG_S(FATAL) << "Cannot read /proc/cpuinfo";
 
     std::string line;
     while (std::getline(cpuinfo, line)) {
@@ -26,7 +26,7 @@ auto AcpiUtils::getPrefix() -> const char * {
             }
         }
     }
-    throw std::runtime_error("Cannot get vendor from /proc/cpuinfo");
+    LOG_S(FATAL) << "Cannot get vendor from /proc/cpuinfo";
 }
 
 auto AcpiUtils::m_getDeviceName() -> const char * {
@@ -34,7 +34,7 @@ auto AcpiUtils::m_getDeviceName() -> const char * {
     static std::string deviceName;
     std::ifstream dmiFile("/sys/class/dmi/id/product_name");
     if (!dmiFile.is_open()) {
-        throw std::runtime_error("Cannot read /sys/class/dmi/id/product_name");
+        LOG_S(FATAL) << "Cannot read /sys/class/dmi/id/product_name";
     }
 
     std::stringstream buffer;
@@ -147,7 +147,7 @@ AcpiUtils::AcpiUtils() {
     int resolveStatus = m_resolveDevicefromDatabase();
 
     if (!m_deviceResolved || resolveStatus == -1)
-        throw std::runtime_error("Device resolution failed");
+        LOG_S(FATAL) << "Device resolution failed";
 
     LOG_S(INFO)
         << "AcpiUtils Module initialization completed got device info and "
@@ -165,7 +165,8 @@ auto AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4)
     std::string result;
     std::string command =
         std::format("echo '\\_SB.{}.WMAX 0 {:#x} {{{:#x}, {:#x},{:#x}, "
-                    "0x00}}' | pkexec tee /proc/acpi/call > /dev/null 2>&1",
+                    "0x00}}' | pkexec tee /proc/acpi/call > /dev/null 2>&1 && "
+                    "sudo cat /proc/acpi/call",
                     m_acpiPrefix, arg1, arg2, arg3, arg4);
     LOG_S(INFO) << "Executing command: " << command;
 
@@ -175,11 +176,10 @@ auto AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4)
 #else
     if (std::filesystem::exists("/proc/acpi/call")) {
         FILE *pipe = popen(command.c_str(), "r");
-        if (!pipe)
+        if (pipe == nullptr) {
             LOG_S(ERROR) << "Failed to execute command";
-        return -1;
-
-        else {
+            return -1;
+        } else {
             while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
                 result += buffer.data();
             }
@@ -188,7 +188,7 @@ auto AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4)
                 if (!result.empty() && result.back() == '\n')
                     result.pop_back();
                 try {
-                    if (result.rfind("0x", 0) == 0) { // starts with 0x
+                    if (result.starts_with("0x")) { // starts with 0x
                         LOG_S(INFO) << "Command executed successfully";
                         return std::stoi(result, nullptr, 16);
                     } else {
