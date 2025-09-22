@@ -9,7 +9,7 @@
 
 using json = nlohmann::json;
 
-const char *AcpiUtils::getPrefix() {
+auto AcpiUtils::getPrefix() -> const char * {
     std::ifstream cpuinfo("/proc/cpuinfo");
     if (!cpuinfo.is_open())
         throw std::runtime_error("Cannot read /proc/cpuinfo");
@@ -149,4 +149,16 @@ void AcpiUtils::deviceInfo() const {
         std::cout << "  Wave Effect\n";
     if (hasLightingMode(LightingSet::BackForthEffect))
         std::cout << "  Back Forth Effect\n";
+}
+auto AcpiUtils::hasLightingMode(LightingSet l) const -> bool {
+    return (m_lightingModesBits.to_ulong() & static_cast<unsigned long>(l)) !=
+           0;
+}
+
+auto AcpiUtils::hasThermalMode(ThermalModeSet m) const -> bool {
+    return (m_thermalModeBits.to_ulong() & static_cast<unsigned long>(m)) != 0;
+}
+
+auto AcpiUtils::hasFeature(FeatureSet f) const -> bool {
+    return (m_featureSetBits.to_ulong() & static_cast<unsigned long>(f)) != 0;
 }
