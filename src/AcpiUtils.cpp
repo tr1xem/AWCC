@@ -9,6 +9,26 @@
 
 using json = nlohmann::json;
 
+const char *AcpiUtils::getPrefix() {
+    std::ifstream cpuinfo("/proc/cpuinfo");
+    if (!cpuinfo.is_open())
+        throw std::runtime_error("Cannot read /proc/cpuinfo");
+
+    std::string line;
+    while (std::getline(cpuinfo, line)) {
+        if (line.find("vendor_id") != std::string::npos) {
+            if (line.find("GenuineIntel") != std::string::npos) {
+                LOG_S(INFO) << "Found Intel using Prefix : AMWW";
+                return "AMWW";
+            } else if (line.find("AuthenticAMD") != std::string::npos) {
+                LOG_S(INFO) << "Found AMD using Prefix : AMW3";
+                return "AMW3";
+            }
+        }
+    }
+    throw std::runtime_error("Cannot get vendor from /proc/cpuinfo");
+}
+
 AcpiUtils::AcpiUtils() {
     // TODO: Construct a map of supported modes
     // get_devices -> map it with config -> extract that part out of the config
@@ -48,12 +68,11 @@ AcpiUtils::AcpiUtils() {
 
 // INFO: Any check for ACPI support should be done before calling this function
 // it is just a interface to execute a command
-void AcpiUtils::executeAcpiCommand(const char *prefix, int arg1, int arg2,
-                                   int arg3, int arg4) {
+void AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4) {
     std::string command =
         std::format("echo '\\_SB.{}.WMAX 0 {:#x} {{{:#x}, {:#x},{:#x}, "
                     "0x00}}' | pkexec tee /proc/acpi/call > /dev/null 2>&1",
-                    prefix, arg1, arg2, arg3, arg4);
+                    AcpiUtils::getPrefix(), arg1, arg2, arg3, arg4);
     LOG_S(INFO) << "Executing command: " << command;
 
 #ifndef NDEBUG
