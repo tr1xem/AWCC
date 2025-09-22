@@ -4,56 +4,12 @@
 
 class Thermals {
   private:
-    AcpiUtils m_acpiUtils;
-
-    static auto m_mapToBitset(ThermalModes mode) -> ThermalModeSet {
-        switch (mode) {
-        case ThermalModes::Quiet:
-            return ThermalModeSet::Quiet;
-        case ThermalModes::Balanced:
-            return ThermalModeSet::Balanced;
-        case ThermalModes::Performance:
-            return ThermalModeSet::Performance;
-        case ThermalModes::BatterySaver:
-            return ThermalModeSet::BatterySaver;
-        case ThermalModes::Cool:
-            return ThermalModeSet::Cool;
-        case ThermalModes::FullSpeed:
-            return ThermalModeSet::FullSpeed;
-        case ThermalModes::Gmode:
-            return ThermalModeSet::GMode;
-        case ThermalModes::Manual:
-            return ThermalModeSet::Manual;
-        default:
-            return ThermalModeSet::Manual; // fallback
-        }
-    }
-
-    static auto thermalModeToString(ThermalModes mode) -> const char * {
-        switch (mode) {
-        case ThermalModes::Quiet:
-            return "Quiet";
-        case ThermalModes::Balanced:
-            return "Balanced";
-        case ThermalModes::Performance:
-            return "Performance";
-        case ThermalModes::BatterySaver:
-            return "Battery Saver";
-        case ThermalModes::Cool:
-            return "Cool";
-        case ThermalModes::Gmode:
-            return "G-Mode";
-        case ThermalModes::Manual:
-            return "Manual";
-        case ThermalModes::FullSpeed:
-            return "Full Speed";
-        default:
-            return "Unknown";
-        }
-    }
+    static auto m_mapToBitset(ThermalModes mode) -> ThermalModeSet;
+    static auto m_thermalModeToName(ThermalModes mode) -> const char *;
+    AcpiUtils &m_acpiUtils; // reference to external AcpiUtils
 
   public:
-    Thermals();
+    Thermals(AcpiUtils &acpiUtils);
     void setThermalMode(ThermalModes mode);
     auto supportsThemeralMode(ThermalModes mode) -> bool;
 };
