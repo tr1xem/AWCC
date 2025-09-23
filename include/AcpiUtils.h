@@ -16,7 +16,7 @@ class AcpiUtils {
     static auto m_getDeviceName() -> const char *;
     auto m_getDeviceAcpiCode() -> int;
     auto m_resolveDevicefromDatabase() -> int;
-    Daemon m_daemon;
+    Daemon &m_daemon;
 
   public:
     AcpiUtils(Daemon &daemon);

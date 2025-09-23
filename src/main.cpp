@@ -1,42 +1,45 @@
-
 #include "AcpiUtils.h"
 #include "Daemon.h"
 #include "Thermals.h"
+#include <algorithm>
 #include <cstring>
 #include <loguru.hpp>
-#include <string>
+#include <unistd.h> // for geteuid()
 
-int main(int argc, char *argv[]) {
-    // Initialize loguru -- always first
+namespace awcc {
+
+static void parseVerbosity(std::span<char *> args) {
     loguru::g_stderr_verbosity = -1;
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-v") == 0) {
+    for (auto *arg : args.subspan(1)) { // skip program name
+        if (std::strcmp(arg, "-v") == 0) {
             loguru::g_stderr_verbosity = 0; // INFO level
         }
     }
+}
 
-    bool run_daemon = false;
-    for (int i = 1; i < argc; ++i) {
-        if (std::string(argv[i]) == "-d" ||
-            std::string(argv[i]) == "--daemon") {
-            run_daemon = true;
-            break;
-        }
-    }
+static auto shouldRunDaemon(std::span<char *> args) -> bool {
+    return std::ranges::any_of(args.subspan(1), // skip program name
+                               [](char *arg) {
+                                   std::string_view s{arg};
+                                   return s == "-d" || s == "--daemon";
+                               });
+}
 
-    LOG_S(INFO) << "Initializing Daemon";
-    Daemon daemon;
-
-    if (run_daemon) {
+static void runDaemonServer(Daemon &daemon) {
 #ifdef NDEBUG
-        LOG_S(INFO) << "Starting daemon as server";
-        daemon.init();
-#else
-        LOG_S(ERROR) << "In Debug mode, daemon cannot be started as server";
-#endif
-        return 0;
+    if (geteuid() != 0) {
+        LOG_S(ERROR) << "Daemon server can only be run with admin permissions "
+                        "(root). Exiting.";
+        exit(1);
     }
+    LOG_S(INFO) << "Starting daemon as server";
+    daemon.init();
+#else
+    LOG_S(ERROR) << "In Debug mode, daemon cannot be started as server";
+#endif
+}
 
+static void runClientMode(Daemon &daemon) {
     if (daemon.isDaemonRunning()) {
         LOG_S(INFO) << "Daemon Client Mode Initialized";
     }
@@ -59,5 +62,22 @@ int main(int argc, char *argv[]) {
     // if (daemon.isDaemonRunning()) {
     //     LOG_S(INFO) << daemon.executeFromDaemon("stop");
     // }
+}
+
+} // namespace awcc
+
+int main(int argc, char *argv[]) {
+    std::span<char *> args(argv, argc);
+    awcc::parseVerbosity(args);
+
+    LOG_S(INFO) << "Initializing Daemon";
+    Daemon daemon;
+
+    if (awcc::shouldRunDaemon(args)) {
+        awcc::runDaemonServer(daemon);
+        return 0;
+    }
+
+    awcc::runClientMode(daemon);
     return 0;
 }

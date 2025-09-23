@@ -1,4 +1,5 @@
 #include "Daemon.h"
+#include "KeyBinder.h"
 #include <csignal>
 #include <cstdlib>
 #include <cstring>
@@ -31,11 +32,21 @@ Daemon::Daemon(std::string socket_path)
     s_instance = this;
 }
 
-Daemon::~Daemon() { stop(); }
+// Daemon::~Daemon() { stop(); }
 
 auto Daemon::isDaemonRunning() -> bool {
     return (access(m_socket_path.c_str(), F_OK) == 0 &&
             std::filesystem::exists(m_socket_path));
+}
+
+void Daemon::m_StopBinder() {
+    if (m_binder != nullptr) {
+        m_binder->stop();
+        if (m_keybinderThread.joinable())
+            m_keybinderThread.join();
+        delete m_binder;
+        m_binder = nullptr;
+    }
 }
 
 void Daemon::stop() {
@@ -45,7 +56,19 @@ void Daemon::stop() {
         close(m_server_fd);
     unlink(m_socket_path.c_str());
     LOG_S(INFO) << "Cleaned up socket file. Daemon stopped.";
+    LOG_S(INFO) << "Stopping KeyBinder Module";
+    m_StopBinder();
 }
+
+// TODO: Implement these functions after lightfx is implemented
+
+namespace {
+// NOTE: TOGGLES GMODE
+void onGModeKey() { LOG_S(INFO) << "G-Mode key pressed!"; }
+
+// NOTE: TOGGLES LIGHT 3 Step 0 -> 50 -> 100 -> 0
+void onLightKey() { LOG_S(INFO) << "Light key pressed!"; }
+} // namespace
 
 void Daemon::init() {
     if (isDaemonRunning()) {
@@ -54,8 +77,16 @@ void Daemon::init() {
         exit(1);
     }
 
+    // NOTE: Start the key binder module
+    auto *binder = new KeyBinder("AT Translated Set 2 keyboard");
+    binder->setOnGModeKey(onGModeKey);
+    binder->setOnLightKey(onLightKey);
+
+    std::thread keybinderThread([binder]() { binder->run(); });
+
     signal(SIGINT, daemon_signal_handler);
     signal(SIGTERM, daemon_signal_handler);
+
     std::atexit([]() {
         if (s_instance)
             s_instance->stop();
@@ -87,6 +118,12 @@ void Daemon::init() {
     LOG_S(INFO) << "Daemon listening on " << m_socket_path;
 
     while (m_running) {
+        if (!keybinderThread.joinable()) {
+            LOG_S(ERROR) << "KeyBinder thread has exited!";
+            m_StopBinder();
+            break;
+        }
+
         int client_fd = accept(m_server_fd, nullptr, nullptr);
         if (client_fd < 0) {
             LOG_S(ERROR) << "Accept failed: " << strerror(errno);

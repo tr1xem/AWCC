@@ -11,7 +11,7 @@
 - [x] Better Acip Executions with fallback and functions like `executeacip(0x2, 0x0, 0x0, 0x0)`
 - [x] Support for Legacy `USTT` modes
 - [x] JSON Config file and parsing
-- [ ] Grab Unmark keys directly from daemon using `evdev`
+- [x] Grab Unmark keys directly from daemon using `evdev`
 - [ ] Other Zones like head and support for `Alienware` - Low Priority
 - [x] Verbose and Debug Mode
 
