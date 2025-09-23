@@ -248,8 +248,10 @@ auto AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4)
 #endif
 }
 
-void AcpiUtils::deviceInfo(bool unknownDevice) const {
+void AcpiUtils::deviceInfo(bool unknownDevice) {
     if (unknownDevice) {
+
+        m_acpiModelId = m_getDeviceAcpiCode();
         LOG_S(ERROR) << "Device Found is Currently not supported,Please Send "
                         "the Following Details to the Developer";
         LOG_S(ERROR) << "Device Prefix: " << m_acpiPrefix;

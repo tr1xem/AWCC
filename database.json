@@ -22,7 +22,7 @@
         "0x0000": {
             "featureSet": "1111111",
             "thermalModes": "11001111",
-            "lightingModes": "111111"
+            "lightingModes": "000111"
         }
     }
 }
