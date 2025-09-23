@@ -133,8 +133,8 @@ void Daemon::init() {
 }
 
 auto Daemon::executeFromDaemon(const char *command) -> std::string {
-    LOG_S(INFO) << "Executing command: " << command;
     if (m_running) {
+        LOG_S(INFO) << "Executing command: " << command;
         FILE *fp = popen(command, "r");
         std::string result;
         if (fp == nullptr) {
