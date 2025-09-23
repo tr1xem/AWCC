@@ -14,8 +14,8 @@ void Thermals::setThermalMode(ThermalModes mode) {
         return;
     } else {
         if (mode == m_currentMode) {
-            LOG_S(INFO) << "Current thermal mode is already set to: "
-                        << m_thermalModeToName(mode);
+            LOG_S(WARNING) << "Current thermal mode is already set to: "
+                           << m_thermalModeToName(mode);
             return;
         } else {
             LOG_S(INFO) << "Setting thermal mode to: "

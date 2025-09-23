@@ -144,7 +144,7 @@ auto AcpiUtils::m_resolveDevicefromDatabase() -> int {
     return 0;
 };
 
-AcpiUtils::AcpiUtils() {
+AcpiUtils::AcpiUtils(Daemon &daemon) : m_daemon(daemon) {
     LOG_S(INFO) << "Initializing ACPIUtils Module";
     m_acpiPrefix = getPrefix();
     int resolveStatus = m_resolveDevicefromDatabase();
@@ -158,6 +158,10 @@ AcpiUtils::AcpiUtils() {
     LOG_S(INFO) << "FeatureSet: " << m_featureSetBits;
     LOG_S(INFO) << "ThermalModes: " << m_thermalModeBits;
     LOG_S(INFO) << "LightingModes: " << m_lightingModesBits;
+    if (m_daemon.isDaemonRunning())
+        LOG_S(WARNING) << "Daemon is running, commands will be sent to daemon";
+    else
+        LOG_S(WARNING) << "Daemon is not running, running in traditional mode";
 }
 
 // TODO: if daemon is running -> insead of executing command, send a message to
@@ -169,47 +173,72 @@ AcpiUtils::AcpiUtils() {
 auto AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4)
     -> int {
     std::array<char, 128> buffer{};
-    std::string result;
+    [[maybe_unused]] std::string result;
     std::string command =
         std::format("pkexec sh -c 'echo \"\\_SB.{}.WMAX 0 {:#x} "
                     "{{{:#x},{:#x},{:#x},0x00}}\" "
                     "> /proc/acpi/call && cat /proc/acpi/call'",
                     m_acpiPrefix, arg1, arg2, arg3, arg4);
 
-    LOG_S(INFO) << "Executing command: " << command;
-
 #ifndef NDEBUG
+    LOG_S(INFO) << "Executing command: " << command;
     LOG_S(WARNING) << "In debug mode, not executing command";
     return 0;
 #else
     if (std::filesystem::exists("/proc/acpi/call")) {
-        FILE *pipe = popen(command.c_str(), "r");
-        if (pipe == nullptr) {
-            LOG_S(ERROR) << "Failed to execute command";
-            return -1;
-        } else {
-            while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
-                result += buffer.data();
-            }
-            int status = pclose(pipe);
-            if (status == 0) {
+        if (m_daemon.isDaemonRunning()) {
+            result = m_daemon.executeFromDaemon(command.c_str());
+            if (!result.contains("error")) {
                 if (!result.empty() && result.back() == '\n')
                     result.pop_back();
                 try {
                     if (result.starts_with("0x")) { // starts with 0x
-                        LOG_S(INFO) << "Command executed successfully";
+                        // LOG_S(INFO) << "Command executed successfully";
                         return std::stoi(result, nullptr, 16);
                     } else {
-                        LOG_S(INFO) << "Command executed successfully";
+                        // LOG_S(INFO) << "Command executed successfully";
                         return std::stoi(result); // decimal
                     }
                 } catch (const std::exception &e) {
                     LOG_S(ERROR) << "Failed to parse ACPI output: " << e.what();
                     return -1;
                 }
+
             } else {
-                LOG_S(ERROR) << "Command failed with status: " << status;
+                LOG_S(ERROR) << "Daemon returned error: " << result;
                 return -1;
+            }
+        } else {
+            LOG_S(INFO) << "Executing command: " << command;
+            FILE *pipe = popen(command.c_str(), "r");
+            if (pipe == nullptr) {
+                LOG_S(ERROR) << "Failed to execute command";
+                return -1;
+            } else {
+                while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
+                    result += buffer.data();
+                }
+                int status = pclose(pipe);
+                if (status == 0) {
+                    if (!result.empty() && result.back() == '\n')
+                        result.pop_back();
+                    try {
+                        if (result.starts_with("0x")) { // starts with 0x
+                            // LOG_S(INFO) << "Command executed successfully";
+                            return std::stoi(result, nullptr, 16);
+                        } else {
+                            // LOG_S(INFO) << "Command executed successfully";
+                            return std::stoi(result); // decimal
+                        }
+                    } catch (const std::exception &e) {
+                        LOG_S(ERROR)
+                            << "Failed to parse ACPI output: " << e.what();
+                        return -1;
+                    }
+                } else {
+                    LOG_S(ERROR) << "Command failed with status: " << status;
+                    return -1;
+                }
             }
         }
     } else {

@@ -1,4 +1,5 @@
 #pragma once
+#include "Daemon.h"
 #include "database.h"
 #include <bitset>
 
@@ -15,9 +16,10 @@ class AcpiUtils {
     static auto m_getDeviceName() -> const char *;
     auto m_getDeviceAcpiCode() -> int;
     auto m_resolveDevicefromDatabase() -> int;
+    Daemon m_daemon;
 
   public:
-    AcpiUtils();
+    AcpiUtils(Daemon &daemon);
     auto executeAcpiCommand(int arg1, int arg2 = 0x00, int arg3 = 0x00,
                             int arg4 = 0x00) -> int;
     [[nodiscard]] auto hasFeature(FeatureSet f) const -> bool;
