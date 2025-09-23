@@ -25,5 +25,5 @@ class AcpiUtils {
     [[nodiscard]] auto hasThermalMode(ThermalModeSet m) const -> bool;
 
     [[nodiscard]] auto hasLightingMode(LightingSet l) const -> bool;
-    void deviceInfo() const;
+    void deviceInfo(bool unknownDevice = false) const;
 };
