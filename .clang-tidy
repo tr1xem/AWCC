@@ -21,6 +21,7 @@ Checks: "-*,\
     -misc-unused-parameters,\
     modernize-*,\
     -modernize-macro-to-enum,\
+    -modernize-concat-nested-namespaces,\
     performance-*,\
     -performance-no-int-to-ptr,\
     portability-*,\
@@ -33,4 +34,5 @@ Checks: "-*,\
     -readability-magic-numbers,\
     -readability-non-const-parameter,\
     -readability-use-concise-preprocessor-directives,\
+    -misc-use-anonymous-namespace,\
     "
