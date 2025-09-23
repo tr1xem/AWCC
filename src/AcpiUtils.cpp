@@ -9,6 +9,7 @@
 
 using json = nlohmann::json;
 
+// TODO: Add a fallback device info if the device is not found in the database
 auto AcpiUtils::getPrefix() -> const char * {
     std::ifstream cpuinfo("/proc/cpuinfo");
     if (!cpuinfo.is_open())
@@ -69,6 +70,7 @@ auto AcpiUtils::m_resolveDevicefromDatabase() -> int {
 
     if (!jsonHandel.contains(m_deviceName)) {
         LOG_S(ERROR) << "Device not found: " << m_deviceName;
+        deviceInfo(true);
         return -1;
     }
 
@@ -128,7 +130,7 @@ auto AcpiUtils::m_resolveDevicefromDatabase() -> int {
         }
 
         if (!found) {
-            LOG_S(ERROR) << m_deviceName << " currently not supported";
+            deviceInfo(true);
             return -1;
         } else {
             LOG_S(INFO) << "Device info resolved from database";
@@ -136,7 +138,7 @@ auto AcpiUtils::m_resolveDevicefromDatabase() -> int {
             return 0;
         }
     } else {
-        LOG_S(ERROR) << m_deviceName << " currently not supported";
+        deviceInfo(true);
         return -1;
     }
     return 0;
@@ -158,8 +160,12 @@ AcpiUtils::AcpiUtils() {
     LOG_S(INFO) << "LightingModes: " << m_lightingModesBits;
 }
 
+// TODO: if daemon is running -> insead of executing command, send a message to
+// the daemon
+
 // INFO: Any check for ACPI support should be done before calling this function
 // it is just a interface to execute a command
+// '\_SB.AMWW.WMAX 0 {} {{{}, {}, 0x0, 0x00}}'
 auto AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4)
     -> int {
     std::array<char, 128> buffer{};
@@ -213,61 +219,67 @@ auto AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4)
 #endif
 }
 
-void AcpiUtils::deviceInfo() const {
-    if (!m_deviceResolved) {
-        return;
+void AcpiUtils::deviceInfo(bool unknownDevice) const {
+    if (unknownDevice) {
+        LOG_S(ERROR) << "Device Found is Currently not supported,Please Send "
+                        "the Following Details to the Developer";
+        LOG_S(ERROR) << "Device Prefix: " << m_acpiPrefix;
+        LOG_S(ERROR) << "Device Name: " << m_deviceName;
+        LOG_S(ERROR) << "ACPI Model ID: 0x" << std::hex << m_acpiModelId;
     }
-    std::cout << "Device Name: " << m_deviceName << "\n";
-    std::cout << "ACPI Model ID: 0x" << std::hex << m_acpiModelId << std::dec
-              << "\n";
 
-    std::cout << "Features enabled:\n";
-    if (hasFeature(FeatureSet::FanBoost))
-        std::cout << "  Fan Boost\n";
-    if (hasFeature(FeatureSet::ThermalModes))
-        std::cout << "  Thermal Modes\n";
-    if (hasFeature(FeatureSet::AutoBoost))
-        std::cout << "  Auto Boost\n";
-    if (hasFeature(FeatureSet::CpuTemp))
-        std::cout << "  CPU Temp\n";
-    if (hasFeature(FeatureSet::GpuTemp))
-        std::cout << "  GPU Temp\n";
-    if (hasFeature(FeatureSet::BrightnessControl))
-        std::cout << "  Brightness Control\n";
-    if (hasFeature(FeatureSet::GModeToggle))
-        std::cout << "  GMode Toggle\n";
+    if (!unknownDevice) {
+        std::cout << "Device Name: " << m_deviceName << "\n";
+        std::cout << "ACPI Model ID: 0x" << std::hex << m_acpiModelId
+                  << std::dec << "\n";
+        std::cout << "Features enabled:\n";
+        if (hasFeature(FeatureSet::FanBoost))
+            std::cout << "  Fan Boost\n";
+        if (hasFeature(FeatureSet::ThermalModes))
+            std::cout << "  Thermal Modes\n";
+        if (hasFeature(FeatureSet::AutoBoost))
+            std::cout << "  Auto Boost\n";
+        if (hasFeature(FeatureSet::CpuTemp))
+            std::cout << "  CPU Temp\n";
+        if (hasFeature(FeatureSet::GpuTemp))
+            std::cout << "  GPU Temp\n";
+        if (hasFeature(FeatureSet::BrightnessControl))
+            std::cout << "  Brightness Control\n";
+        if (hasFeature(FeatureSet::GModeToggle))
+            std::cout << "  GMode Toggle\n";
 
-    std::cout << "Thermal modes enabled:\n";
-    if (hasThermalMode(ThermalModeSet::Quiet))
-        std::cout << "  Quiet\n";
-    if (hasThermalMode(ThermalModeSet::Balanced))
-        std::cout << "  Balanced\n";
-    if (hasThermalMode(ThermalModeSet::Performance))
-        std::cout << "  Performance\n";
-    if (hasThermalMode(ThermalModeSet::BatterySaver))
-        std::cout << "  Battery Saver\n";
-    if (hasThermalMode(ThermalModeSet::Cool))
-        std::cout << "  Cool\n";
-    if (hasThermalMode(ThermalModeSet::FullSpeed))
-        std::cout << "  Full Speed\n";
-    if (hasThermalMode(ThermalModeSet::GMode))
-        std::cout << "  GMode\n";
-    if (hasThermalMode(ThermalModeSet::Manual))
-        std::cout << "  Manual\n";
+        std::cout << "Thermal modes enabled:\n";
+        if (hasThermalMode(ThermalModeSet::Quiet))
+            std::cout << "  Quiet\n";
+        if (hasThermalMode(ThermalModeSet::Balanced))
+            std::cout << "  Balanced\n";
+        if (hasThermalMode(ThermalModeSet::Performance))
+            std::cout << "  Performance\n";
+        if (hasThermalMode(ThermalModeSet::BatterySaver))
+            std::cout << "  Battery Saver\n";
+        if (hasThermalMode(ThermalModeSet::Cool))
+            std::cout << "  Cool\n";
+        if (hasThermalMode(ThermalModeSet::FullSpeed))
+            std::cout << "  Full Speed\n";
+        if (hasThermalMode(ThermalModeSet::GMode))
+            std::cout << "  GMode\n";
+        if (hasThermalMode(ThermalModeSet::Manual))
+            std::cout << "  Manual\n";
 
-    std::cout << "Lighting modes enabled:\n";
-    if (hasLightingMode(LightingSet::StaticColor))
-        std::cout << "  Static Color\n";
-    if (hasLightingMode(LightingSet::SpectrumEffect))
-        std::cout << "  Spectrum Effect\n";
-    if (hasLightingMode(LightingSet::BreathingEffect))
-        std::cout << "  Breathing Effect\n";
-    if (hasLightingMode(LightingSet::RainbowEffect))
-        std::cout << "  Rainbow Effect\n";
-    if (hasLightingMode(LightingSet::WaveEffect))
-        std::cout << "  Wave Effect\n";
-    if (hasLightingMode(LightingSet::BackForthEffect))
-        std::cout << "  Back Forth Effect\n";
+        std::cout << "Lighting modes enabled:\n";
+        if (hasLightingMode(LightingSet::StaticColor))
+            std::cout << "  Static Color\n";
+        if (hasLightingMode(LightingSet::SpectrumEffect))
+            std::cout << "  Spectrum Effect\n";
+        if (hasLightingMode(LightingSet::BreathingEffect))
+            std::cout << "  Breathing Effect\n";
+        if (hasLightingMode(LightingSet::RainbowEffect))
+            std::cout << "  Rainbow Effect\n";
+        if (hasLightingMode(LightingSet::WaveEffect))
+            std::cout << "  Wave Effect\n";
+        if (hasLightingMode(LightingSet::BackForthEffect))
+            std::cout << "  Back Forth Effect\n";
+    }
 }
 auto AcpiUtils::hasLightingMode(LightingSet l) const -> bool {
     return (m_lightingModesBits.to_ulong() & static_cast<unsigned long>(l)) !=
