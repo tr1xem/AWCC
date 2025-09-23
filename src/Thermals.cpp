@@ -23,6 +23,10 @@ void Thermals::setThermalMode(ThermalModes mode) {
             m_acpiUtils.executeAcpiCommand(0x15, 0x01, static_cast<int>(mode));
         }
     }
+    // NOTE: ACPI Flag needed to set while setting GMODE
+    if (mode == ThermalModes::Gmode || m_currentMode == ThermalModes::Gmode) {
+        m_acpiUtils.executeAcpiCommand(0x25, 0x01);
+    }
 }
 
 auto Thermals::supportsThemeralMode(ThermalModes mode) -> bool {
@@ -118,9 +122,11 @@ void Thermals::toggleGmode() {
         LOG_S(INFO) << "Turning G Mode off";
         setThermalMode(ThermalModes::Performance);
         m_currentMode = ThermalModes::Performance;
+        m_acpiUtils.executeAcpiCommand(0x25, 0x01);
     } else {
         LOG_S(INFO) << "Turning G Mode on";
         m_acpiUtils.executeAcpiCommand(0x25, 0x01);
         m_currentMode = ThermalModes::Gmode;
+        m_acpiUtils.executeAcpiCommand(0x25, 0x01);
     }
 }
