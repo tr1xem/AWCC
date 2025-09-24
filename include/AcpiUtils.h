@@ -5,7 +5,6 @@
 
 class AcpiUtils {
   private:
-    int m_acpiModelId{};
     const char *m_deviceName{};
     const char *m_acpiPrefix{};
     bool m_deviceResolved{true};
@@ -14,7 +13,6 @@ class AcpiUtils {
     std::bitset<6> m_lightingModesBits{"111111"};
     static auto getPrefix() -> const char *;
     static auto m_getDeviceName() -> const char *;
-    auto m_getDeviceAcpiCode() -> int;
     auto m_resolveDevicefromDatabase() -> int;
     Daemon &m_daemon;
 

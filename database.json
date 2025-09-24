@@ -1,28 +1,17 @@
 {
     "Dell G15 5530": {
-        "0x0000": {
-            "featureSet": "1111111",
-            "thermalModes": "11001111",
-            "lightingModes": "111111"
-        }
+        "featureSet": "1111111",
+        "thermalModes": "11001111",
+        "lightingModes": "111111"
     },
     "Dell G15 5511": {
-        "0x0b75": {
-            "featureSet": "1111111",
-            "thermalModes": "11010111",
-            "lightingModes": "111111"
-        },
-        "0x0c80": {
-            "featureSet": "1111111",
-            "thermalModes": "11010111",
-            "lightingModes": "111111"
-        }
+        "featureSet": "1111111",
+        "thermalModes": "11010111",
+        "lightingModes": "111111"
     },
     "Dell G16 7630": {
-        "0x0000": {
-            "featureSet": "1111111",
-            "thermalModes": "11001111",
-            "lightingModes": "000111"
-        }
+        "featureSet": "1111111",
+        "thermalModes": "11001111",
+        "lightingModes": "000111"
     }
 }
