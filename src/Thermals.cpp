@@ -1,4 +1,5 @@
 #include "Thermals.h"
+#include "database.h"
 #include <loguru.hpp>
 
 Thermals::Thermals(AcpiUtils &acpiUtils) : m_acpiUtils(acpiUtils) {
@@ -7,12 +8,15 @@ Thermals::Thermals(AcpiUtils &acpiUtils) : m_acpiUtils(acpiUtils) {
 }
 
 void Thermals::setThermalMode(ThermalModes mode) {
-    // m_acpiUtils.deviceInfo();
     if (!supportsThemeralMode(mode)) {
         LOG_S(ERROR) << m_thermalModeToName(mode)
                      << " mode not supported by device, aborting";
         return;
     } else {
+        if (mode == ThermalModes::Gmode ||
+            m_currentMode == ThermalModes::Gmode) {
+            m_acpiUtils.executeAcpiCommand(0x25, 0x01);
+        }
         if (mode == m_currentMode) {
             LOG_S(WARNING) << "Current thermal mode is already set to: "
                            << m_thermalModeToName(mode);
@@ -21,12 +25,10 @@ void Thermals::setThermalMode(ThermalModes mode) {
             LOG_S(INFO) << "Setting thermal mode to: "
                         << m_thermalModeToName(mode);
             m_acpiUtils.executeAcpiCommand(0x15, 0x01, static_cast<int>(mode));
+            m_currentMode = mode;
         }
     }
     // NOTE: ACPI Flag needed to set while setting GMODE
-    if (mode == ThermalModes::Gmode || m_currentMode == ThermalModes::Gmode) {
-        m_acpiUtils.executeAcpiCommand(0x25, 0x01);
-    }
 }
 
 auto Thermals::supportsThemeralMode(ThermalModes mode) -> bool {
@@ -80,7 +82,6 @@ auto Thermals::m_mapToBitset(ThermalModes mode) -> ThermalModeSet {
 
 auto Thermals::queryThermalMode() -> ThermalModes {
     int result = m_acpiUtils.executeAcpiCommand(0x14, 0x0b, 0x00);
-
     switch (result) {
     case 0xa3:
         m_currentMode = ThermalModes::Quiet;
@@ -119,14 +120,8 @@ auto Thermals::getCurrentModeName() -> const char * {
 
 void Thermals::toggleGmode() {
     if (queryThermalMode() == ThermalModes::Gmode) {
-        LOG_S(INFO) << "Turning G Mode off";
-        setThermalMode(ThermalModes::Performance);
-        m_currentMode = ThermalModes::Performance;
-        m_acpiUtils.executeAcpiCommand(0x25, 0x01);
+        setThermalMode(m_defaultMode);
     } else {
-        LOG_S(INFO) << "Turning G Mode on";
-        m_acpiUtils.executeAcpiCommand(0x25, 0x01);
-        m_currentMode = ThermalModes::Gmode;
-        m_acpiUtils.executeAcpiCommand(0x25, 0x01);
+        setThermalMode(ThermalModes::Gmode);
     }
 }

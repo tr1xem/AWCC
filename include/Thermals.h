@@ -8,6 +8,7 @@ class Thermals {
     static auto m_thermalModeToName(ThermalModes mode) -> const char *;
     AcpiUtils &m_acpiUtils; // reference to external AcpiUtils
     ThermalModes m_currentMode;
+    ThermalModes m_defaultMode{ThermalModes::Performance};
 
   public:
     Thermals(AcpiUtils &acpiUtils);
