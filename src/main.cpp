@@ -46,17 +46,19 @@ static void runClientMode(Daemon &daemon) {
     AcpiUtils acpiUtils(daemon);
     Thermals awccthermals(acpiUtils);
 
-    // LOG_S(INFO) << "Current Thermal Mode: "
-    //             << awccthermals.getCurrentModeName();
-    // awccthermals.setThermalMode(ThermalModes::Cool);
-    // acpiUtils.deviceInfo();
+    acpiUtils.deviceInfo();
     LOG_S(INFO) << "Current Thermal Mode: "
                 << awccthermals.getCurrentModeName();
     awccthermals.setThermalMode(ThermalModes::Quiet);
     LOG_S(INFO) << "Current Thermal Mode: "
                 << awccthermals.getCurrentModeName();
-    // awccthermals.setThermalMode(ThermalModes::Performance);
-    // awccthermals.setThermalMode(ThermalModes::Gmode);
+    awccthermals.setThermalMode(ThermalModes::Cool);
+    LOG_S(INFO) << "Current Thermal Mode: "
+                << awccthermals.getCurrentModeName();
+    awccthermals.setThermalMode(ThermalModes::Gmode);
+    LOG_S(INFO) << "Current Thermal Mode: "
+                << awccthermals.getCurrentModeName();
+    awccthermals.setThermalMode(ThermalModes::Balanced);
 
     // NOTE:  Stop the daemon from client
     // if (daemon.isDaemonRunning()) {

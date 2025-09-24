@@ -50,12 +50,7 @@ auto AcpiUtils::m_getDeviceName() -> const char * {
     return deviceName.c_str();
 };
 
-auto AcpiUtils::m_getDeviceAcpiCode() -> int {
-    return executeAcpiCommand(0x1a, 0x02, 0x02, 0x00);
-};
-
 auto AcpiUtils::m_resolveDevicefromDatabase() -> int {
-
     m_deviceName = m_getDeviceName();
     const char *home = std::getenv("HOME");
     std::string path = std::string(home) + "/work/awcc-rewrite/database.json";
@@ -65,6 +60,7 @@ auto AcpiUtils::m_resolveDevicefromDatabase() -> int {
         LOG_S(ERROR) << "Failed to open database.json";
         return -1;
     }
+
     json jsonHandel;
     file >> jsonHandel;
 
@@ -76,57 +72,25 @@ auto AcpiUtils::m_resolveDevicefromDatabase() -> int {
 
     json &device = jsonHandel[m_deviceName];
 
-    if (!device.empty()) {
+    if (!device.empty() && !device.is_null()) {
         bool found = false;
 
-        for (const auto &[key, entry] : device.items()) {
-            if (key == "0x0000") {
-                LOG_S(INFO) << m_deviceName << " uses DMI.";
-                m_acpiModelId = 0x0000;
-                // Use the "0x0000" entry for bitsets if it exists
-                if (!entry.is_null()) {
-                    if (entry.contains("featureSet"))
-                        m_featureSetBits = std::bitset<7>(
-                            entry["featureSet"].get<std::string>());
+        if (device.contains("featureSet")) {
+            m_featureSetBits =
+                std::bitset<7>(device["featureSet"].get<std::string>());
+            found = true;
+        }
 
-                    if (entry.contains("thermalModes"))
-                        m_thermalModeBits = std::bitset<8>(
-                            entry["thermalModes"].get<std::string>());
+        if (device.contains("thermalModes")) {
+            m_thermalModeBits =
+                std::bitset<8>(device["thermalModes"].get<std::string>());
+            found = true;
+        }
 
-                    if (entry.contains("lightingModes"))
-                        m_lightingModesBits = std::bitset<6>(
-                            entry["lightingModes"].get<std::string>());
-                }
-                found = true;
-                break;
-            } else {
-                int deviceHex = std::stoi(key, nullptr, 16);
-                int deviceAcpi =
-                    m_getDeviceAcpiCode(); // ACPI code of the running system
-
-                if (deviceHex == deviceAcpi) {
-                    LOG_S(INFO) << m_deviceName << " uses ACPI key: " << key;
-                    m_acpiModelId = deviceHex;
-
-                    // Set bitsets from the matched entry
-                    if (!entry.is_null()) {
-                        if (entry.contains("featureSet"))
-                            m_featureSetBits = std::bitset<7>(
-                                entry["featureSet"].get<std::string>());
-
-                        if (entry.contains("thermalModes"))
-                            m_thermalModeBits = std::bitset<8>(
-                                entry["thermalModes"].get<std::string>());
-
-                        if (entry.contains("lightingModes"))
-                            m_lightingModesBits = std::bitset<6>(
-                                entry["lightingModes"].get<std::string>());
-                    }
-
-                    found = true;
-                    break;
-                }
-            }
+        if (device.contains("lightingModes")) {
+            m_lightingModesBits =
+                std::bitset<6>(device["lightingModes"].get<std::string>());
+            found = true;
         }
 
         if (!found) {
@@ -134,6 +98,7 @@ auto AcpiUtils::m_resolveDevicefromDatabase() -> int {
             return -1;
         } else {
             LOG_S(INFO) << "Device info resolved from database";
+            LOG_S(INFO) << "Found Device: " << m_deviceName;
             m_deviceResolved = true;
             return 0;
         }
@@ -141,8 +106,7 @@ auto AcpiUtils::m_resolveDevicefromDatabase() -> int {
         deviceInfo(true);
         return -1;
     }
-    return 0;
-};
+}
 
 AcpiUtils::AcpiUtils(Daemon &daemon) : m_daemon(daemon) {
     LOG_S(INFO) << "Initializing ACPIUtils Module";
@@ -251,18 +215,15 @@ auto AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4)
 void AcpiUtils::deviceInfo(bool unknownDevice) {
     if (unknownDevice) {
 
-        m_acpiModelId = m_getDeviceAcpiCode();
-        LOG_S(ERROR) << "Device Found is Currently not supported,Please Send "
-                        "the Following Details to the Developer";
+        LOG_S(ERROR) << "Device Found is currently not supported, please send "
+                        "the following details to the developer";
         LOG_S(ERROR) << "Device Prefix: " << m_acpiPrefix;
         LOG_S(ERROR) << "Device Name: " << m_deviceName;
-        LOG_S(ERROR) << "ACPI Model ID: 0x" << std::hex << m_acpiModelId;
     }
 
     if (!unknownDevice) {
         std::cout << "Device Name: " << m_deviceName << "\n";
-        std::cout << "ACPI Model ID: 0x" << std::hex << m_acpiModelId
-                  << std::dec << "\n";
+        std::cout << "Device Prefix: " << m_acpiPrefix << "\n";
         std::cout << "Features enabled:\n";
         if (hasFeature(FeatureSet::FanBoost))
             std::cout << "  Fan Boost\n";
