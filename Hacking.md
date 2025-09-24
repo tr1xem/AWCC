@@ -12,7 +12,7 @@ Legal Byte Values:
 
 | NAME           | BYTE1 | BYTE2 | BYTE3 | Remarks                                                    |
 | -------------- | ----- | ----- | ----- | ---------------------------------------------------------- |
-| Get Mem Freq   | 0x1a  | 0x02  | 0x02  | Regarded some where as model getter but wrong              |
+| Get Mem Freq   | 0x1a  | 0x02  | 0x02  | Regarded somewhere as model getter but wrong               |
 | Get power mode | 0x14  | 0x0b  | 0x00  |                                                            |
 | Set power mode | 0x15  | 0x01  | X     | Byte 3 is the parameter from the modes table cant be blank |
 | Toggle G mode  | 0x25  | 0x01  | 0x00  | needed sometime to actually mark gmode as set              |

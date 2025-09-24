@@ -128,9 +128,6 @@ AcpiUtils::AcpiUtils(Daemon &daemon) : m_daemon(daemon) {
         LOG_S(WARNING) << "Daemon is not running, running in traditional mode";
 }
 
-// TODO: if daemon is running -> insead of executing command, send a message to
-// the daemon
-
 // INFO: Any check for ACPI support should be done before calling this function
 // it is just a interface to execute a command
 // '\_SB.AMWW.WMAX 0 {} {{{}, {}, 0x0, 0x00}}'
