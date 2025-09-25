@@ -87,11 +87,11 @@ void Daemon::init() {
     signal(SIGINT, daemon_signal_handler);
     signal(SIGTERM, daemon_signal_handler);
 
-    std::atexit([]() {
-        if (s_instance)
-            s_instance->stop();
-    });
-
+    // std::atexit([]() {
+    //     if (s_instance)
+    //         s_instance->stop();
+    // });
+    //
     m_server_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (m_server_fd < 0) {
         LOG_S(ERROR) << "Failed to create socket: " << strerror(errno);
