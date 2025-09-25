@@ -8,13 +8,27 @@
 
 namespace awcc {
 
-static void parseVerbosity(std::span<char *> args) {
-    loguru::g_stderr_verbosity = -1;
-    for (auto *arg : args.subspan(1)) { // skip program name
-        if (std::strcmp(arg, "-v") == 0) {
-            loguru::g_stderr_verbosity = 0; // INFO level
-        }
+static auto parseVerbosity(std::span<char *> args)
+    -> std::pair<int, std::vector<char *>> {
+    bool verbose = std::ranges::any_of(
+        args.subspan(1), [](char *arg) { return std::strcmp(arg, "-v") == 0; });
+
+    // Build modified argv for loguru
+    std::vector<char *> loguru_argv;
+    loguru_argv.push_back(args[0]); // program name
+
+    if (verbose) {
+        loguru_argv.push_back((char *)"-v");
+        loguru_argv.push_back((char *)"0"); // INFO
+    } else {
+        loguru_argv.push_back((char *)"-v");
+        loguru_argv.push_back((char *)"-1"); // suppress logs
     }
+
+    loguru_argv.push_back(nullptr);
+
+    int loguru_argc = static_cast<int>(loguru_argv.size() - 1);
+    return {loguru_argc, loguru_argv};
 }
 
 static auto shouldRunDaemon(std::span<char *> args) -> bool {
@@ -47,18 +61,18 @@ static void runClientMode(Daemon &daemon) {
     Thermals awccthermals(acpiUtils);
 
     acpiUtils.deviceInfo();
-    LOG_S(INFO) << "Current Thermal Mode: "
-                << awccthermals.getCurrentModeName();
-    awccthermals.setThermalMode(ThermalModes::Quiet);
-    LOG_S(INFO) << "Current Thermal Mode: "
-                << awccthermals.getCurrentModeName();
-    awccthermals.setThermalMode(ThermalModes::Cool);
-    LOG_S(INFO) << "Current Thermal Mode: "
-                << awccthermals.getCurrentModeName();
-    awccthermals.setThermalMode(ThermalModes::Gmode);
-    LOG_S(INFO) << "Current Thermal Mode: "
-                << awccthermals.getCurrentModeName();
-    awccthermals.setThermalMode(ThermalModes::Balanced);
+    // LOG_S(INFO) << "Current Thermal Mode: "
+    //             << awccthermals.getCurrentModeName();
+    // awccthermals.setThermalMode(ThermalModes::Quiet);
+    // LOG_S(INFO) << "Current Thermal Mode: "
+    //             << awccthermals.getCurrentModeName();
+    // awccthermals.setThermalMode(ThermalModes::Cool);
+    // LOG_S(INFO) << "Current Thermal Mode: "
+    //             << awccthermals.getCurrentModeName();
+    // awccthermals.setThermalMode(ThermalModes::Gmode);
+    // LOG_S(INFO) << "Current Thermal Mode: "
+    //             << awccthermals.getCurrentModeName();
+    // awccthermals.setThermalMode(ThermalModes::Balanced);
 
     // NOTE:  Stop the daemon from client
     // if (daemon.isDaemonRunning()) {
@@ -70,8 +84,8 @@ static void runClientMode(Daemon &daemon) {
 
 int main(int argc, char *argv[]) {
     std::span<char *> args(argv, argc);
-    awcc::parseVerbosity(args);
-
+    auto [loguru_argc, loguru_argv] = awcc::parseVerbosity(args);
+    loguru::init(loguru_argc, loguru_argv.data());
     LOG_S(INFO) << "Initializing Daemon";
     Daemon daemon;
 
