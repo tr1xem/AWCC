@@ -70,6 +70,7 @@ void onGModeKey() { LOG_S(INFO) << "G-Mode key pressed!"; }
 void onLightKey() { LOG_S(INFO) << "Light key pressed!"; }
 } // namespace
 
+// TODO: Make it only allow a certain type of commands
 void Daemon::init() {
     if (isDaemonRunning()) {
         LOG_S(ERROR)
