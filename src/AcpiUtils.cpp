@@ -12,9 +12,10 @@ using json = nlohmann::json;
 // TODO: Add a fallback device info if the device is not found in the database
 auto AcpiUtils::getPrefix() -> const char * {
     std::ifstream cpuinfo("/proc/cpuinfo");
-    if (!cpuinfo.is_open())
-        LOG_S(FATAL) << "Cannot read /proc/cpuinfo";
-
+    if (!cpuinfo.is_open()) {
+        LOG_S(ERROR) << "Cannot read /proc/cpuinfo";
+        std::exit(1);
+    }
     std::string line;
     while (std::getline(cpuinfo, line)) {
         if (line.find("vendor_id") != std::string::npos) {
@@ -27,7 +28,8 @@ auto AcpiUtils::getPrefix() -> const char * {
             }
         }
     }
-    LOG_S(FATAL) << "Cannot get vendor from /proc/cpuinfo";
+    LOG_S(ERROR) << "Cannot get vendor from /proc/cpuinfo";
+    std::exit(1);
     return "";
 }
 
@@ -36,7 +38,8 @@ auto AcpiUtils::m_getDeviceName() -> const char * {
     static std::string deviceName;
     std::ifstream dmiFile("/sys/class/dmi/id/product_name");
     if (!dmiFile.is_open()) {
-        LOG_S(FATAL) << "Cannot read /sys/class/dmi/id/product_name";
+        LOG_S(ERROR) << "Cannot read /sys/class/dmi/id/product_name";
+        std::exit(1);
     }
 
     std::stringstream buffer;
@@ -113,8 +116,10 @@ AcpiUtils::AcpiUtils(Daemon &daemon) : m_daemon(daemon) {
     m_acpiPrefix = getPrefix();
     int resolveStatus = m_resolveDevicefromDatabase();
 
-    if (!m_deviceResolved || resolveStatus == -1)
-        LOG_S(FATAL) << "Device resolution failed";
+    if (!m_deviceResolved || resolveStatus == -1) {
+        LOG_S(ERROR) << "Device resolution failed";
+        std::exit(1);
+    }
 
     LOG_S(INFO)
         << "AcpiUtils Module initialization completed got device info and "
