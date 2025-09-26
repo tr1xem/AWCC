@@ -3,7 +3,7 @@
 ### Rewrite in progress
 
 - [x] Rewrite Thermal Core of AWCC in C++ with minmal api changes
-- [ ] Rewrite LightFX Core of AWCC in C++ with minmal api changes
+- [x] Rewrite LightFX Core of AWCC in C++ with minmal api changes
 - [ ] Gui - Using `Dear ImGui` and some visuals from windows version
 - [ ] Auto Zone identify using `libusb` and `Alien FX Sdk`
 - [ ] Fan Curve for AutoBoost
