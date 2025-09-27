@@ -1,3 +1,4 @@
+
 #include "AcpiUtils.h"
 #include <filesystem>
 #include <format>
@@ -10,7 +11,7 @@
 using json = nlohmann::json;
 
 // TODO: Add a fallback device info if the device is not found in the database
-auto AcpiUtils::getPrefix() -> const char * {
+const char *AcpiUtils::getPrefix() {
     std::ifstream cpuinfo("/proc/cpuinfo");
     if (!cpuinfo.is_open()) {
         LOG_S(ERROR) << "Cannot read /proc/cpuinfo";
@@ -33,8 +34,7 @@ auto AcpiUtils::getPrefix() -> const char * {
     return "";
 }
 
-auto AcpiUtils::m_getDeviceName() -> const char * {
-
+const char *AcpiUtils::m_getDeviceName() {
     static std::string deviceName;
     std::ifstream dmiFile("/sys/class/dmi/id/product_name");
     if (!dmiFile.is_open()) {
@@ -53,7 +53,7 @@ auto AcpiUtils::m_getDeviceName() -> const char * {
     return deviceName.c_str();
 };
 
-auto AcpiUtils::m_resolveDevicefromDatabase() -> int {
+int AcpiUtils::m_resolveDevicefromDatabase() {
     m_deviceName = m_getDeviceName();
     const char *home = std::getenv("HOME");
     std::string path = std::string(home) + "/work/awcc-rewrite/database.json";
@@ -136,8 +136,7 @@ AcpiUtils::AcpiUtils(Daemon &daemon) : m_daemon(daemon) {
 // INFO: Any check for ACPI support should be done before calling this function
 // it is just a interface to execute a command
 // '\_SB.AMWW.WMAX 0 {} {{{}, {}, 0x0, 0x00}}'
-auto AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4)
-    -> int {
+int AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4) {
     std::array<char, 128> buffer{};
     [[maybe_unused]] std::string result;
     std::string command =
@@ -159,10 +158,8 @@ auto AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4)
                     result.pop_back();
                 try {
                     if (result.starts_with("0x")) { // starts with 0x
-                        // LOG_S(INFO) << "Command executed successfully";
                         return std::stoi(result, nullptr, 16);
                     } else {
-                        // LOG_S(INFO) << "Command executed successfully";
                         return std::stoi(result); // decimal
                     }
                 } catch (const std::exception &e) {
@@ -190,10 +187,8 @@ auto AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4)
                         result.pop_back();
                     try {
                         if (result.starts_with("0x")) { // starts with 0x
-                            // LOG_S(INFO) << "Command executed successfully";
                             return std::stoi(result, nullptr, 16);
                         } else {
-                            // LOG_S(INFO) << "Command executed successfully";
                             return std::stoi(result); // decimal
                         }
                     } catch (const std::exception &e) {
@@ -275,15 +270,15 @@ void AcpiUtils::deviceInfo(bool unknownDevice) {
             std::cout << "  Back Forth Effect\n";
     }
 }
-auto AcpiUtils::hasLightingMode(LightingSet l) const -> bool {
+bool AcpiUtils::hasLightingMode(LightingSet l) const {
     return (m_lightingModesBits.to_ulong() & static_cast<unsigned long>(l)) !=
            0;
 }
 
-auto AcpiUtils::hasThermalMode(ThermalModeSet m) const -> bool {
+bool AcpiUtils::hasThermalMode(ThermalModeSet m) const {
     return (m_thermalModeBits.to_ulong() & static_cast<unsigned long>(m)) != 0;
 }
 
-auto AcpiUtils::hasFeature(FeatureSet f) const -> bool {
+bool AcpiUtils::hasFeature(FeatureSet f) const {
     return (m_featureSetBits.to_ulong() & static_cast<unsigned long>(f)) != 0;
 }

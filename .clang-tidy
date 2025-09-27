@@ -35,4 +35,6 @@ Checks: "-*,\
     -readability-non-const-parameter,\
     -readability-use-concise-preprocessor-directives,\
     -misc-use-anonymous-namespace,\
+    -modernize-use-trailing-return-type
+
     "

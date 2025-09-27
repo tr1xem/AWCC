@@ -11,19 +11,19 @@ class AcpiUtils {
     std::bitset<7> m_featureSetBits{"1111111"};
     std::bitset<8> m_thermalModeBits{"1111111"};
     std::bitset<6> m_lightingModesBits{"111111"};
-    static auto getPrefix() -> const char *;
-    static auto m_getDeviceName() -> const char *;
-    auto m_resolveDevicefromDatabase() -> int;
+    static const char *getPrefix();
+    static const char *m_getDeviceName();
+    int m_resolveDevicefromDatabase();
     Daemon &m_daemon;
 
   public:
     AcpiUtils(Daemon &daemon);
-    auto executeAcpiCommand(int arg1, int arg2 = 0x00, int arg3 = 0x00,
-                            int arg4 = 0x00) -> int;
-    [[nodiscard]] auto hasFeature(FeatureSet f) const -> bool;
+    int executeAcpiCommand(int arg1, int arg2 = 0x00, int arg3 = 0x00,
+                           int arg4 = 0x00);
+    [[nodiscard]] bool hasFeature(FeatureSet f) const;
 
-    [[nodiscard]] auto hasThermalMode(ThermalModeSet m) const -> bool;
+    [[nodiscard]] bool hasThermalMode(ThermalModeSet m) const;
 
-    [[nodiscard]] auto hasLightingMode(LightingSet l) const -> bool;
+    [[nodiscard]] bool hasLightingMode(LightingSet l) const;
     void deviceInfo(bool unknownDevice = false);
 };

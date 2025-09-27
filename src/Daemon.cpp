@@ -1,5 +1,7 @@
 #include "Daemon.h"
+#include "EffectController.h"
 #include "KeyBinder.h"
+#include "LightFX.h"
 #include <csignal>
 #include <cstdlib>
 #include <cstring>
@@ -27,14 +29,16 @@ void daemon_signal_handler(int /*unused*/) {
     exit(0);
 }
 } // namespace
-Daemon::Daemon(std::string socket_path)
-    : m_running(false), m_server_fd(-1), m_socket_path(std::move(socket_path)) {
+
+Daemon::Daemon(EffectController &effectsController, std::string socket_path)
+    : m_running(false), m_server_fd(-1), m_socket_path(std::move(socket_path)),
+      m_effectsController(effectsController) {
     s_instance = this;
 }
 
 // Daemon::~Daemon() { stop(); }
 
-auto Daemon::isDaemonRunning() -> bool {
+bool Daemon::isDaemonRunning() {
     return (access(m_socket_path.c_str(), F_OK) == 0 &&
             std::filesystem::exists(m_socket_path));
 }
@@ -62,13 +66,28 @@ void Daemon::stop() {
 
 // TODO: Implement these functions after lightfx is implemented
 
-namespace {
 // NOTE: TOGGLES GMODE
-void onGModeKey() { LOG_S(INFO) << "G-Mode key pressed!"; }
+void Daemon::m_onGmodeKey() { LOG_S(INFO) << "G-Mode key pressed!"; }
 
 // NOTE: TOGGLES LIGHT 3 Step 0 -> 50 -> 100 -> 0
-void onLightKey() { LOG_S(INFO) << "Light key pressed!"; }
-} // namespace
+void Daemon::m_onLightKey() {
+    LOG_S(INFO) << "Light key pressed!";
+    switch (m_brightness) {
+    case 0:
+        m_brightness = 50;
+        break;
+    case 50:
+        m_brightness = 100;
+        break;
+    case 100:
+        m_brightness = 0;
+        break;
+    default:
+        m_brightness = 0;
+        break;
+    }
+    m_effectsController.Brightness(m_brightness);
+}
 
 // TODO: Make it only allow a certain type of commands
 void Daemon::init() {
@@ -80,8 +99,8 @@ void Daemon::init() {
 
     // NOTE: Start the key binder module
     auto *binder = new KeyBinder("AT Translated Set 2 keyboard");
-    binder->setOnGModeKey(onGModeKey);
-    binder->setOnLightKey(onLightKey);
+    binder->setOnGModeKey([this]() { this->m_onGmodeKey(); });
+    binder->setOnLightKey([this]() { this->m_onLightKey(); });
 
     std::thread keybinderThread([binder]() { binder->run(); });
 
@@ -170,7 +189,7 @@ void Daemon::init() {
     }
 }
 
-auto Daemon::executeFromDaemon(const char *command) -> std::string {
+std::string Daemon::executeFromDaemon(const char *command) {
     if (m_running) {
         LOG_S(INFO) << "Executing command: " << command;
         FILE *fp = popen(command, "r");

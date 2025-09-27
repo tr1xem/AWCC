@@ -31,11 +31,12 @@ void Thermals::setThermalMode(ThermalModes mode) {
     // NOTE: ACPI Flag needed to set while setting GMODE
 }
 
-auto Thermals::supportsThemeralMode(ThermalModes mode) -> bool {
+bool Thermals::supportsThemeralMode(ThermalModes mode) {
     ThermalModeSet bit = m_mapToBitset(mode);
     return m_acpiUtils.hasThermalMode(bit);
 }
-auto Thermals::m_thermalModeToName(ThermalModes mode) -> const char * {
+
+const char *Thermals::m_thermalModeToName(ThermalModes mode) {
     switch (mode) {
     case ThermalModes::Quiet:
         return "Quiet";
@@ -57,7 +58,8 @@ auto Thermals::m_thermalModeToName(ThermalModes mode) -> const char * {
         return "Unknown";
     }
 }
-auto Thermals::m_mapToBitset(ThermalModes mode) -> ThermalModeSet {
+
+ThermalModeSet Thermals::m_mapToBitset(ThermalModes mode) {
     switch (mode) {
     case ThermalModes::Quiet:
         return ThermalModeSet::Quiet;
@@ -80,7 +82,7 @@ auto Thermals::m_mapToBitset(ThermalModes mode) -> ThermalModeSet {
     }
 }
 
-auto Thermals::queryThermalMode() -> ThermalModes {
+ThermalModes Thermals::queryThermalMode() {
     int result = m_acpiUtils.executeAcpiCommand(0x14, 0x0b, 0x00);
     switch (result) {
     case 0xa3:
@@ -113,7 +115,8 @@ auto Thermals::queryThermalMode() -> ThermalModes {
         return ThermalModes::Manual; // fallback
     }
 }
-auto Thermals::getCurrentModeName() -> const char * {
+
+const char *Thermals::getCurrentModeName() {
     m_currentMode = queryThermalMode();
     return m_thermalModeToName(m_currentMode);
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include "EffectController.h"
 #include "KeyBinder.h"
 #include <string>
 #include <thread>
@@ -11,14 +12,21 @@ class Daemon {
     std::thread m_keybinderThread;
     void m_StopBinder();
     KeyBinder *m_binder = nullptr;
+    EffectController &m_effectsController;
+    // Thermals &thermals;
+
+    short m_brightness{};
+    void m_onGmodeKey();
+    void m_onLightKey();
 
   public:
-    Daemon(std::string socket_path = "/tmp/cmd.sock");
-    auto isDaemonRunning() -> bool;
+    Daemon(EffectController &effectsController,
+           std::string socket_path = "/tmp/cmd.sock");
+    bool isDaemonRunning();
     void init();
-    auto executeFromDaemon(const char *command) -> std::string;
+    std::string executeFromDaemon(const char *command);
     void stop();
-    [[nodiscard]] auto isServerMode() const -> bool { return m_running; }
+    [[nodiscard]] bool isServerMode() const { return m_running; }
     // NOTE: This is not needed as handled manually
     // ~Daemon();
 };
