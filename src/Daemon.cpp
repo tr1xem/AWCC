@@ -64,18 +64,15 @@ void Daemon::stop() {
     m_StopBinder();
 }
 
-// NOTE: TOGGLES GMODE
 void Daemon::m_onGmodeKey() {
-    LOG_S(INFO) << "G-Mode key pressed!";
     if (m_onGmodeKeyCallback) {
         m_onGmodeKeyCallback();
     } else
         LOG_S(ERROR) << "GMode Callback Not set";
 }
 
-// NOTE: TOGGLES LIGHT 3 Step 0 -> 50 -> 100 -> 0
+// TODO: PERSISTANT
 void Daemon::m_onLightKey() {
-    LOG_S(INFO) << "Light key pressed!";
     switch (m_brightness) {
     case 0:
         m_brightness = 50;

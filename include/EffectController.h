@@ -21,7 +21,7 @@ class EffectController {
     void Wave(uint32_t color);
     void Rainbow(uint16_t duration);
     void BackAndForth(uint32_t color);
-    void DefaultBlue(uint32_t color);
+    void DefaultBlue();
 
   private:
     LightFX &m_lightfx;
