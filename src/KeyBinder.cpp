@@ -45,7 +45,6 @@ KeyBinder::~KeyBinder() {
 }
 
 void KeyBinder::setOnGModeKey(Callback cb) { m_onGmodeKey = std::move(cb); }
-
 void KeyBinder::setOnLightKey(Callback cb) { m_onLightKey = std::move(cb); }
 
 void KeyBinder::run() {

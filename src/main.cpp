@@ -1,12 +1,11 @@
-#include "AcpiUtils.h"
 #include "Daemon.h"
+#include "EffectController.h"
 #include "LightFX.h"
-#include "Thermals.h"
 #include <algorithm>
 #include <cstring>
-#include <iostream>
 #include <loguru.hpp>
 #include <unistd.h> // for geteuid()
+//
 
 namespace awcc {
 
@@ -89,77 +88,22 @@ int main(int argc, char *argv[]) {
     std::span<char *> args(argv, argc);
     auto [loguru_argc, loguru_argv] = awcc::parseVerbosity(args);
     loguru::init(loguru_argc, loguru_argv.data());
+
+    LOG_S(INFO) << "Initializing LightFX";
+    LightFX lightfx;
+
+    LOG_S(INFO) << "Initializing EffectController";
+    EffectController effects(lightfx);
+
     LOG_S(INFO) << "Initializing Daemon";
-    Daemon daemon;
+
+    Daemon daemon(effects);
 
     if (awcc::shouldRunDaemon(args)) {
         awcc::runDaemonServer(daemon);
         return 0;
     }
+    // effects.Rainbow(500);
 
-    // awcc::runClientMode(daemon);
-    LightFX lightfx;
-    lightfx.deviceOpen();
-    lightfx.deviceAcquire();
-    // NOTE: STATIC EXAMPLE
-
-    lightfx.SendAnimationRemove(1);
-    lightfx.SendAnimationConfigStart(1);
-    lightfx.SendZoneSelect(1,
-                           ZONE_ALL); // ZONE_ALL_ARRAY is
-    lightfx.SendAddAction(ACTION_COLOR, 1, 2, 0x00FFFF);
-    lightfx.SendAnimationConfigSave(1);
-    lightfx.SendAnimationSetDefault(1);
-    lightfx.SendAnimationRemove(1);
-    //
-    // int duration = 500;
-    //
-    //
-    // NOTE: Specturm Example
-
-    // lightfx.SendAnimationRemove(1);
-    // lightfx.SendAnimationConfigStart(1);
-    //
-    // lightfx.SendZoneSelect(1, ZONE_LEFT);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0xFF0000);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0xFFA500);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0xFFFF00);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x008000);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x00BFFF);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x0000FF);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x800080);
-    //
-    // lightfx.SendZoneSelect(1, ZONE_MIDDLE_LEFT);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x800080);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0xFF0000);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0xFFA500);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0xFFFF00);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x008000);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x00BFFF);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x0000FF);
-    //
-    // lightfx.SendZoneSelect(1, ZONE_MIDDLE_RIGHT);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x0000FF);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x800080);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0xFF0000);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0xFFA500);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0xFFFF00);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x008000);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x00BFFF);
-    //
-    // lightfx.SendZoneSelect(1, ZONE_RIGHT);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x00BFFF);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x0000FF);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x800080);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0xFF0000);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0xFFA500);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0xFFFF00);
-    // lightfx.SendAddAction(ACTION_MORPH, duration, 64, 0x008000);
-    //
-    // lightfx.SendAnimationConfigSave(1);
-    // lightfx.SendAnimationSetDefault(1);
-    //
-    lightfx.deviceRelease();
-    lightfx.deviceClose();
     return 0;
 }

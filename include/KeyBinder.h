@@ -12,8 +12,8 @@ class KeyBinder {
     KeyBinder(const std::string &target_device_name, double timeout_sec = 0.3);
     ~KeyBinder();
 
-    void setOnGModeKey(Callback cb);
-    void setOnLightKey(Callback cb);
+    void setOnGModeKey(std::function<void()> cb);
+    void setOnLightKey(std::function<void()> cb);
     void run();
     void stop();
 

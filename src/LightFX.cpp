@@ -137,34 +137,35 @@ void LightFX::m_deviceReceive(std::span<uint8_t> out) {
 }
 
 void LightFX::m_SendRequestFirmwareVersion() {
-    constexpr std::array<uint8_t, 3> packet{PREAMBLE, REQUEST,
-                                            REQUEST_FIRMWARE_VERSION};
+    constexpr std::array<uint8_t, 3> packet{m_preamble, m_request,
+                                            m_requestFirmwareVersion};
     m_deviceSend(std::span(packet));
 }
 
 void LightFX::m_SendRequestStatus() {
-    constexpr std::array<uint8_t, 3> packet{PREAMBLE, REQUEST, REQUEST_STATUS};
+    constexpr std::array<uint8_t, 3> packet{m_preamble, m_request,
+                                            m_requestStatus};
     m_deviceSend(std::span(packet));
 }
 
 void LightFX::m_SendRequestElcConfig() {
-    constexpr std::array<uint8_t, 3> packet{PREAMBLE, REQUEST,
-                                            REQUEST_ELC_CONFIG};
+    constexpr std::array<uint8_t, 3> packet{m_preamble, m_request,
+                                            m_requestElcConfig};
     m_deviceSend(std::span(packet));
 }
 
 void LightFX::m_SendRequestAnimationCount() {
-    constexpr std::array<uint8_t, 3> packet{PREAMBLE, REQUEST,
-                                            REQUEST_ANIMATION_COUNT};
+    constexpr std::array<uint8_t, 3> packet{m_preamble, m_request,
+                                            m_requestAnimationCount};
     m_deviceSend(std::span(packet));
 }
 
 void LightFX::SendAnimationConfigStart(uint16_t animationId) {
     std::array<uint8_t, 6> packet{
-        PREAMBLE,
-        ANIMATION,
-        static_cast<uint8_t>((ANIMATION_CONFIG_START >> 8) & 0xFF),
-        static_cast<uint8_t>(ANIMATION_CONFIG_START & 0xFF),
+        m_preamble,
+        m_animation,
+        static_cast<uint8_t>((m_animationConfigStart >> 8) & 0xFF),
+        static_cast<uint8_t>(m_animationConfigStart & 0xFF),
         static_cast<uint8_t>((animationId >> 8) & 0xFF),
         static_cast<uint8_t>(animationId & 0xFF),
     };
@@ -173,10 +174,10 @@ void LightFX::SendAnimationConfigStart(uint16_t animationId) {
 
 void LightFX::SendAnimationConfigPlay(uint16_t animationId) {
     std::array<uint8_t, 6> packet{
-        PREAMBLE,
-        ANIMATION,
-        static_cast<uint8_t>((ANIMATION_CONFIG_PLAY >> 8) & 0xFF),
-        static_cast<uint8_t>(ANIMATION_CONFIG_PLAY & 0xFF),
+        m_preamble,
+        m_animation,
+        static_cast<uint8_t>((m_animationConfigPlay >> 8) & 0xFF),
+        static_cast<uint8_t>(m_animationConfigPlay & 0xFF),
         static_cast<uint8_t>((animationId >> 8) & 0xFF),
         static_cast<uint8_t>(animationId & 0xFF),
     };
@@ -185,10 +186,10 @@ void LightFX::SendAnimationConfigPlay(uint16_t animationId) {
 
 void LightFX::SendAnimationConfigSave(uint16_t animationId) {
     std::array<uint8_t, 6> packet{
-        PREAMBLE,
-        ANIMATION,
-        static_cast<uint8_t>((ANIMATION_CONFIG_SAVE >> 8) & 0xFF),
-        static_cast<uint8_t>(ANIMATION_CONFIG_SAVE & 0xFF),
+        m_preamble,
+        m_animation,
+        static_cast<uint8_t>((m_animationConfigSave >> 8) & 0xFF),
+        static_cast<uint8_t>(m_animationConfigSave & 0xFF),
         static_cast<uint8_t>((animationId >> 8) & 0xFF),
         static_cast<uint8_t>(animationId & 0xFF),
     };
@@ -197,10 +198,10 @@ void LightFX::SendAnimationConfigSave(uint16_t animationId) {
 
 void LightFX::SendAnimationRemove(uint16_t animationId) {
     std::array<uint8_t, 6> packet{
-        PREAMBLE,
-        ANIMATION,
-        static_cast<uint8_t>((ANIMATION_REMOVE >> 8) & 0xFF),
-        static_cast<uint8_t>(ANIMATION_REMOVE & 0xFF),
+        m_preamble,
+        m_animation,
+        static_cast<uint8_t>((m_animationRemove >> 8) & 0xFF),
+        static_cast<uint8_t>(m_animationRemove & 0xFF),
         static_cast<uint8_t>((animationId >> 8) & 0xFF),
         static_cast<uint8_t>(animationId & 0xFF),
     };
@@ -209,10 +210,10 @@ void LightFX::SendAnimationRemove(uint16_t animationId) {
 
 void LightFX::SendAnimationPlay(uint16_t animationId) {
     std::array<uint8_t, 6> packet{
-        PREAMBLE,
-        ANIMATION,
-        static_cast<uint8_t>((ANIMATION_PLAY >> 8) & 0xFF),
-        static_cast<uint8_t>(ANIMATION_PLAY & 0xFF),
+        m_preamble,
+        m_animation,
+        static_cast<uint8_t>((m_animationPlay >> 8) & 0xFF),
+        static_cast<uint8_t>(m_animationPlay & 0xFF),
         static_cast<uint8_t>((animationId >> 8) & 0xFF),
         static_cast<uint8_t>(animationId & 0xFF),
     };
@@ -221,10 +222,10 @@ void LightFX::SendAnimationPlay(uint16_t animationId) {
 
 void LightFX::SendAnimationSetDefault(uint16_t animationId) {
     std::array<uint8_t, 6> packet{
-        PREAMBLE,
-        ANIMATION,
-        static_cast<uint8_t>((ANIMATION_SET_DEFAULT >> 8) & 0xFF),
-        static_cast<uint8_t>(ANIMATION_SET_DEFAULT & 0xFF),
+        m_preamble,
+        m_animation,
+        static_cast<uint8_t>((m_animationSetDefault >> 8) & 0xFF),
+        static_cast<uint8_t>(m_animationSetDefault & 0xFF),
         static_cast<uint8_t>((animationId >> 8) & 0xFF),
         static_cast<uint8_t>(animationId & 0xFF),
     };
@@ -233,10 +234,10 @@ void LightFX::SendAnimationSetDefault(uint16_t animationId) {
 
 void LightFX::SendAnimationSetStartup(uint16_t animationId) {
     std::array<uint8_t, 6> packet{
-        PREAMBLE,
-        ANIMATION,
-        static_cast<uint8_t>((ANIMATION_SET_STARTUP >> 8) & 0xFF),
-        static_cast<uint8_t>(ANIMATION_SET_STARTUP & 0xFF),
+        m_preamble,
+        m_animation,
+        static_cast<uint8_t>((m_animationSetStartup >> 8) & 0xFF),
+        static_cast<uint8_t>(m_animationSetStartup & 0xFF),
         static_cast<uint8_t>((animationId >> 8) & 0xFF),
         static_cast<uint8_t>(animationId & 0xFF),
     };
@@ -247,8 +248,8 @@ void LightFX::SendAnimationSetStartup(uint16_t animationId) {
 void LightFX::SendZoneSelect(uint8_t loop, std::span<const uint8_t> zones) {
     const size_t zoneCount = zones.size();
     std::vector<uint8_t> packet(5 + zoneCount);
-    packet[0] = PREAMBLE;
-    packet[1] = ZONE_SELECT;
+    packet[0] = m_preamble;
+    packet[1] = m_zoneSelect;
     packet[2] = loop;
     packet[3] = static_cast<uint8_t>((zoneCount >> 8) & 0xFF);
     packet[4] = static_cast<uint8_t>(zoneCount & 0xFF);
@@ -259,8 +260,8 @@ void LightFX::SendZoneSelect(uint8_t loop, std::span<const uint8_t> zones) {
 void LightFX::SendAddAction(uint16_t action, uint16_t duration, uint16_t tempo,
                             uint32_t color) {
     std::array<uint8_t, 10> packet{
-        PREAMBLE,
-        ADD_ACTION,
+        m_preamble,
+        m_addAction,
         static_cast<uint8_t>(action),
         static_cast<uint8_t>((duration >> 8) & 0xFF),
         static_cast<uint8_t>(duration & 0xFF),
@@ -276,8 +277,8 @@ void LightFX::SendAddAction(uint16_t action, uint16_t duration, uint16_t tempo,
 void LightFX::SendSetDim(uint8_t dim, std::span<const uint8_t> zones) {
     const size_t zoneCount = zones.size();
     std::vector<uint8_t> packet(5 + zoneCount);
-    packet[0] = PREAMBLE;
-    packet[1] = SET_DIM;
+    packet[0] = m_preamble;
+    packet[1] = m_setDim;
     packet[2] = dim;
     packet[3] = static_cast<uint8_t>((zoneCount >> 8) & 0xFF);
     packet[4] = static_cast<uint8_t>(zoneCount & 0xFF);
