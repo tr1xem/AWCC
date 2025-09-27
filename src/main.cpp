@@ -3,6 +3,7 @@
 #include "EffectController.h"
 #include "LightFX.h"
 #include "Thermals.h"
+#include <Renderui.h>
 #include <algorithm>
 #include <cstring>
 #include <loguru.hpp>
@@ -93,6 +94,29 @@ int main(int argc, char *argv[]) {
     auto [loguru_argc, loguru_argv] = awcc::parseVerbosity(args);
     loguru::init(loguru_argc, loguru_argv.data());
 
+    bool start_gui = false;
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "-g") == 0 || strcmp(argv[i], "--gui") == 0) {
+            start_gui = true;
+            break;
+        }
+    }
+
+    if (start_gui) {
+        LOG_S(INFO) << "Initializing LightFX";
+        LightFX lightfx;
+
+        LOG_S(INFO) << "Initializing EffectController";
+        EffectController effects(lightfx);
+
+        LOG_S(INFO) << "Initializing Daemon";
+
+        Daemon daemon(effects);
+        AcpiUtils acpiUtils(daemon);
+        Thermals awccthermals(acpiUtils);
+        RenderUi::Init(awccthermals, acpiUtils);
+        return 0;
+    }
     if (awcc::shouldRunDaemon(args)) {
         LOG_S(INFO) << "Initializing LightFX";
         LightFX lightfx;
@@ -129,9 +153,10 @@ int main(int argc, char *argv[]) {
         Daemon daemon(effects);
         AcpiUtils acpiUtils(daemon);
         Thermals awccthermals(acpiUtils);
-        LOG_S(INFO) << "THERMALS : " << std::dec << awccthermals.getCpuBoost();
-        awccthermals.setCpuBoost(50);
-        LOG_S(INFO) << "THERMALS : " << std::dec << awccthermals.getCpuBoost();
+        LOG_S(INFO) << awccthermals.getCurrentModeName();
+        // LOG_S(INFO) << "THERMALS : " << std::dec <<
+        // awccthermals.getCpuBoost(); awccthermals.setCpuBoost(50); LOG_S(INFO)
+        // << "THERMALS : " << std::dec << awccthermals.getCpuBoost();
     }
 
     return 0;

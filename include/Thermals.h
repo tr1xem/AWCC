@@ -18,6 +18,8 @@ class Thermals {
     void setGpuBoost(int boost);
     int getCpuBoost();
     int getGpuBoost();
+    ThermalModes getCurrentMode();
+
     ThermalModes queryThermalMode();
     const char *getCurrentModeName();
     void toggleGmode();

@@ -116,6 +116,7 @@ ThermalModes Thermals::queryThermalMode() {
     }
 }
 
+ThermalModes Thermals::getCurrentMode() { return queryThermalMode(); }
 const char *Thermals::getCurrentModeName() {
     m_currentMode = queryThermalMode();
     return m_thermalModeToName(m_currentMode);
