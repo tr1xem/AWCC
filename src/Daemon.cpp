@@ -64,10 +64,14 @@ void Daemon::stop() {
     m_StopBinder();
 }
 
-// TODO: Implement these functions after lightfx is implemented
-
 // NOTE: TOGGLES GMODE
-void Daemon::m_onGmodeKey() { LOG_S(INFO) << "G-Mode key pressed!"; }
+void Daemon::m_onGmodeKey() {
+    LOG_S(INFO) << "G-Mode key pressed!";
+    if (m_onGmodeKeyCallback) {
+        m_onGmodeKeyCallback();
+    } else
+        LOG_S(ERROR) << "GMode Callback Not set";
+}
 
 // NOTE: TOGGLES LIGHT 3 Step 0 -> 50 -> 100 -> 0
 void Daemon::m_onLightKey() {

@@ -18,10 +18,14 @@ class Daemon {
     short m_brightness{};
     void m_onGmodeKey();
     void m_onLightKey();
+    std::function<void()> m_onGmodeKeyCallback;
 
   public:
     Daemon(EffectController &effectsController,
            std::string socket_path = "/tmp/cmd.sock");
+    void setOnGmodeKeyCallback(std::function<void()> cb) {
+        m_onGmodeKeyCallback = std::move(cb);
+    }
     bool isDaemonRunning();
     void init();
     std::string executeFromDaemon(const char *command);
