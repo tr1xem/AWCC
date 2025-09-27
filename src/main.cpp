@@ -62,9 +62,11 @@ static void runClientMode(Daemon &daemon) {
     if (daemon.isDaemonRunning()) {
         LOG_S(INFO) << "Daemon Client Mode Initialized";
     }
-    //
 
-    // acpiUtils.deviceInfo();
+    AcpiUtils acpiUtils(daemon);
+    Thermals awccthermals(acpiUtils);
+
+    acpiUtils.deviceInfo();
     // LOG_S(INFO) << "Current Thermal Mode: "
     //             << awccthermals.getCurrentModeName();
     // awccthermals.setThermalMode(ThermalModes::Quiet);
@@ -86,6 +88,7 @@ static void runClientMode(Daemon &daemon) {
 
 } // namespace awcc
 
+// TODO: Light Commands using daemon
 int main(int argc, char *argv[]) {
     std::span<char *> args(argv, argc);
     auto [loguru_argc, loguru_argv] = awcc::parseVerbosity(args);
@@ -116,6 +119,19 @@ int main(int argc, char *argv[]) {
         }
         LOG_S(INFO) << "Starting daemon as server";
         daemon.init();
+    } else {
+
+        // LOG_S(INFO) << "Initializing LightFX";
+        // LightFX lightfx;
+        //
+        // LOG_S(INFO) << "Initializing EffectController";
+        // EffectController effects(lightfx);
+        //
+        // LOG_S(INFO) << "Initializing Daemon";
+        //
+        // Daemon daemon(effects);
+        // awcc::runClientMode(daemon);
+        // effects.DefaultBlue();
     }
     // effects.Rainbow(500);
 

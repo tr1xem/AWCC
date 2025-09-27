@@ -4,7 +4,8 @@ void EffectController::Brightness(uint8_t value) {
     m_lightfx.deviceAcquire();
     m_lightfx.SendSetDim(100 - value, m_zoneAll);
     m_lightfx.deviceRelease();
-    LOG_S(INFO) << "Device Brightness set to: " << 100 - value << "%";
+    LOG_S(INFO) << "Device Brightness set to: " << static_cast<int>(value)
+                << "%";
 }
 
 void EffectController::StaticColor(uint32_t color) {
@@ -175,12 +176,12 @@ void EffectController::BackAndForth(uint32_t color) {
     m_lightfx.deviceRelease();
 }
 
-void EffectController::DefaultBlue(uint32_t color) {
+void EffectController::DefaultBlue() {
     m_lightfx.deviceAcquire();
     m_lightfx.SendAnimationRemove(1);
     m_lightfx.SendAnimationConfigStart(1);
     m_lightfx.SendZoneSelect(1, m_zoneAll);
-    m_lightfx.SendAddAction(m_actionColor, 1, 2, color);
+    m_lightfx.SendAddAction(m_actionColor, 1, 2, 0x00FFFF);
     m_lightfx.SendAnimationConfigSave(1);
     m_lightfx.SendAnimationSetDefault(1);
     m_lightfx.deviceRelease();

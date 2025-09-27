@@ -71,6 +71,7 @@ void LightFX::deviceAcquire() {
         std::exit(1);
     }
     m_deviceAcquired = true;
+    // LOG_S(INFO) << "Device Acquired";
 }
 
 void LightFX::deviceRelease() {
@@ -83,7 +84,7 @@ void LightFX::deviceRelease() {
     libusb_release_interface(m_deviceHandle, 0);
     libusb_attach_kernel_driver(m_deviceHandle, 0);
     m_deviceAcquired = false;
-    LOG_S(INFO) << "Device released";
+    // LOG_S(INFO) << "Device released";
 }
 
 void LightFX::deviceClose() {
