@@ -55,12 +55,11 @@ const char *AcpiUtils::m_getDeviceName() {
 
 int AcpiUtils::m_resolveDevicefromDatabase() {
     m_deviceName = m_getDeviceName();
-    const char *home = std::getenv("HOME");
-    std::string path = std::string(home) + "/work/awcc-rewrite/database.json";
+    std::string path = "/etc/awcc/database.json";
     std::ifstream file(path);
 
     if (!file) {
-        LOG_S(ERROR) << "Failed to open database.json";
+        LOG_S(ERROR) << "Failed to find database.json in :" << path;
         return -1;
     }
 

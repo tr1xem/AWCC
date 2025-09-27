@@ -1,6 +1,8 @@
+#include "AcpiUtils.h"
 #include "Daemon.h"
 #include "EffectController.h"
 #include "LightFX.h"
+#include "Thermals.h"
 #include <algorithm>
 #include <cstring>
 #include <loguru.hpp>
@@ -8,7 +10,7 @@
 //
 
 namespace awcc {
-
+static int originalVerbosity{};
 static auto parseVerbosity(std::span<char *> args)
     -> std::pair<int, std::vector<char *>> {
     bool verbose = std::ranges::any_of(
@@ -21,9 +23,11 @@ static auto parseVerbosity(std::span<char *> args)
     if (verbose) {
         loguru_argv.push_back((char *)"-v");
         loguru_argv.push_back((char *)"0"); // INFO
+        originalVerbosity = 0;
     } else {
         loguru_argv.push_back((char *)"-v");
         loguru_argv.push_back((char *)"-1"); // suppress logs
+        originalVerbosity = -1;
     }
 
     loguru_argv.push_back(nullptr);
@@ -58,8 +62,6 @@ static void runClientMode(Daemon &daemon) {
     if (daemon.isDaemonRunning()) {
         LOG_S(INFO) << "Daemon Client Mode Initialized";
     }
-    // AcpiUtils acpiUtils(daemon);
-    // Thermals awccthermals(acpiUtils);
     //
 
     // acpiUtils.deviceInfo();
@@ -89,19 +91,31 @@ int main(int argc, char *argv[]) {
     auto [loguru_argc, loguru_argv] = awcc::parseVerbosity(args);
     loguru::init(loguru_argc, loguru_argv.data());
 
-    LOG_S(INFO) << "Initializing LightFX";
-    LightFX lightfx;
-
-    LOG_S(INFO) << "Initializing EffectController";
-    EffectController effects(lightfx);
-
-    LOG_S(INFO) << "Initializing Daemon";
-
-    Daemon daemon(effects);
-
     if (awcc::shouldRunDaemon(args)) {
-        awcc::runDaemonServer(daemon);
-        return 0;
+        LOG_S(INFO) << "Initializing LightFX";
+        LightFX lightfx;
+
+        LOG_S(INFO) << "Initializing EffectController";
+        EffectController effects(lightfx);
+
+        LOG_S(INFO) << "Initializing Daemon";
+
+        Daemon daemon(effects);
+        loguru::g_stderr_verbosity = -3;
+        AcpiUtils acpiUtils(daemon);
+        Thermals awccthermals(acpiUtils);
+        loguru::g_stderr_verbosity = awcc::originalVerbosity;
+        daemon.setOnGmodeKeyCallback(
+            [&awccthermals]() { awccthermals.toggleGmode(); });
+
+        if (geteuid() != 0) {
+            LOG_S(ERROR)
+                << "Daemon server can only be run with admin permissions "
+                   "(root). Exiting.";
+            exit(1);
+        }
+        LOG_S(INFO) << "Starting daemon as server";
+        daemon.init();
     }
     // effects.Rainbow(500);
 
