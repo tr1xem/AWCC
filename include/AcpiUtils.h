@@ -12,7 +12,6 @@ class AcpiUtils {
     std::bitset<8> m_thermalModeBits{"1111111"};
     std::bitset<6> m_lightingModesBits{"111111"};
     static const char *getPrefix();
-    static const char *m_getDeviceName();
     int m_resolveDevicefromDatabase();
     Daemon &m_daemon;
 
@@ -26,4 +25,5 @@ class AcpiUtils {
 
     [[nodiscard]] bool hasLightingMode(LightingSet l) const;
     void deviceInfo(bool unknownDevice = false);
+    static const char *getDeviceName();
 };

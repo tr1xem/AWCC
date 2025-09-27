@@ -1,4 +1,3 @@
-
 #include "AcpiUtils.h"
 #include <filesystem>
 #include <format>
@@ -34,7 +33,7 @@ const char *AcpiUtils::getPrefix() {
     return "";
 }
 
-const char *AcpiUtils::m_getDeviceName() {
+const char *AcpiUtils::getDeviceName() {
     static std::string deviceName;
     std::ifstream dmiFile("/sys/class/dmi/id/product_name");
     if (!dmiFile.is_open()) {
@@ -54,7 +53,7 @@ const char *AcpiUtils::m_getDeviceName() {
 };
 
 int AcpiUtils::m_resolveDevicefromDatabase() {
-    m_deviceName = m_getDeviceName();
+    m_deviceName = getDeviceName();
     std::string path = "/etc/awcc/database.json";
     std::ifstream file(path);
 
