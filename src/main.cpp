@@ -7,7 +7,6 @@
 #include <cstring>
 #include <loguru.hpp>
 #include <unistd.h> // for geteuid()
-//
 
 namespace awcc {
 static int originalVerbosity{};
@@ -120,20 +119,20 @@ int main(int argc, char *argv[]) {
         LOG_S(INFO) << "Starting daemon as server";
         daemon.init();
     } else {
+        LOG_S(INFO) << "Initializing LightFX";
+        LightFX lightfx;
 
-        // LOG_S(INFO) << "Initializing LightFX";
-        // LightFX lightfx;
-        //
-        // LOG_S(INFO) << "Initializing EffectController";
-        // EffectController effects(lightfx);
-        //
-        // LOG_S(INFO) << "Initializing Daemon";
-        //
-        // Daemon daemon(effects);
-        // awcc::runClientMode(daemon);
-        // effects.DefaultBlue();
+        LOG_S(INFO) << "Initializing EffectController";
+        EffectController effects(lightfx);
+
+        LOG_S(INFO) << "Initializing Daemon";
+        Daemon daemon(effects);
+        AcpiUtils acpiUtils(daemon);
+        Thermals awccthermals(acpiUtils);
+        LOG_S(INFO) << "THERMALS : " << std::dec << awccthermals.getCpuBoost();
+        awccthermals.setCpuBoost(50);
+        LOG_S(INFO) << "THERMALS : " << std::dec << awccthermals.getCpuBoost();
     }
-    // effects.Rainbow(500);
 
     return 0;
 }
