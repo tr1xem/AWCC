@@ -14,6 +14,10 @@ class Thermals {
     Thermals(AcpiUtils &acpiUtils);
     void setThermalMode(ThermalModes mode);
     bool supportsThemeralMode(ThermalModes mode);
+    void setCpuBoost(int boost);
+    void setGpuBoost(int boost);
+    int getCpuBoost();
+    int getGpuBoost();
     ThermalModes queryThermalMode();
     const char *getCurrentModeName();
     void toggleGmode();

@@ -128,3 +128,18 @@ void Thermals::toggleGmode() {
         setThermalMode(ThermalModes::Gmode);
     }
 }
+
+int Thermals::getCpuBoost() {
+    return m_acpiUtils.executeAcpiCommand(0x14, 0x0c, 0x32);
+}
+int Thermals::getGpuBoost() {
+    return m_acpiUtils.executeAcpiCommand(0x14, 0x0c, 0x33);
+}
+void Thermals::setCpuBoost(int boost) {
+    m_acpiUtils.executeAcpiCommand(0x15, 0x02, 0x32, boost);
+    LOG_S(INFO) << "Set CPU Boost to: " << boost << "%";
+}
+void Thermals::setGpuBoost(int boost) {
+    m_acpiUtils.executeAcpiCommand(0x15, 0x02, 0x33, boost);
+    LOG_S(INFO) << "Set GPU Boost to: " << boost << "%";
+}
