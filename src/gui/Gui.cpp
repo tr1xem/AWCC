@@ -526,7 +526,7 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
         static ImFont *fontfooter = ImGui::GetIO().Fonts->AddFontFromFileTTF(
             "/usr/share/fonts/TTF/Roboto-Medium.ttf", 15.0F);
         ImGui::PushFont(fontfooter);
-        const char *VerText = "Version 0.3-Beta";
+        const char *VerText = "Version 1.0-Stable";
         ImGui::SetCursorPos(ImVec2(10, ImGui::GetWindowHeight() -
                                            ImGui::CalcTextSize(VerText).y -
                                            15.0F));
