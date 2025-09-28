@@ -103,34 +103,51 @@ int main(int argc, char *argv[]) {
     }
 
     if (start_gui) {
-        LOG_S(INFO) << "Initializing LightFX";
+        LOG_S(INFO) << "Initializing LightFX Module";
         LightFX lightfx;
 
-        LOG_S(INFO) << "Initializing EffectController";
+        LOG_S(INFO) << "Initializing EffectController Module";
         EffectController effects(lightfx);
 
-        LOG_S(INFO) << "Initializing Daemon";
-
+        LOG_S(INFO) << "Initializing Daemon Module";
         Daemon daemon(effects);
+
+        loguru::g_stderr_verbosity = -2;
+        LOG_S(INFO) << "Initializing AcpiUtils Module";
         AcpiUtils acpiUtils(daemon);
-        Thermals awccthermals(acpiUtils);
-        RenderUi::Init(awccthermals, acpiUtils);
-        return 0;
-    }
-    if (awcc::shouldRunDaemon(args)) {
-        LOG_S(INFO) << "Initializing LightFX";
-        LightFX lightfx;
 
-        LOG_S(INFO) << "Initializing EffectController";
-        EffectController effects(lightfx);
-
-        LOG_S(INFO) << "Initializing Daemon";
-
-        Daemon daemon(effects);
-        loguru::g_stderr_verbosity = -3;
-        AcpiUtils acpiUtils(daemon);
+        LOG_S(INFO) << "Initializing Thermals Module";
         Thermals awccthermals(acpiUtils);
         loguru::g_stderr_verbosity = awcc::originalVerbosity;
+
+        if (daemon.isDaemonRunning()) {
+            LOG_S(INFO) << "Rendering UI";
+            RenderUi::Init(awccthermals, acpiUtils, effects);
+            return 0;
+        } else {
+            LOG_S(ERROR) << "GUI Mode Requires daemon by default,run daemon by "
+                            "sudo ./main -d";
+            return 1;
+        }
+    }
+    if (awcc::shouldRunDaemon(args)) {
+        LOG_S(INFO) << "Initializing LightFX Module";
+        LightFX lightfx;
+
+        LOG_S(INFO) << "Initializing EffectController Module";
+        EffectController effects(lightfx);
+
+        LOG_S(INFO) << "Initializing Daemon Module";
+        Daemon daemon(effects);
+
+        loguru::g_stderr_verbosity = -2;
+        LOG_S(INFO) << "Initializing AcpiUtils Module";
+        AcpiUtils acpiUtils(daemon);
+
+        LOG_S(INFO) << "Initializing Thermals Module";
+        Thermals awccthermals(acpiUtils);
+        loguru::g_stderr_verbosity = awcc::originalVerbosity;
+
         daemon.setOnGmodeKeyCallback(
             [&awccthermals]() { awccthermals.toggleGmode(); });
 
@@ -143,17 +160,21 @@ int main(int argc, char *argv[]) {
         LOG_S(INFO) << "Starting daemon as server";
         daemon.init();
     } else {
-        LOG_S(INFO) << "Initializing LightFX";
-        LightFX lightfx;
-
-        LOG_S(INFO) << "Initializing EffectController";
-        EffectController effects(lightfx);
-
-        LOG_S(INFO) << "Initializing Daemon";
-        Daemon daemon(effects);
-        AcpiUtils acpiUtils(daemon);
-        Thermals awccthermals(acpiUtils);
-        LOG_S(INFO) << awccthermals.getCurrentModeName();
+        // LOG_S(INFO) << "Initializing LightFX Module";
+        // LightFX lightfx;
+        //
+        // LOG_S(INFO) << "Initializing EffectController Module";
+        // EffectController effects(lightfx);
+        //
+        // LOG_S(INFO) << "Initializing Daemon Module";
+        // Daemon daemon(effects);
+        //
+        // LOG_S(INFO) << "Initializing AcpiUtils Module";
+        // AcpiUtils acpiUtils(daemon);
+        //
+        // LOG_S(INFO) << "Initializing Thermals Module";
+        // Thermals awccthermals(acpiUtils);
+        // LOG_S(INFO) << awccthermals.getCurrentModeName();
         // LOG_S(INFO) << "THERMALS : " << std::dec <<
         // awccthermals.getCpuBoost(); awccthermals.setCpuBoost(50); LOG_S(INFO)
         // << "THERMALS : " << std::dec << awccthermals.getCpuBoost();

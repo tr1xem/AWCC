@@ -1,8 +1,10 @@
+#include "EffectController.h"
 #include "Gui.h"
 #include "Renderui.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include <iostream>
 #include <print>
 #define GL_SILENCE_DEPRECATION
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
@@ -11,7 +13,8 @@ static void glfw_error_callback(int error, const char *description) {
     std::println(stderr, "GLFW Error {}: {}", error, description);
 }
 
-bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils) {
+bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
+                    EffectController &effects) {
     glfwSetErrorCallback(glfw_error_callback);
     if (glfwInit() == 0)
         return false;
@@ -128,7 +131,7 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils) {
     };
 
     // 2. Find the current selected mode at startup.
-    static int selected = 0;
+    static int selected{0};
     {
         // Get the current mode from thermals and match it to the index
         ThermalModes current = thermals.getCurrentMode();
@@ -140,8 +143,16 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils) {
         }
     }
 
-    int gpuBoost{thermals.getGpuBoost()};
-    int cpuBoost{thermals.getCpuBoost()};
+    static int gpuBoost{thermals.getGpuBoost()};
+    static int cpuBoost{thermals.getCpuBoost()};
+    static int brightness{effects.getBrightness()};
+    ImFont *fontbold =
+        io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Roboto-Bold.ttf");
+    ImFont *smallFont =
+        io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Roboto-Light.ttf");
+    static bool turbo{acpiUtils.getTurboBoost()};
+    std::cout << turbo;
+
     // Main loop
     while (glfwWindowShouldClose(window) == 0) {
         // Poll and handle events (inputs, window resize, etc.)
@@ -160,16 +171,16 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils) {
             continue;
         }
 
+        static int h, w;
+        glfwGetFramebufferSize(window, &w, &h);
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         ImVec4 clear_color = ImVec4(0.45F, 0.55F, 0.60F, 1.00F);
 
-        int h, w;
-        glfwGetFramebufferSize(window, &w, &h);
-
-        Gui::App(h, w, thermals, acpiUtils, selected, gpuBoost, cpuBoost);
+        Gui::App(h, w, thermals, acpiUtils, selected, gpuBoost, cpuBoost,
+                 *smallFont, *fontbold, brightness, effects, turbo);
 
         // 1. Show the big demo window (Most of the sample code is in
         // ImGui::ShowDemoWindow()! You can browse its code to learn more about

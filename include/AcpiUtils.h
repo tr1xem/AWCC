@@ -13,6 +13,8 @@ class AcpiUtils {
     std::bitset<6> m_lightingModesBits{"111111"};
     static const char *getPrefix();
     int m_resolveDevicefromDatabase();
+    static bool isIntel();
+    static bool isAMD();
     Daemon &m_daemon;
 
   public:
@@ -26,4 +28,6 @@ class AcpiUtils {
     [[nodiscard]] bool hasLightingMode(LightingSet l) const;
     void deviceInfo(bool unknownDevice = false);
     static const char *getDeviceName();
+    [[nodiscard]] bool getTurboBoost() const;
+    bool setTurboBoost(bool enable);
 };

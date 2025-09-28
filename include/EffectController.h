@@ -22,9 +22,12 @@ class EffectController {
     void Rainbow(uint16_t duration);
     void BackAndForth(uint32_t color);
     void DefaultBlue();
+    int getBrightness();
 
   private:
     LightFX &m_lightfx;
+    std::string m_brightnessFile =
+        "/tmp/device_brightness.txt"; // path of your choice
     static constexpr uint8_t m_actionColor = 0x00;
     static constexpr uint8_t m_actionMorph = 0x02;
     static constexpr std::array<uint8_t, 1> m_zoneLeft = {0x00};

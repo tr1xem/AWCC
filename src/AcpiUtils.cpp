@@ -122,9 +122,9 @@ AcpiUtils::AcpiUtils(Daemon &daemon) : m_daemon(daemon) {
     LOG_S(INFO)
         << "AcpiUtils Module initialization completed got device info and "
            "feature supported";
-    LOG_S(INFO) << "FeatureSet: " << m_featureSetBits;
-    LOG_S(INFO) << "ThermalModes: " << m_thermalModeBits;
-    LOG_S(INFO) << "LightingModes: " << m_lightingModesBits;
+    // LOG_S(INFO) << "FeatureSet: " << m_featureSetBits;
+    // LOG_S(INFO) << "ThermalModes: " << m_thermalModeBits;
+    // LOG_S(INFO) << "LightingModes: " << m_lightingModesBits;
     if (m_daemon.isDaemonRunning())
         LOG_S(WARNING) << "Daemon is running, commands will be sent to daemon";
     else
@@ -279,4 +279,66 @@ bool AcpiUtils::hasThermalMode(ThermalModeSet m) const {
 
 bool AcpiUtils::hasFeature(FeatureSet f) const {
     return (m_featureSetBits.to_ulong() & static_cast<unsigned long>(f)) != 0;
+}
+
+bool AcpiUtils::isIntel() {
+    std::ifstream cpuinfo("/proc/cpuinfo");
+    std::string line;
+    while (std::getline(cpuinfo, line)) {
+        if (line.find("GenuineIntel") != std::string::npos)
+            return true;
+    }
+    return false;
+}
+
+bool AcpiUtils::isAMD() {
+    std::ifstream cpuinfo("/proc/cpuinfo");
+    std::string line;
+    while (std::getline(cpuinfo, line)) {
+        if (line.find("AuthenticAMD") != std::string::npos)
+            return true;
+    }
+    return false;
+}
+
+bool AcpiUtils::getTurboBoost() const {
+    if (isIntel()) {
+        std::ifstream file("/sys/devices/system/cpu/intel_pstate/no_turbo");
+        int val;
+        if (file >> val) {
+            // 0 = on, 1 = off
+            return val == 0;
+        }
+    } else if (isAMD()) {
+        std::ifstream file("/sys/devices/system/cpu/cpufreq/boost");
+        int val;
+        if (file >> val) {
+            // 1 = on, 0 = off
+            return val == 1;
+        }
+    }
+    // Unknown/unsupported: treat as off
+    return false;
+}
+
+bool AcpiUtils::setTurboBoost(bool enable) {
+    std::string cmd;
+
+    if (isIntel()) {
+        int writeVal = enable ? 0 : 1;
+        cmd = "echo " + std::to_string(writeVal) +
+              " | sudo tee /sys/devices/system/cpu/intel_pstate/no_turbo";
+        LOG_S(INFO) << "Setting Turbo Boost (Intel) to: " << writeVal;
+    } else if (isAMD()) {
+        int writeVal = enable ? 1 : 0;
+        cmd = "echo " + std::to_string(writeVal) +
+              " | sudo tee /sys/devices/system/cpu/cpufreq/boost";
+        LOG_S(INFO) << "Setting Turbo Boost (AMD) to: " << writeVal;
+    } else {
+        return false;
+    }
+
+    // Assume m_daemon.executeFromDaemon(cmd) returns true on success
+    m_daemon.executeFromDaemon(cmd.c_str());
+    return true;
 }
