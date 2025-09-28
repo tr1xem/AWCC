@@ -11,7 +11,6 @@ void EffectController::Brightness(uint8_t value) {
     if (ofs.is_open()) {
         ofs << static_cast<int>(value);
     }
-
     LOG_S(INFO) << "Device Brightness set to: " << static_cast<int>(value)
                 << "%";
 }
