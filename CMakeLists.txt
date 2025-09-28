@@ -182,7 +182,7 @@ install(DIRECTORY app/
     FILES_MATCHING PATTERN "*.png"
 )
 
-install(FILES app/99-awcc.rules
+install(FILES app/70-awcc.rules
     DESTINATION /etc/udev/rules.d
 )
 
