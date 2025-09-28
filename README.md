@@ -11,7 +11,7 @@ AWCC is an unofficial alternative to Alienware Command Centre of Windows for the
 ## ✨ Features
 
 - 🖥️ **GUI and CLI support**
-- ⚡ **Lightweight** (uses around ~130mb of RAM with GUI, else 6mb RAM)
+- ⚡ **Lightweight** (uses around ~100mb of RAM with GUI, else 6mb RAM)
 - 🌈 **All Light Effects**
 - 🧑‍💻 **Daemon Support** (no sudo needed if daemon is running)
 - 🎮 **GMode and Light Key autobinding** just like Windows
@@ -48,6 +48,7 @@ paru -S awcc-git
 - `glfw`
 - `libx11`
 - `libgl`
+- `ttf-roboto`
 
 **Make Dependencies** :
 

@@ -100,8 +100,8 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
     static int brightness{effects.getBrightness()};
     ImFont *fontbold =
         io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Roboto-Bold.ttf");
-    ImFont *smallFont =
-        io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Roboto-Light.ttf");
+    ImFont *smallFont = io.Fonts->AddFontFromFileTTF(
+        "/usr/share/fonts/TTF/Roboto-Light.ttf", 17.0F);
     static bool turbo{acpiUtils.getTurboBoost()};
     std::cout << turbo;
 
