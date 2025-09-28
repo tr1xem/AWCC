@@ -6,7 +6,7 @@ Wants=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/awcc -d -v
+ExecStart=/usr/bin/awcc -d -v 0
 ExecStop=/bin/kill -TERM $MAINPID
 Restart=always
 RestartSec=5
