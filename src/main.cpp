@@ -6,7 +6,9 @@
 #include <Renderui.h>
 #include <algorithm>
 #include <cstring>
+#include <iostream>
 #include <loguru.hpp>
+#include <string>
 #include <unistd.h> // for geteuid()
 
 namespace awcc {
@@ -86,9 +88,189 @@ static void runClientMode(Daemon &daemon) {
     // }
 }
 
+static void printHelp() {
+    std::cout << R"(Alienware Command Center
+Copyright (c) 2025 tr1x_em. All Rights Reserved.
+==========================================
+
+App Commands:
+  --daemon     (-d)        Run app in Daemon Mode (run with sudo)
+  --gui        (-g)        Starts Gui
+
+Lighting Controls:
+  brightness <0-100>       Set keyboard brightness
+  static <color_hex>       Set static color
+  spectrum                 Color spectrum effect
+  breathe <color_hex>      Breathing effect
+  rainbow                  Rainbow wave effect
+  wave <color_hex>         Wave effect
+  bkf <color_hex>          Back and forth effect
+  defaultblue              Default blue color
+
+Fan Controls (Run as root):
+  qm                       Query current fan mode
+  quiet        (q )        Quiet mode for minimal noise
+  battery      (bs)        Battery saving mode
+  balance      (b )        Balanced performance and power
+  performance  (p )        High performance mode
+  gmode        (g )        Gaming mode (G-Mode)
+  cool         (c )        Cool Mode
+  gt                       Toggle G-Mode (useful for keybinds)
+
+
+Fan Boost Controls (Run as root):
+  cb                       Get CPU fan boost
+  scb <value>              Set CPU fan boost (1-100)
+  gb                       Get GPU fan boost
+  sgb <value>              Set GPU fan boost (1-100)
+
+System Information:
+  device-info              Show detected device model and supported features
+)" << "\n";
+}
+static inline uint32_t parseHexColor(const std::string &hex) {
+    uint32_t color = 0;
+    std::stringstream ss;
+    ss << std::hex << hex;
+    ss >> color;
+    return color;
+}
+
+static int handleCliCommands(std::span<char *> args, EffectController &effects,
+                             Thermals &thermals, AcpiUtils &acpiUtils) {
+    if (args.size() < 2) {
+        printHelp();
+        return 0;
+    }
+    std::string_view cmd = args[1];
+
+    // Help
+    if (cmd == "-h" || cmd == "--help" || cmd == "help") {
+        printHelp();
+        return 0;
+    }
+
+    // Lighting Controls
+    if (cmd == "static" && args.size() > 2) {
+        uint32_t color = parseHexColor(args[2]);
+        effects.StaticColor(color);
+        std::cout << "Set static color: " << args[2] << "\n";
+        return 0;
+    }
+    if (cmd == "breathe" && args.size() > 2) {
+        uint32_t color = parseHexColor(args[2]);
+        effects.Breathe(color);
+        std::cout << "Set breathe color: " << args[2] << "\n";
+        return 0;
+    }
+    if (cmd == "wave" && args.size() > 2) {
+        uint32_t color = parseHexColor(args[2]);
+        effects.Wave(color);
+        std::cout << "Set wave color: " << args[2] << "\n";
+        return 0;
+    }
+    if (cmd == "bkf" && args.size() > 2) {
+        uint32_t color = parseHexColor(args[2]);
+        effects.BackAndForth(color);
+        std::cout << "Set back and forth color: " << args[2] << "\n";
+        return 0;
+    }
+    if (cmd == "brightness" && args.size() > 2) {
+        effects.Brightness(std::stoi(args[2]));
+        std::cout << "Set brightness to " << args[2] << "\n";
+        return 0;
+    }
+    if (cmd == "spectrum") {
+        effects.Spectrum(1000);
+        std::cout << "Set spectrum Mode \n";
+        return 0;
+    }
+    if (cmd == "rainbow") {
+        effects.Rainbow(500);
+        std::cout << "Set rainbow mode \n";
+        return 0;
+    }
+    if (cmd == "defaultblue") {
+        effects.DefaultBlue();
+        std::cout << "Set default blue color." << "\n";
+        return 0;
+    }
+
+    // Fan Controls
+    if (cmd == "qm") {
+        std::cout << "Current Mode: " << thermals.getCurrentModeName();
+        return 0;
+    }
+    if (cmd == "quiet" || cmd == "q") {
+        thermals.setThermalMode(ThermalModes::Quiet);
+        std::cout << "Set fan to quiet mode." << "\n";
+        return 0;
+    }
+    if (cmd == "battery" || cmd == "bs") {
+        thermals.setThermalMode(ThermalModes::BatterySaver);
+        std::cout << "Set fan to battery saving mode." << "\n";
+        return 0;
+    }
+    if (cmd == "balance" || cmd == "b") {
+        thermals.setThermalMode(ThermalModes::Balanced);
+        std::cout << "Set fan to balanced mode." << "\n";
+        return 0;
+    }
+    if (cmd == "performance" || cmd == "p") {
+        thermals.setThermalMode(ThermalModes::Performance);
+        std::cout << "Set fan to performance mode." << "\n";
+        return 0;
+    }
+    if (cmd == "gmode" || cmd == "g") {
+        thermals.setThermalMode(ThermalModes::Gmode);
+        std::cout << "Set fan to gaming mode (G-Mode)." << "\n";
+        return 0;
+    }
+    if (cmd == "gt") {
+        thermals.toggleGmode();
+        std::cout << "Toggle G-Mode." << "\n";
+        return 0;
+    }
+    if (cmd == "cool" || cmd == "c") {
+        thermals.setThermalMode(ThermalModes::Cool);
+        std::cout << "Set fan to Cool mode." << "\n";
+        return 0;
+    }
+
+    // Fan Boost Controls
+    if (cmd == "cb") {
+        std::cout << "Cpu Boost: " << thermals.getCpuBoost() << "\n";
+        return 0;
+    }
+    if (cmd == "scb" && args.size() > 2) {
+        thermals.setCpuBoost(std::stoi(args[2]));
+        std::cout << "Set CPU fan boost: " << args[2] << "\n";
+        return 0;
+    }
+    if (cmd == "gb") {
+        std::cout << "Gpu Boost: " << thermals.getGpuBoost() << "\n";
+        std::cout << "Get GPU fan boost." << "\n";
+        return 0;
+    }
+    if (cmd == "sgb" && args.size() > 2) {
+        thermals.setGpuBoost(std::stoi(args[2]));
+        std::cout << "Set GPU fan boost: " << args[2] << "\n";
+        return 0;
+    }
+
+    if (cmd == "device-info") {
+        acpiUtils.deviceInfo();
+        return 0;
+    }
+
+    // Unknown command
+    LOG_S(ERROR) << "Unknown command: " << cmd << "\n";
+    // printHelp();
+    return 1;
+}
+
 } // namespace awcc
 
-// TODO: Light Commands using daemon
 int main(int argc, char *argv[]) {
     std::span<char *> args(argv, argc);
     auto [loguru_argc, loguru_argv] = awcc::parseVerbosity(args);
@@ -160,24 +342,22 @@ int main(int argc, char *argv[]) {
         LOG_S(INFO) << "Starting daemon as server";
         daemon.init();
     } else {
-        // LOG_S(INFO) << "Initializing LightFX Module";
-        // LightFX lightfx;
-        //
-        // LOG_S(INFO) << "Initializing EffectController Module";
-        // EffectController effects(lightfx);
-        //
-        // LOG_S(INFO) << "Initializing Daemon Module";
-        // Daemon daemon(effects);
-        //
-        // LOG_S(INFO) << "Initializing AcpiUtils Module";
-        // AcpiUtils acpiUtils(daemon);
-        //
-        // LOG_S(INFO) << "Initializing Thermals Module";
-        // Thermals awccthermals(acpiUtils);
-        // LOG_S(INFO) << awccthermals.getCurrentModeName();
-        // LOG_S(INFO) << "THERMALS : " << std::dec <<
-        // awccthermals.getCpuBoost(); awccthermals.setCpuBoost(50); LOG_S(INFO)
-        // << "THERMALS : " << std::dec << awccthermals.getCpuBoost();
+        LOG_S(INFO) << "Initializing LightFX Module";
+        LightFX lightfx;
+
+        LOG_S(INFO) << "Initializing EffectController Module";
+        EffectController effects(lightfx);
+
+        LOG_S(INFO) << "Initializing Daemon Module";
+        Daemon daemon(effects);
+
+        LOG_S(INFO) << "Initializing AcpiUtils Module";
+        AcpiUtils acpiUtils(daemon);
+
+        LOG_S(INFO) << "Initializing Thermals Module";
+        Thermals awccthermals(acpiUtils);
+
+        return awcc::handleCliCommands(args, effects, awccthermals, acpiUtils);
     }
 
     return 0;

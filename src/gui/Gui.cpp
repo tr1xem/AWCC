@@ -508,7 +508,6 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
         if (brightness != kblastval && kbtimer > debounceSeconds) {
             kblastval = brightness;
             effects.Brightness(brightness);
-            // Debounced action: value has settled for debounceSeconds
         }
 
         // NOTE :: TURBO BOOST

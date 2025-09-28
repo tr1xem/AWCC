@@ -125,10 +125,12 @@ AcpiUtils::AcpiUtils(Daemon &daemon) : m_daemon(daemon) {
     // LOG_S(INFO) << "FeatureSet: " << m_featureSetBits;
     // LOG_S(INFO) << "ThermalModes: " << m_thermalModeBits;
     // LOG_S(INFO) << "LightingModes: " << m_lightingModesBits;
-    if (m_daemon.isDaemonRunning())
-        LOG_S(WARNING) << "Daemon is running, commands will be sent to daemon";
-    else
-        LOG_S(WARNING) << "Daemon is not running, running in traditional mode";
+    // if (m_daemon.isDaemonRunning())
+    //     LOG_S(WARNING) << "Daemon is running, commands will be sent to
+    //     daemon";
+    // else
+    //     LOG_S(WARNING) << "Daemon is not running, running in traditional
+    //     mode";
 }
 
 // INFO: Any check for ACPI support should be done before calling this function
