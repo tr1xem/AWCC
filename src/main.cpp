@@ -263,7 +263,6 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
         return 0;
     }
 
-    // Unknown command
     LOG_S(ERROR) << "Unknown command: " << cmd << "\n";
     // printHelp();
     return 1;

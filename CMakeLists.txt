@@ -1,16 +1,20 @@
 cmake_minimum_required(VERSION 3.16)
 project(awcc LANGUAGES CXX)
-set(APP_NAME main)
+set(APP_NAME awcc)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(BUILD_SHARED_LIBS OFF)
-# set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "Install path prefix" FORCE)
+endif()
+
 include(FetchContent)
 find_package(PkgConfig REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -162,3 +166,34 @@ target_compile_options(${APP_NAME} PRIVATE
     ${LIBUSB_CFLAGS_OTHER}
     ${LIBEVDEV_CFLAGS_OTHER}
 )
+
+install(TARGETS ${APP_NAME}
+    RUNTIME DESTINATION bin
+)
+
+install(DIRECTORY app/
+    DESTINATION share/applications
+    FILES_MATCHING PATTERN "*.desktop"
+)
+
+# Install icons (recursively)
+install(DIRECTORY app/
+    DESTINATION share/icons
+    FILES_MATCHING PATTERN "*.png"
+)
+
+install(FILES app/99-awcc.rules
+    DESTINATION /etc/udev/rules.d
+)
+
+# Install systemd service file
+install(FILES app/awccd.service
+    DESTINATION /etc/systemd/system
+)
+
+
+# Install systemd service file
+install(FILES database.json
+    DESTINATION /etc/awcc
+)
+

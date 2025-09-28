@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Alienware Command Center
+Comment=Control Alienware and Dell G Series lighting and fans
+Exec=awcc --gui
+Icon=awcc
+Keywords=awcc;
+Terminal=false
+Categories=Utility;System;Settings;
+StartupNotify=true
