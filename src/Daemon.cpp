@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <loguru.hpp>
 #include <pwd.h>
+#include <regex>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -71,7 +72,6 @@ void Daemon::m_onGmodeKey() {
         LOG_S(ERROR) << "GMode Callback Not set";
 }
 
-// TODO: PERSISTANT
 void Daemon::m_onLightKey() {
     switch (m_brightness) {
     case 0:
@@ -189,9 +189,34 @@ void Daemon::init() {
         close(client_fd);
     }
 }
+bool Daemon::m_CommandAllowed(const std::string &cmd) {
+    // Allowed command patterns (expand as needed)
+    if (cmd == "stop")
+        return true;
+    static const std::vector<std::regex> allowed_patterns{
+        // pkexec ACPI call
+        std::regex{
+            R"(pkexec sh -c 'echo "\\_SB\..*WMAX 0 0x[0-9a-fA-F]+ \{(?:\s*0x[0-9a-fA-F]+,?)+\s*\}" > /proc/acpi/call && cat /proc/acpi/call')"},
+        // Intel turbo
+        std::regex{
+            R"(echo [01] \| sudo tee /sys/devices/system/cpu/intel_pstate/no_turbo)"},
+        // AMD turbo
+        std::regex{
+            R"(echo [01] \| sudo tee /sys/devices/system/cpu/cpufreq/boost)"}};
+
+    for (const auto &pat : allowed_patterns) {
+        if (std::regex_match(cmd, pat))
+            return true;
+    }
+    return false;
+}
 
 std::string Daemon::executeFromDaemon(const char *command) {
     if (m_running) {
+        if (!m_CommandAllowed(command)) {
+            LOG_S(ERROR) << "Rejected command: " << command;
+            return "Rejected command";
+        }
         LOG_S(INFO) << "Executing command: " << command;
         FILE *fp = popen(command, "r");
         std::string result;

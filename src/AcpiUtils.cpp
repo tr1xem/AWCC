@@ -9,7 +9,6 @@
 
 using json = nlohmann::json;
 
-// TODO: Add a fallback device info if the device is not found in the database
 const char *AcpiUtils::getPrefix() {
     std::ifstream cpuinfo("/proc/cpuinfo");
     if (!cpuinfo.is_open()) {

@@ -12,32 +12,6 @@
 #include <unistd.h> // for geteuid()
 
 namespace awcc {
-static int originalVerbosity{};
-static auto parseVerbosity(std::span<char *> args)
-    -> std::pair<int, std::vector<char *>> {
-    bool verbose = std::ranges::any_of(
-        args.subspan(1), [](char *arg) { return std::strcmp(arg, "-v") == 0; });
-
-    // Build modified argv for loguru
-    std::vector<char *> loguru_argv;
-    loguru_argv.push_back(args[0]); // program name
-
-    if (verbose) {
-        loguru_argv.push_back((char *)"-v");
-        loguru_argv.push_back((char *)"0"); // INFO
-        originalVerbosity = 0;
-    } else {
-        loguru_argv.push_back((char *)"-v");
-        loguru_argv.push_back((char *)"-1"); // suppress logs
-        originalVerbosity = -1;
-    }
-
-    loguru_argv.push_back(nullptr);
-
-    int loguru_argc = static_cast<int>(loguru_argv.size() - 1);
-    return {loguru_argc, loguru_argv};
-}
-
 static auto shouldRunDaemon(std::span<char *> args) -> bool {
     return std::ranges::any_of(args.subspan(1), // skip program name
                                [](char *arg) {
@@ -60,34 +34,6 @@ static void runDaemonServer(Daemon &daemon) {
 #endif
 }
 
-static void runClientMode(Daemon &daemon) {
-    if (daemon.isDaemonRunning()) {
-        LOG_S(INFO) << "Daemon Client Mode Initialized";
-    }
-
-    AcpiUtils acpiUtils(daemon);
-    Thermals awccthermals(acpiUtils);
-
-    acpiUtils.deviceInfo();
-    // LOG_S(INFO) << "Current Thermal Mode: "
-    //             << awccthermals.getCurrentModeName();
-    // awccthermals.setThermalMode(ThermalModes::Quiet);
-    // LOG_S(INFO) << "Current Thermal Mode: "
-    //             << awccthermals.getCurrentModeName();
-    // awccthermals.setThermalMode(ThermalModes::Cool);
-    // LOG_S(INFO) << "Current Thermal Mode: "
-    //             << awccthermals.getCurrentModeName();
-    // awccthermals.setThermalMode(ThermalModes::Gmode);
-    // LOG_S(INFO) << "Current Thermal Mode: "
-    //             << awccthermals.getCurrentModeName();
-    // awccthermals.setThermalMode(ThermalModes::Balanced);
-
-    // NOTE:  Stop the daemon from client
-    // if (daemon.isDaemonRunning()) {
-    //     LOG_S(INFO) << daemon.executeFromDaemon("stop");
-    // }
-}
-
 static void printHelp() {
     std::cout << R"(Alienware Command Center
 Copyright (c) 2025 tr1x_em. All Rights Reserved.
@@ -96,6 +42,7 @@ Copyright (c) 2025 tr1x_em. All Rights Reserved.
 App Commands:
   --daemon     (-d)        Run app in Daemon Mode (run with sudo)
   --gui        (-g)        Starts Gui
+  -v           [0,-1,-2]   Runs app in verbose mosde
 
 Lighting Controls:
   brightness <0-100>       Set keyboard brightness
@@ -128,6 +75,7 @@ System Information:
   device-info              Show detected device model and supported features
 )" << "\n";
 }
+
 static inline uint32_t parseHexColor(const std::string &hex) {
     uint32_t color = 0;
     std::stringstream ss;
@@ -272,8 +220,8 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
 
 int main(int argc, char *argv[]) {
     std::span<char *> args(argv, argc);
-    auto [loguru_argc, loguru_argv] = awcc::parseVerbosity(args);
-    loguru::init(loguru_argc, loguru_argv.data());
+    loguru::g_stderr_verbosity = -1;
+    loguru::init(argc, argv);
 
     bool start_gui = false;
     for (int i = 1; i < argc; ++i) {
@@ -293,13 +241,11 @@ int main(int argc, char *argv[]) {
         LOG_S(INFO) << "Initializing Daemon Module";
         Daemon daemon(effects);
 
-        loguru::g_stderr_verbosity = -2;
         LOG_S(INFO) << "Initializing AcpiUtils Module";
         AcpiUtils acpiUtils(daemon);
 
         LOG_S(INFO) << "Initializing Thermals Module";
         Thermals awccthermals(acpiUtils);
-        loguru::g_stderr_verbosity = awcc::originalVerbosity;
 
         if (daemon.isDaemonRunning()) {
             LOG_S(INFO) << "Rendering UI";
@@ -321,16 +267,15 @@ int main(int argc, char *argv[]) {
         LOG_S(INFO) << "Initializing Daemon Module";
         Daemon daemon(effects);
 
-        loguru::g_stderr_verbosity = -2;
         LOG_S(INFO) << "Initializing AcpiUtils Module";
         AcpiUtils acpiUtils(daemon);
 
         LOG_S(INFO) << "Initializing Thermals Module";
         Thermals awccthermals(acpiUtils);
-        loguru::g_stderr_verbosity = awcc::originalVerbosity;
 
         daemon.setOnGmodeKeyCallback(
             [&awccthermals]() { awccthermals.toggleGmode(); });
+        awcc::runDaemonServer(daemon);
 
         if (geteuid() != 0) {
             LOG_S(ERROR)
@@ -359,5 +304,9 @@ int main(int argc, char *argv[]) {
         return awcc::handleCliCommands(args, effects, awccthermals, acpiUtils);
     }
 
+    // NOTE:  Stop the daemon from client
+    // if (daemon.isDaemonRunning()) {
+    //     LOG_S(INFO) << daemon.executeFromDaemon("stop");
+    // }
     return 0;
 }
