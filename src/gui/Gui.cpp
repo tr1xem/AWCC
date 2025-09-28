@@ -4,15 +4,8 @@
 #include "Resources.h"
 #include "database.h"
 #include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_internal.h"
-#include <algorithm>
-#include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
 #include <GL/gl.h>
-#include <format>
-#include <print>
 #include <stb_image.h>
 #include <string>
 
@@ -84,10 +77,9 @@ void Gui::SetupImGuiStyle() {
         0.1568627506494522F, 0.168627455830574F, 0.1921568661928177F, 1.0F);
     style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(
         0.1176470592617989F, 0.1333333402872086F, 0.1490196138620377F, 1.0F);
-    style.Colors[ImGuiCol_CheckMark] =
-        ImVec4(0.9725490212440491F, 1.0F, 0.4980392158031464F, 1.0F);
-    style.Colors[ImGuiCol_SliderGrab] =
-        ImVec4(0.9725490212440491F, 1.0F, 0.4980392158031464F, 1.0F);
+    style.Colors[ImGuiCol_CheckMark] = ImVec4(0.0F, 1.0F, 1.0F, 1.0F);
+
+    style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.0F, 1.0F, 1.0F, 1.0F);
     style.Colors[ImGuiCol_SliderGrabActive] =
         ImVec4(1.0F, 0.7960784435272217F, 0.4980392158031464F, 1.0F);
     style.Colors[ImGuiCol_Button] = ImVec4(
@@ -295,8 +287,8 @@ static inline void GuiKeyboardLightingBar(int &selectedMode, ImVec4 &color,
                                           bool &colorEnabled,
                                           EffectController &effects) {
     static const std::vector<const char *> modes = {
-        "Static",  "Breathe",      "Spectrum",   "Wave",
-        "Rainbow", "BackAndForth", "DefaultBlue"};
+        "Static",  "Breathe",        "Spectrum",    "Wave",
+        "Rainbow", "Back and Forth", "Default blue"};
 
     float comboWidth = 180.0F;
     float buttonWidth = 180.0F;
@@ -379,21 +371,22 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
     static ImGuiWindowFlags main_flags =
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBringToFrontOnFocus;
+        ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking |
+        ImGuiWindowFlags_NoBringToFrontOnFocus;
 
     {
         static float f = 0.0F;
         static int counter = 0;
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
-        ImGui::SetNextWindowSize(ImVec2((float)w, (float)h));
+        ImGui::SetNextWindowSize(ImVec2((float)w, (float)h), ImGuiCond_Always);
         ImGui::Begin("Main Window", nullptr, main_flags);
 
         SetupImGuiStyle();
         // NOTE:: Title
 
         ImGui::PushFont(&fontbold);
-        ImGui::SetCursorPos(ImVec2(20, 10));
+        ImGui::SetCursorPos(ImVec2(10, 10));
         ImGui::Text("Alienware Command Centre - %s",
                     AcpiUtils::getDeviceName());
         // ImGui::SameLine();
@@ -415,7 +408,7 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
             firstMode = "Cool";
         }
         const char *labels[] = {firstMode, "Quite", "Balanced", "Performance",
-                                "GMode"};
+                                "G-mode"};
 
         ImGui::PushFont(&smallFont);
         ModeButtonList(labels, thermals, acpiUtils, selectedMode);
@@ -468,21 +461,19 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
         ImGui::PopItemWidth();
         if (gpuBoost != gpulastVal && gputimer > debounceSeconds) {
             gpulastVal = gpuBoost;
-            // Debounced action: value has settled for debounceSeconds
             thermals.setGpuBoost(gpuBoost);
         }
 
         // NOTE : KB LIGHTING
         ImGui::Dummy(ImVec2(0, 10));
         ImGui::PushFont(&fontbold);
-        ImGui::Text("Keyboard Lighting");
+        ImGui::Text("Keyboard Lighting Effects");
         ImGui::PopFont();
         ImGui::Dummy(ImVec2(0, 5));
         static int kb_selectedMode = 0;
         static ImVec4 kb_color = ImVec4(1.F, 0.F, 0.F, 1.F);
         static bool kb_colorEnabled = true;
 
-        // Then call in your ImGui window:
         GuiKeyboardLightingBar(kb_selectedMode, kb_color, kb_colorEnabled,
                                effects);
 
@@ -545,6 +536,19 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
         // static ImGuiIO &io = ImGui::GetIO();
         // ImGui::Text("AVG %.3f ms/frame (%.1f FPS)", 1000.0F / io.Framerate,
         //             io.Framerate);
+        ImGui::SetCursorPosY(ImGui::GetWindowHeight() -
+                             ImGui::CalcTextSize(VerText.c_str()).y - 15.0F);
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 255));
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() -
+                             ImGui::CalcTextSize("Support").x - 10.0F);
+        if (ImGui::Selectable("Support", false,
+                              ImGuiSelectableFlags_DontClosePopups)) {
+            system("xdg-open "
+                   "https://github.com/tr1xem/"
+                   "AWCC?tab=readme-ov-file#support-and-feedback &");
+        }
+
+        ImGui::PopStyleColor();
         ImGui::PopFont();
         ImGui::End();
     }
