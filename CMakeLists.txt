@@ -172,13 +172,13 @@ install(TARGETS ${APP_NAME}
 )
 
 install(DIRECTORY app/
-    DESTINATION share/applications
+    DESTINATION /usr/share/applications
     FILES_MATCHING PATTERN "*.desktop"
 )
 
 # Install icons (recursively)
 install(DIRECTORY app/
-    DESTINATION share/icons
+    DESTINATION /usr/share/icons
     FILES_MATCHING PATTERN "*.png"
 )
 
