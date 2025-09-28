@@ -1,11 +1,28 @@
 #include "EffectController.h"
+#include <algorithm> // for std::min
+#include <fstream>
 
 void EffectController::Brightness(uint8_t value) {
+    value = std::min<int>(value, 100);
     m_lightfx.deviceAcquire();
     m_lightfx.SendSetDim(100 - value, m_zoneAll);
     m_lightfx.deviceRelease();
+    std::ofstream ofs(m_brightnessFile, std::ios::trunc);
+    if (ofs.is_open()) {
+        ofs << static_cast<int>(value);
+    }
+
     LOG_S(INFO) << "Device Brightness set to: " << static_cast<int>(value)
                 << "%";
+}
+int EffectController::getBrightness() {
+    std::ifstream ifs(m_brightnessFile);
+    int value = 0;
+    if (ifs.is_open()) {
+        ifs >> value;
+    }
+    value = std::min(value, 100);
+    return value;
 }
 
 void EffectController::StaticColor(uint32_t color) {

@@ -1,11 +1,13 @@
 #include "Gui.h"
 #include "AcpiUtils.h"
+#include "EffectController.h"
 #include "Resources.h"
 #include "database.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
+#include <algorithm>
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
 #include <GL/gl.h>
@@ -229,16 +231,17 @@ static GLuint LoadTextureFromMemory(const unsigned char *data, int len,
 
 static void ModeButtonList(const char *labels[], Thermals &thermals,
                            AcpiUtils &acpiUtils, int &selectedMode) {
-
-    GLuint quiteModeimg = LoadTextureFromMemory(quiteMode, quiteMode_len);
-    GLuint balancedModeimg =
+    static GLuint quiteModeimg =
+        LoadTextureFromMemory(quiteMode, quiteMode_len);
+    static GLuint balancedModeimg =
         LoadTextureFromMemory(balancedMode, balancedMode_len);
 
-    GLuint batteryModeimg = LoadTextureFromMemory(batteryMode, batteryMode_len);
-    GLuint performanceModeimg =
+    static GLuint batteryModeimg =
+        LoadTextureFromMemory(batteryMode, batteryMode_len);
+    static GLuint performanceModeimg =
         LoadTextureFromMemory(performanceMode, performanceMode_len);
-    GLuint gmodeimg = LoadTextureFromMemory(gMode, gMode_len);
-    int button_count = 5;
+    static GLuint gmodeimg = LoadTextureFromMemory(gMode, gMode_len);
+    constexpr int button_count = 5;
     float spacing = 10.0F;
     float total_spacing = spacing * (button_count - 1);
     float region_width = ImGui::GetContentRegionAvail().x;
@@ -284,48 +287,121 @@ static void ModeButtonList(const char *labels[], Thermals &thermals,
     }
 }
 
-void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
-              int &selectedMode, int &gpuBoost, int &cpuBoost) {
+static inline uint32_t ToRGB(const ImVec4 &color) {
+    return ((uint32_t)(color.x * 255.0F) << 16) |
+           ((uint32_t)(color.y * 255.0F) << 8) | ((uint32_t)(color.z * 255.0F));
+}
+static inline void GuiKeyboardLightingBar(int &selectedMode, ImVec4 &color,
+                                          bool &colorEnabled,
+                                          EffectController &effects) {
+    static const std::vector<const char *> modes = {
+        "Static",  "Breathe",      "Spectrum",   "Wave",
+        "Rainbow", "BackAndForth", "DefaultBlue"};
 
+    float comboWidth = 180.0F;
+    float buttonWidth = 180.0F;
+    float colorLabelWidth = ImGui::CalcTextSize("Color").x;
+    float colorButtonWidth = ImGui::GetFrameHeight();
+    float colorGap = 8.0F;
+    float colorGroupWidth = colorLabelWidth + colorGap + colorButtonWidth;
+
+    float y = ImGui::GetCursorPosY();
+
+    // --- Combo: left ---
+    ImGui::PushItemWidth(comboWidth);
+    ImGui::Combo("##mode", &selectedMode, modes.data(), modes.size());
+    ImGui::PopItemWidth();
+
+    // --- Center color group ---
+    // Calculate available width for center
+    float fullWidth = ImGui::GetContentRegionAvail().x + ImGui::GetCursorPosX();
+    float centerStart = (fullWidth - colorGroupWidth) / 2.0F;
+
+    ImGui::SameLine();
+    ImGui::SetCursorPosY(y);
+    ImGui::SetCursorPosX(centerStart);
+    ImGui::BeginGroup();
+    ImGui::TextUnformatted("Color");
+    ImGui::SameLine(0, colorGap);
+
+    bool canPickColor = (selectedMode == 0 || selectedMode == 1 ||
+                         selectedMode == 3 || selectedMode == 5);
+    ImGui::BeginDisabled(!canPickColor);
+    ImGui::ColorEdit3("##color", (float *)&color, ImGuiColorEditFlags_NoInputs);
+    ImGui::EndDisabled();
+    ImGui::EndGroup();
+
+    // --- Right: Apply button ---
+    ImGui::SameLine();
+    ImGui::SetCursorPosY(y);
+    ImGui::SetCursorPosX(fullWidth - buttonWidth);
+    if (ImGui::Button("Apply", ImVec2(buttonWidth, 0))) {
+        uint32_t color32 = ToRGB(color);
+        constexpr uint16_t defaultDuration = 1000;
+        switch (selectedMode) {
+        case 0:
+            effects.StaticColor(color32);
+            break;
+        case 1:
+            effects.Breathe(color32);
+            break;
+        case 2:
+            effects.Spectrum(1000);
+            break;
+        case 3:
+            effects.Wave(color32);
+            break;
+        case 4:
+            effects.Rainbow(500);
+            break;
+        case 5:
+            effects.BackAndForth(color32);
+            break;
+        case 6:
+            effects.DefaultBlue();
+            break;
+        }
+    }
+}
+void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
+              int &selectedMode, int &gpuBoost, int &cpuBoost,
+              ImFont &smallFont, ImFont &fontbold, int &brightness,
+              EffectController &effects, bool &turbo) {
+
+    static int kblastval = 50;
+    static float kbtimer = 0.0F;
     static int cpulastVal = 50;
     static float cputimer = 0.0F;
     static int gpulastVal = 50;
     static float gputimer = 0.0F;
-    constexpr float debounceSeconds = 3.0F; // 300 ms
+    constexpr float debounceSeconds = 0.5F; // 300 ms
 
-    ImGuiIO &io = ImGui::GetIO();
-    ImFont *smallFont =
-        io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Roboto-Light.ttf");
-    ImVec4 clear_color = ImVec4(0.45F, 0.55F, 0.60F, 1.00F);
-    ImGuiWindowFlags main_flags =
+    static ImGuiWindowFlags main_flags =
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
         ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBringToFrontOnFocus;
 
-    ImFont *fontbold =
-        io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Roboto-Bold.ttf");
     {
         static float f = 0.0F;
         static int counter = 0;
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2((float)w, (float)h));
-        ImGui::Begin("Main Window", nullptr,
-                     main_flags); // Create a window called "Hello,
-                                  // world!" and append into it.
+        ImGui::Begin("Main Window", nullptr, main_flags);
+
         SetupImGuiStyle();
         // NOTE:: Title
 
-        ImGui::PushFont(fontbold);
+        ImGui::PushFont(&fontbold);
         ImGui::SetCursorPos(ImVec2(20, 10));
-        ImGui::Text("AWCC - %s", AcpiUtils::getDeviceName());
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() -
-                             ImGui::CalcTextSize("x").x -
-                             ImGui::GetStyle().ItemSpacing.x - 5.0F);
-        ImGui::Text("x");
+        ImGui::Text("Alienware Command Centre - %s",
+                    AcpiUtils::getDeviceName());
+        // ImGui::SameLine();
+        // ImGui::SetCursorPosX(ImGui::GetWindowWidth() -
+        //                      ImGui::CalcTextSize("x").x -
+        //                      ImGui::GetStyle().ItemSpacing.x - 5.0F);
+        // ImGui::Text("x");
         ImGui::Separator();
-        ImGui::SetCursorPos(ImVec2(20, 40));
 
         // NOTE:: POWER MODE
         ImGui::Text("Power Modes");
@@ -338,22 +414,21 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
 
             firstMode = "Cool";
         }
-        const char *labels[] = {
-            firstMode, "Quite", "Balanced", "Performance", "GMode",
-        };
+        const char *labels[] = {firstMode, "Quite", "Balanced", "Performance",
+                                "GMode"};
 
-        ImGui::PushFont(smallFont);
+        ImGui::PushFont(&smallFont);
         ModeButtonList(labels, thermals, acpiUtils, selectedMode);
         ImGui::PopFont();
 
-        // NOTE:: CPU BOOST
-        ImGui::Spacing();
-        ImGui::PushFont(fontbold);
-        ImGui::Text("CPU Boost");
+        // NOTE:: CPU FAN BOOST
+        ImGui::Dummy(ImVec2(0, 10));
+        ImGui::PushFont(&fontbold);
+        ImGui::Text("CPU Fan Boost");
         ImGui::SameLine();
         ImGui::SetCursorPosX(ImGui::GetWindowWidth() -
                              ImGui::CalcTextSize("00%").x -
-                             ImGui::GetStyle().ItemSpacing.x);
+                             ImGui::GetStyle().ItemSpacing.x - 5.0F);
         ImGui::Text("%d%%", cpuBoost);
         ImGui::PopFont();
         ImGui::Spacing();
@@ -368,18 +443,17 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
         ImGui::PopItemWidth();
         if (cpuBoost != cpulastVal && cputimer > debounceSeconds) {
             cpulastVal = cpuBoost;
-            // Debounced action: value has settled for debounceSeconds
-            printf("Debounced value: %d\n", cpulastVal);
+            thermals.setCpuBoost(cpuBoost);
         }
 
-        // NOTE:: GPU BOOST
-        ImGui::Spacing();
-        ImGui::PushFont(fontbold);
-        ImGui::Text("GPU Boost");
+        // NOTE:: GPU FAN BOOST
+        ImGui::Dummy(ImVec2(0, 10));
+        ImGui::PushFont(&fontbold);
+        ImGui::Text("GPU Fan Boost");
         ImGui::SameLine();
         ImGui::SetCursorPosX(ImGui::GetWindowWidth() -
                              ImGui::CalcTextSize("00%").x -
-                             ImGui::GetStyle().ItemSpacing.x);
+                             ImGui::GetStyle().ItemSpacing.x - 5.0F);
         ImGui::Text("%d%%", gpuBoost);
         ImGui::PopFont();
         ImGui::Spacing();
@@ -395,11 +469,78 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
         if (gpuBoost != gpulastVal && gputimer > debounceSeconds) {
             gpulastVal = gpuBoost;
             // Debounced action: value has settled for debounceSeconds
-            printf("Debounced value: %d\n", gpulastVal);
+            thermals.setGpuBoost(gpuBoost);
         }
-        ImGui::SetCursorPos(ImVec2(0, ImGui::GetWindowHeight() - 50));
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
-                    1000.0F / io.Framerate, io.Framerate);
+
+        // NOTE : KB LIGHTING
+        ImGui::Dummy(ImVec2(0, 10));
+        ImGui::PushFont(&fontbold);
+        ImGui::Text("Keyboard Lighting");
+        ImGui::PopFont();
+        ImGui::Dummy(ImVec2(0, 5));
+        static int kb_selectedMode = 0;
+        static ImVec4 kb_color = ImVec4(1.F, 0.F, 0.F, 1.F);
+        static bool kb_colorEnabled = true;
+
+        // Then call in your ImGui window:
+        GuiKeyboardLightingBar(kb_selectedMode, kb_color, kb_colorEnabled,
+                               effects);
+
+        // NOTE:: Brightness
+        ImGui::Dummy(ImVec2(0, 10));
+        ImGui::PushFont(&fontbold);
+        ImGui::Text("Keyboard Brightness");
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() -
+                             ImGui::CalcTextSize("00%").x -
+                             ImGui::GetStyle().ItemSpacing.x - 5.0F);
+        ImGui::Text("%d%%", brightness);
+        ImGui::PopFont();
+        ImGui::Dummy(ImVec2(0, 5));
+        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+        if (ImGui::SliderInt("##kbbrightness", &brightness, 0, 100)) {
+            kbtimer = 0.0F;
+        } else {
+            kbtimer +=
+                ImGui::GetIO().DeltaTime; // Accumulate time when not changing
+        }
+        ImGui::PopItemWidth();
+        if (brightness != kblastval && kbtimer > debounceSeconds) {
+            kblastval = brightness;
+            effects.Brightness(brightness);
+            // Debounced action: value has settled for debounceSeconds
+        }
+
+        // NOTE :: TURBO BOOST
+        ImGui::Dummy(ImVec2(0, 10));
+        ImGui::PushFont(&fontbold);
+        ImGui::Text("Extra Settings");
+        ImGui::PopFont();
+        ImGui::Dummy(ImVec2(0, 5));
+        if (ImGui::Checkbox("Turbo Boost", &turbo)) {
+            acpiUtils.setTurboBoost(turbo);
+        }
+        ImGui::SetItemTooltip("Set Cpu's Max Frequency to a higher State");
+
+        // NOTE: FO0TER
+
+        static ImFont *fontfooter = ImGui::GetIO().Fonts->AddFontFromFileTTF(
+            "/usr/share/fonts/TTF/Roboto-Medium.ttf", 15.0F);
+        ImGui::PushFont(fontfooter);
+        const char *VerText = "Version 0.3-Beta";
+        ImGui::SetCursorPos(ImVec2(10, ImGui::GetWindowHeight() -
+                                           ImGui::CalcTextSize(VerText).y -
+                                           15.0F));
+        ImGui::Text("%s", VerText);
+
+        // ImGui::SameLine();
+        // ImGui::SetCursorPosX(
+        //     ImGui::GetWindowWidth() -
+        //     ImGui::CalcTextSize("AVG 0000f ms/frame (000 FPS)").x - 28.0F);
+        // static ImGuiIO &io = ImGui::GetIO();
+        // ImGui::Text("AVG %.3f ms/frame (%.1f FPS)", 1000.0F / io.Framerate,
+        //             io.Framerate);
+        ImGui::PopFont();
         ImGui::End();
     }
 }
