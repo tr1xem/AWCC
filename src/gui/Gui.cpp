@@ -526,11 +526,17 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
         static ImFont *fontfooter = ImGui::GetIO().Fonts->AddFontFromFileTTF(
             "/usr/share/fonts/TTF/Roboto-Medium.ttf", 15.0F);
         ImGui::PushFont(fontfooter);
-        const char *VerText = "Version 1.0-Stable";
-        ImGui::SetCursorPos(ImVec2(10, ImGui::GetWindowHeight() -
-                                           ImGui::CalcTextSize(VerText).y -
-                                           15.0F));
-        ImGui::Text("%s", VerText);
+#ifndef NDEBUG
+        const std::string VerText =
+            std::string("Version ") + VERSION + "-Debug";
+#else
+        const std::string VerText =
+            std::string("Version ") + VERSION + "-Stable";
+#endif
+        ImGui::SetCursorPos(
+            ImVec2(10, ImGui::GetWindowHeight() -
+                           ImGui::CalcTextSize(VerText.c_str()).y - 15.0F));
+        ImGui::Text("%s", VerText.c_str());
 
         // ImGui::SameLine();
         // ImGui::SetCursorPosX(

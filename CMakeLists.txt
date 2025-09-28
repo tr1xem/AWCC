@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(awcc LANGUAGES CXX)
+project(awcc LANGUAGES CXX VERSION 1.0.1)
 set(APP_NAME awcc)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -7,10 +7,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(BUILD_SHARED_LIBS OFF)
 set(CMAKE_BUILD_TYPE Release)
+add_compile_definitions(VERSION="${PROJECT_VERSION}")
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
+
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "Install path prefix" FORCE)
 endif()
@@ -18,6 +20,7 @@ endif()
 include(FetchContent)
 find_package(PkgConfig REQUIRED)
 find_package(OpenGL REQUIRED)
+
 if(UNIX AND NOT APPLE)
     find_package(X11 REQUIRED)
 endif()
