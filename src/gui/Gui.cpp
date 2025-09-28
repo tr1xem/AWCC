@@ -1,7 +1,7 @@
 #include "Gui.h"
 #include "AcpiUtils.h"
 #include "EffectController.h"
-#include "Resources.h"
+#include "Resources.hpp"
 #include "database.h"
 #include "imgui.h"
 #define STB_IMAGE_IMPLEMENTATION
