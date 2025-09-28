@@ -168,7 +168,7 @@ target_compile_options(${APP_NAME} PRIVATE
 )
 
 install(TARGETS ${APP_NAME}
-    RUNTIME DESTINATION bin
+    RUNTIME DESTINATION /usr/bin
 )
 
 install(DIRECTORY app/

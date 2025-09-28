@@ -19,10 +19,11 @@ class Daemon {
     void m_onGmodeKey();
     void m_onLightKey();
     std::function<void()> m_onGmodeKeyCallback;
+    static bool m_CommandAllowed(const std::string &cmd);
 
   public:
     Daemon(EffectController &effectsController,
-           std::string socket_path = "/tmp/cmd.sock");
+           std::string socket_path = "/tmp/awcc.sock");
     void setOnGmodeKeyCallback(std::function<void()> cb) {
         m_onGmodeKeyCallback = std::move(cb);
     }

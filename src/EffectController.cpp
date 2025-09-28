@@ -1,6 +1,7 @@
 #include "EffectController.h"
 #include <algorithm> // for std::min
 #include <fstream>
+#include <sys/stat.h>
 
 void EffectController::Brightness(uint8_t value) {
     value = std::min<int>(value, 100);
@@ -10,6 +11,7 @@ void EffectController::Brightness(uint8_t value) {
     std::ofstream ofs(m_brightnessFile, std::ios::trunc);
     if (ofs.is_open()) {
         ofs << static_cast<int>(value);
+        chmod(m_brightnessFile.c_str(), 0666); // set permission
     }
     LOG_S(INFO) << "Device Brightness set to: " << static_cast<int>(value)
                 << "%";
@@ -19,8 +21,18 @@ int EffectController::getBrightness() {
     int value = 0;
     if (ifs.is_open()) {
         ifs >> value;
+        value = std::min(value, 100);
+    } else {
+        // File does not exist, create it with a default value of 50
+        value = 50;
+        std::ofstream ofs(m_brightnessFile, std::ios::trunc);
+        if (ofs.is_open()) {
+            ofs << value;
+            ofs.close();
+            // Set permissions to 0660 (rw-rw----)
+            chmod(m_brightnessFile.c_str(), 0666);
+        }
     }
-    value = std::min(value, 100);
     return value;
 }
 

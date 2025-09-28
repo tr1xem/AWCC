@@ -62,7 +62,7 @@ paru -S awcc-git
 ```bash
 git clone https://github.com/tr1xem/AWCC
 cd AWCC && mkdir build/
-cd build && sudo cmake ..
+cd build && cmake ..
 sudo make install
 ```
 
