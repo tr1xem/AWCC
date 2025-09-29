@@ -11,6 +11,6 @@ void App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
          ImFont &fontbold, int &brightness, EffectController &effects,
          bool &turbo);
 
-void SetupImGuiStyle();
+static void SetupImGuiStyle();
 
 } // namespace Gui

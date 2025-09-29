@@ -4,6 +4,9 @@
 #include "Resources.hpp"
 #include "database.h"
 #include "imgui.h"
+#include <array>
+#include <filesystem>
+#include <nlohmann/detail/value_t.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include <GL/gl.h>
 #include <stb_image.h>
@@ -355,6 +358,37 @@ static inline void GuiKeyboardLightingBar(int &selectedMode, ImVec4 &color,
         }
     }
 }
+static void scxMode() {
+    static const std::array<const char *, 3> scxModes{"Auto power", "Powersave",
+                                                      "Gaming"};
+    static int currIndex{0};
+    static bool enabled{std::filesystem::exists("/usr/bin/scx_lavd")};
+    ImGui::BeginDisabled(!enabled);
+    ImGui::SetNextItemWidth(180);
+    if (ImGui::Combo("###scx", &currIndex, scxModes.data(), scxModes.size())) {
+        switch (currIndex) {
+        case 0:
+            std::system(
+                "dbus-send --system --print-reply --dest=org.scx.Loader "
+                "/org/scx/Loader org.scx.Loader.SwitchScheduler "
+                "string:scx_lavd uint32:0 > /dev/null");
+            break;
+        case 1:
+            std::system(
+                "dbus-send --system --print-reply --dest=org.scx.Loader "
+                "/org/scx/Loader org.scx.Loader.SwitchScheduler "
+                "string:scx_lavd uint32:2 > /dev/null");
+            break;
+        case 2:
+            std::system(
+                "dbus-send --system --print-reply --dest=org.scx.Loader "
+                "/org/scx/Loader org.scx.Loader.SwitchScheduler "
+                "string:scx_lavd uint32:1 > /dev/null");
+            break;
+        }
+    }
+    ImGui::EndDisabled();
+}
 void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
               int &selectedMode, int &gpuBoost, int &cpuBoost,
               ImFont &smallFont, ImFont &fontbold, int &brightness,
@@ -400,15 +434,20 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
         ImGui::Text("Power Modes");
         ImGui::Dummy(ImVec2(5, 5));
         ImGui::PopFont();
-        const char *firstMode{};
-        if (acpiUtils.hasThermalMode(ThermalModeSet::BatterySaver)) {
-            firstMode = "Battery";
-        } else {
+        static const char *firstMode{};
+        static bool firstInstant{true};
 
-            firstMode = "Cool";
+        if (firstInstant) {
+            if (acpiUtils.hasThermalMode(ThermalModeSet::BatterySaver)) {
+                firstMode = "Battery";
+            } else {
+
+                firstMode = "Cool";
+            }
+            firstInstant = false;
         }
-        const char *labels[] = {firstMode, "Quite", "Balanced", "Performance",
-                                "G-mode"};
+        static const char *labels[] = {firstMode, "Quiet", "Balanced",
+                                       "Performance", "G-mode"};
 
         ImGui::PushFont(&smallFont);
         ModeButtonList(labels, thermals, acpiUtils, selectedMode);
@@ -501,16 +540,28 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
             effects.Brightness(brightness);
         }
 
-        // NOTE :: TURBO BOOST
         ImGui::Dummy(ImVec2(0, 10));
         ImGui::PushFont(&fontbold);
         ImGui::Text("Extra Settings");
         ImGui::PopFont();
+        // NOTE :: TURBO BOOST
         ImGui::Dummy(ImVec2(0, 5));
         if (ImGui::Checkbox("Turbo Boost", &turbo)) {
             acpiUtils.setTurboBoost(turbo);
         }
         ImGui::SetItemTooltip("Set Cpu's Max Frequency to a higher State");
+
+        ImGui::Dummy(ImVec2(0, 5));
+        ImGui::PushFont(&fontbold);
+
+        ImGui::Text("Scx_lavd Switcher");
+        ImGui::PopFont();
+        ImGui::SetItemTooltip(
+            "scx_lavd is a BPF scheduler that implements an \n "
+            "LAVD (Latency-criticality Aware Virtual "
+            "Deadline) \n scheduling algorithm.");
+        ImGui::Dummy(ImVec2(0, 5));
+        scxMode();
 
         // NOTE: FO0TER
 
@@ -521,6 +572,7 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
             // Fallback 2: use default font
             fontfooter = io.Fonts->AddFontDefault();
         }
+
         ImGui::PushFont(fontfooter);
 #ifndef NDEBUG
         const std::string VerText =

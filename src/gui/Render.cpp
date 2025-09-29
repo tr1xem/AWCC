@@ -166,5 +166,6 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
     glfwDestroyWindow(window);
     glfwTerminate();
 
+    // std::exit(0);
     return false;
 }

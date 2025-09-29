@@ -144,11 +144,11 @@ int AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4) {
                     "> /proc/acpi/call && cat /proc/acpi/call'",
                     m_acpiPrefix, arg1, arg2, arg3, arg4);
 
-#ifndef NDEBUG
-    LOG_S(INFO) << "Executing command: " << command;
-    LOG_S(WARNING) << "In debug mode, not executing command";
-    return 0;
-#else
+    // #ifndef NDEBUG
+    //     LOG_S(INFO) << "Executing command: " << command;
+    //     LOG_S(WARNING) << "In debug mode, not executing command";
+    //     return 0;
+    // #else
     if (std::filesystem::exists("/proc/acpi/call")) {
         if (m_daemon.isDaemonRunning()) {
             result = m_daemon.executeFromDaemon(command.c_str());
@@ -205,7 +205,7 @@ int AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4) {
         LOG_S(ERROR) << "ACPI module not found in kernel";
         return -1;
     }
-#endif
+    // #endif
 }
 
 void AcpiUtils::deviceInfo(bool unknownDevice) {

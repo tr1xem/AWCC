@@ -5,6 +5,7 @@
 #include "Thermals.h"
 #include <Renderui.h>
 #include <algorithm>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <loguru.hpp>
