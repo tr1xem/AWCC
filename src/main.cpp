@@ -6,6 +6,7 @@
 #include <Renderui.h>
 #include <algorithm>
 #include <cstring>
+#include <ios>
 #include <iostream>
 #include <loguru.hpp>
 #include <string>
@@ -70,6 +71,10 @@ Fan Boost Controls (Run as root):
   scb <value>              Set CPU fan boost (1-100)
   gb                       Get GPU fan boost
   sgb <value>              Set GPU fan boost (1-100)
+
+Extra:
+  setturbo <0,1> (st)         Sets Cpu turbo boost mode
+  getturbo                    Gets Cpu turbo boost mode
 
 System Information:
   device-info              Show detected device model and supported features
@@ -206,6 +211,18 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
         return 0;
     }
 
+    if (cmd == "setturbo" || cmd == "st" && args.size() > 2) {
+        acpiUtils.setTurboBoost(std::stoi(args[2]) != 0);
+        std::cout << "Set Turbo Boost to: " << std::boolalpha
+                  << std::stoi(args[2]) << "\n";
+        return 0;
+    }
+
+    if (cmd == "getturbo") {
+        std::cout << "Turbo Boost for Cpu: " << std::boolalpha
+                  << acpiUtils.getTurboBoost() << "\n";
+        return 0;
+    }
     if (cmd == "device-info") {
         acpiUtils.deviceInfo();
         return 0;

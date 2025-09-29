@@ -407,7 +407,7 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
 
             firstMode = "Cool";
         }
-        const char *labels[] = {firstMode, "Quite", "Balanced", "Performance",
+        const char *labels[] = {firstMode, "Quiet", "Balanced", "Performance",
                                 "G-mode"};
 
         ImGui::PushFont(&smallFont);
