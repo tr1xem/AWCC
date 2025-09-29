@@ -514,8 +514,13 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
 
         // NOTE: FO0TER
 
+        static ImGuiIO &io = ImGui::GetIO();
         static ImFont *fontfooter = ImGui::GetIO().Fonts->AddFontFromFileTTF(
             "/usr/share/fonts/TTF/Roboto-Medium.ttf", 15.0F);
+        if (fontfooter == nullptr) {
+            // Fallback 2: use default font
+            fontfooter = io.Fonts->AddFontDefault();
+        }
         ImGui::PushFont(fontfooter);
 #ifndef NDEBUG
         const std::string VerText =
@@ -533,7 +538,6 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
         // ImGui::SetCursorPosX(
         //     ImGui::GetWindowWidth() -
         //     ImGui::CalcTextSize("AVG 0000f ms/frame (000 FPS)").x - 28.0F);
-        // static ImGuiIO &io = ImGui::GetIO();
         // ImGui::Text("AVG %.3f ms/frame (%.1f FPS)", 1000.0F / io.Framerate,
         //             io.Framerate);
         ImGui::SetCursorPosY(ImGui::GetWindowHeight() -
