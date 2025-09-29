@@ -70,7 +70,7 @@ if(NOT IMGUI_FOUND)
     message(STATUS "imgui not found, fetching from GitHub...")
     FetchContent_Declare(imgui
         GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
-        GIT_TAG "docking"
+        GIT_TAG "master"
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
     )

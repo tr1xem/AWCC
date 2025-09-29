@@ -1,6 +1,7 @@
 #include "LightFX.h"
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cstring>
 #include <loguru.hpp>
 #include <vector>
@@ -10,11 +11,11 @@ LightFX::LightFX() { LOG_S(INFO) << "LightFX Module initialized"; }
 void LightFX::deviceOpen() {
     if (m_libusbContext != nullptr) {
         LOG_S(ERROR) << "LibUsb already initialized";
-        std::exit(1);
+        return;
     }
     if (m_deviceHandle != nullptr) {
         LOG_S(ERROR) << "Device already opened";
-        std::exit(1);
+        return;
     }
     libusb_init(&m_libusbContext);
     libusb_set_option(m_libusbContext, LIBUSB_OPTION_LOG_LEVEL,
@@ -25,13 +26,13 @@ void LightFX::deviceOpen() {
     ssize_t count = libusb_get_device_list(m_libusbContext, &devices);
     if (count < 0) {
         LOG_S(ERROR) << "Failed To Get Device List";
-        std::exit(1);
+        return;
     }
     for (ssize_t i = 0; i < count; i++) {
         struct libusb_device_descriptor descriptor = {.bLength = 0};
         if (libusb_get_device_descriptor(devices[i], &descriptor) != 0) {
             LOG_S(ERROR) << ("Failed to get device descriptor");
-            std::exit(1);
+            return;
         }
         if (descriptor.idVendor == 0x187c && (descriptor.idProduct == 0x0551 ||
                                               descriptor.idProduct == 0x0550)) {
@@ -45,30 +46,30 @@ void LightFX::deviceOpen() {
     libusb_free_device_list(devices, 1);
     if (device == nullptr) {
         LOG_S(ERROR) << "Failed to find device";
-        std::exit(1);
+        return;
     }
 
     if (libusb_open(device, &m_deviceHandle) != 0) {
         LOG_S(ERROR) << "Failed to open device";
-        std::exit(1);
+        return;
     }
 };
 
 void LightFX::deviceAcquire() {
     if (m_deviceHandle == nullptr) {
         LOG_S(ERROR) << ("device not opened");
-        std::exit(1);
+        return;
     }
     if (m_deviceAcquired)
         return;
     if (libusb_kernel_driver_active(m_deviceHandle, 0) != 0)
         if (libusb_detach_kernel_driver(m_deviceHandle, 0) != 0) {
             LOG_S(ERROR) << "Please detach kernel driver";
-            std::exit(1);
+            return;
         }
     if (libusb_claim_interface(m_deviceHandle, 0) != 0) {
         LOG_S(ERROR) << "Cannot claim interface";
-        std::exit(1);
+        return;
     }
     m_deviceAcquired = true;
     // LOG_S(INFO) << "Device Acquired";
@@ -77,7 +78,7 @@ void LightFX::deviceAcquire() {
 void LightFX::deviceRelease() {
     if (m_deviceHandle == nullptr) {
         LOG_S(ERROR) << "Device not opened";
-        std::exit(1);
+        return;
     }
     if (!m_deviceAcquired)
         return;
@@ -90,7 +91,7 @@ void LightFX::deviceRelease() {
 void LightFX::deviceClose() {
     if (m_deviceHandle == nullptr) {
         LOG_S(ERROR) << "Device not opened";
-        std::exit(1);
+        return;
     }
     if (m_deviceAcquired)
         deviceRelease();
@@ -101,40 +102,52 @@ void LightFX::deviceClose() {
 }
 
 void LightFX::m_deviceSend(std::span<const uint8_t> data) {
-    if (!m_deviceAcquired)
+    if (!m_deviceAcquired) {
         LOG_S(ERROR) << "Device not Acquired";
+        return;
+    }
 
-    std::array<uint8_t, 33> buffer{};
-    // Copy up to 33 bytes from data into buffer
-    std::memcpy(buffer.data(), data.data(),
-                std::min<size_t>(data.size(), buffer.size()));
+    unsigned char buffer[33];
+    std::memset(buffer, 0, sizeof(buffer));
+    size_t len = std::min<size_t>(data.size(), 33);
+    std::memcpy(buffer, data.data(), len);
 
-    if (libusb_control_transfer(
-            m_deviceHandle, 0x21, 9, 0x202, 0,
-            reinterpret_cast<unsigned char *>(buffer.data()),
-            static_cast<uint16_t>(buffer.size()), 0) != 33) {
-        LOG_S(ERROR) << "Couldn't write full packet";
-        std::exit(1);
+    int ret = libusb_control_transfer(m_deviceHandle, 0x21, 9, 0x202, 0, buffer,
+                                      33, 0);
+    if (ret != 33) {
+        if (ret < 0) {
+            LOG_S(ERROR) << "Couldn't write full packet: "
+                            "libusb_control_transfer returned "
+                         << libusb_error_name(ret) << " (" << ret << ")";
+        } else {
+            LOG_S(ERROR) << "Couldn't write full packet, only wrote " << ret
+                         << " bytes";
+        }
     }
 }
 
 void LightFX::m_deviceReceive(std::span<uint8_t> out) {
     if (!m_deviceAcquired) {
         LOG_S(ERROR) << "Device not Acquired";
-        std::exit(1);
+        return;
     }
 
-    std::array<uint8_t, 33> buffer{};
-    if (libusb_control_transfer(
-            m_deviceHandle, 0xA1, 1, 0x101, 0,
-            reinterpret_cast<unsigned char *>(buffer.data()),
-            static_cast<uint16_t>(buffer.size()), 0) != 33) {
-        LOG_S(ERROR) << ("couldn't read full packet");
-        std::exit(1);
+    unsigned char buffer[33];
+    int ret = libusb_control_transfer(m_deviceHandle, 0xA1, 1, 0x101, 0, buffer,
+                                      33, 0);
+    if (ret != 33) {
+        if (ret < 0) {
+            LOG_S(ERROR) << "Couldn't read full packet: "
+                            "libusb_control_transfer returned "
+                         << libusb_error_name(ret) << " (" << ret << ")";
+        } else {
+            LOG_S(ERROR) << "Couldn't read full packet, only read " << ret
+                         << " bytes";
+        }
+        return;
     }
-
-    std::memcpy(out.data(), buffer.data(),
-                std::min<size_t>(out.size(), buffer.size()));
+    size_t len = std::min<size_t>(out.size(), 33);
+    std::memcpy(out.data(), buffer, len);
 }
 
 void LightFX::m_SendRequestFirmwareVersion() {
