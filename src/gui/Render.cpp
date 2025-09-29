@@ -4,7 +4,9 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include <format>
 #include <loguru.hpp>
+#include <string>
 #define GL_SILENCE_DEPRECATION
 #include <GLFW/glfw3.h>
 
@@ -23,11 +25,13 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
+    std::string title = std::format("Alienware Command Centre - {}",
+                                    AcpiUtils::getDeviceName());
     float main_scale =
         ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
     GLFWwindow *window =
         glfwCreateWindow((int)(600 * main_scale), (int)(900 * main_scale),
-                         "Alienware Command Centre", nullptr, nullptr);
+                         title.c_str(), nullptr, nullptr);
     if (window == nullptr)
         return true;
     glfwMakeContextCurrent(window);
@@ -44,7 +48,7 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
     // io.ConfigViewportsNoTaskBarIcon = true;
 
     // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
+    // ImGui::StyleColorsDark();
     // ImGui::StyleColorsLight();
 
     ImGuiStyle &style = ImGui::GetStyle();

@@ -146,7 +146,7 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
 
     // Fan Controls
     if (cmd == "qm") {
-        std::cout << "Current Mode: " << thermals.getCurrentModeName();
+        std::cout << "Current Mode: " << thermals.getCurrentModeName() << "\n";
         return 0;
     }
     if (cmd == "quiet" || cmd == "q") {
