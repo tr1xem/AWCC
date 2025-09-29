@@ -4,13 +4,12 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include <iostream>
-#include <print>
+#include <loguru.hpp>
 #define GL_SILENCE_DEPRECATION
 #include <GLFW/glfw3.h>
 
 static void glfw_error_callback(int error, const char *description) {
-    std::println(stderr, "GLFW Error {}: {}", error, description);
+    LOG_S(ERROR) << "GLFW Error " << error << ": " << description;
 }
 
 bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
@@ -70,6 +69,11 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
 
     ImFont *font =
         io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Roboto-Regular.ttf");
+    if (font == nullptr) {
+        // Fallback 2: use default font
+        font = io.Fonts->AddFontDefault();
+    }
+
     IM_ASSERT(font != nullptr);
 
     // Our state
@@ -100,10 +104,17 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
     static int brightness{effects.getBrightness()};
     ImFont *fontbold =
         io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Roboto-Bold.ttf");
+    if (fontbold == nullptr) {
+        // Fallback 2: use default font
+        fontbold = io.Fonts->AddFontDefault();
+    }
     ImFont *smallFont = io.Fonts->AddFontFromFileTTF(
         "/usr/share/fonts/TTF/Roboto-Light.ttf", 17.0F);
+    if (smallFont == nullptr) {
+        // Fallback 2: use default font
+        smallFont = io.Fonts->AddFontDefault();
+    }
     static bool turbo{acpiUtils.getTurboBoost()};
-    std::cout << turbo;
 
     // Main loop
     while (glfwWindowShouldClose(window) == 0) {
@@ -140,7 +151,7 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
         // save/restore it to make it easier to paste this code elsewhere.
         //  For this specific demo app we could also call
         //  glfwMakeContextCurrent(window) directly)
-        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        if ((io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) != 0) {
             GLFWwindow *backup_current_context = glfwGetCurrentContext();
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
