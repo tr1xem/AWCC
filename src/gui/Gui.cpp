@@ -13,7 +13,7 @@ void Gui::SetupImGuiStyle() {
 
     ImGuiStyle &style = ImGui::GetStyle();
     style.Alpha = 1.0F;
-    style.DisabledAlpha = 1.0F;
+    style.DisabledAlpha = 0.5F;
     style.WindowPadding = ImVec2(12.0F, 12.0F);
     style.WindowRounding = 11.5F;
     style.WindowBorderSize = 0.0F;
@@ -312,13 +312,13 @@ static inline void GuiKeyboardLightingBar(int &selectedMode, ImVec4 &color,
     ImGui::SameLine();
     ImGui::SetCursorPosY(y);
     ImGui::SetCursorPosX(centerStart);
+    bool canPickColor = (selectedMode == 0 || selectedMode == 1 ||
+                         selectedMode == 3 || selectedMode == 5);
+
+    ImGui::BeginDisabled(!canPickColor);
     ImGui::BeginGroup();
     ImGui::TextUnformatted("Color");
     ImGui::SameLine(0, colorGap);
-
-    bool canPickColor = (selectedMode == 0 || selectedMode == 1 ||
-                         selectedMode == 3 || selectedMode == 5);
-    ImGui::BeginDisabled(!canPickColor);
     ImGui::ColorEdit3("##color", (float *)&color, ImGuiColorEditFlags_NoInputs);
     ImGui::EndDisabled();
     ImGui::EndGroup();
