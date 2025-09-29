@@ -39,8 +39,6 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
     (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     // io.ConfigViewportsNoAutoMerge = true;
     // io.ConfigViewportsNoTaskBarIcon = true;
@@ -54,14 +52,10 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
 
     style.FontScaleDpi = main_scale;
 
-    io.ConfigDpiScaleFonts = true;
-
-    io.ConfigDpiScaleViewports = true;
-
-    if ((io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) != 0) {
-        style.WindowRounding = 0.0F;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0F;
-    }
+    // if ((io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) != 0) {
+    //     style.WindowRounding = 0.0F;
+    //     style.Colors[ImGuiCol_WindowBg].w = 1.0F;
+    // }
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -151,12 +145,12 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
         // save/restore it to make it easier to paste this code elsewhere.
         //  For this specific demo app we could also call
         //  glfwMakeContextCurrent(window) directly)
-        if ((io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) != 0) {
-            GLFWwindow *backup_current_context = glfwGetCurrentContext();
-            ImGui::UpdatePlatformWindows();
-            ImGui::RenderPlatformWindowsDefault();
-            glfwMakeContextCurrent(backup_current_context);
-        }
+        // if ((io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) != 0) {
+        //     GLFWwindow *backup_current_context = glfwGetCurrentContext();
+        //     ImGui::UpdatePlatformWindows();
+        //     ImGui::RenderPlatformWindowsDefault();
+        //     glfwMakeContextCurrent(backup_current_context);
+        // }
 
         glfwSwapBuffers(window);
     }

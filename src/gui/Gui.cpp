@@ -371,7 +371,7 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
     static ImGuiWindowFlags main_flags =
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking |
+        ImGuiWindowFlags_NoScrollWithMouse |
         ImGuiWindowFlags_NoBringToFrontOnFocus;
 
     {
