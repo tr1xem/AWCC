@@ -15,7 +15,7 @@ void Gui::SetupImGuiStyle() {
     style.Alpha = 1.0F;
     style.DisabledAlpha = 0.5F;
     style.WindowPadding = ImVec2(12.0F, 12.0F);
-    style.WindowRounding = 11.5F;
+    style.WindowRounding = 0.0F;
     style.WindowBorderSize = 0.0F;
     style.WindowMinSize = ImVec2(20.0F, 20.0F);
     style.WindowTitleAlign = ImVec2(0.5F, 0.5F);
