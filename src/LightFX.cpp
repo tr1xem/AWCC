@@ -1,7 +1,6 @@
 #include "LightFX.h"
 #include <algorithm>
 #include <array>
-#include <cassert>
 #include <cstring>
 #include <loguru.hpp>
 #include <vector>
@@ -107,22 +106,26 @@ void LightFX::m_deviceSend(std::span<const uint8_t> data) {
         return;
     }
 
-    unsigned char buffer[33];
-    std::memset(buffer, 0, sizeof(buffer));
-    size_t len = std::min<size_t>(data.size(), 33);
-    std::memcpy(buffer, data.data(), len);
+    std::array<uint8_t, 33> buffer{};
+    std::memcpy(buffer.data(), data.data(),
+                std::min<size_t>(data.size(), buffer.size()));
 
-    int ret = libusb_control_transfer(m_deviceHandle, 0x21, 9, 0x202, 0, buffer,
-                                      33, 0);
+    int ret = libusb_control_transfer(
+        m_deviceHandle, 0x21, 9, 0x202, 0,
+        reinterpret_cast<unsigned char *>(buffer.data()),
+        static_cast<uint16_t>(buffer.size()), 1000 // Use a reasonable timeout
+    );
+
     if (ret != 33) {
         if (ret < 0) {
-            LOG_S(ERROR) << "Couldn't write full packet: "
-                            "libusb_control_transfer returned "
+            LOG_S(ERROR) << "Couldn't write full packet, "
+                            "libusb_control_transfer returned error: "
                          << libusb_error_name(ret) << " (" << ret << ")";
         } else {
             LOG_S(ERROR) << "Couldn't write full packet, only wrote " << ret
                          << " bytes";
         }
+        return;
     }
 }
 
@@ -132,13 +135,17 @@ void LightFX::m_deviceReceive(std::span<uint8_t> out) {
         return;
     }
 
-    unsigned char buffer[33];
-    int ret = libusb_control_transfer(m_deviceHandle, 0xA1, 1, 0x101, 0, buffer,
-                                      33, 0);
+    std::array<uint8_t, 33> buffer{};
+    int ret = libusb_control_transfer(
+        m_deviceHandle, 0xA1, 1, 0x101, 0,
+        reinterpret_cast<unsigned char *>(buffer.data()),
+        static_cast<uint16_t>(buffer.size()), 1000 // Use a reasonable timeout
+    );
+
     if (ret != 33) {
         if (ret < 0) {
-            LOG_S(ERROR) << "Couldn't read full packet: "
-                            "libusb_control_transfer returned "
+            LOG_S(ERROR) << "Couldn't read full packet, "
+                            "libusb_control_transfer returned error: "
                          << libusb_error_name(ret) << " (" << ret << ")";
         } else {
             LOG_S(ERROR) << "Couldn't read full packet, only read " << ret
@@ -146,155 +153,157 @@ void LightFX::m_deviceReceive(std::span<uint8_t> out) {
         }
         return;
     }
-    size_t len = std::min<size_t>(out.size(), 33);
-    std::memcpy(out.data(), buffer, len);
+
+    std::memcpy(out.data(), buffer.data(),
+                std::min<size_t>(out.size(), buffer.size()));
 }
 
 void LightFX::m_SendRequestFirmwareVersion() {
-    uint8_t packet[33] = {0};
-    packet[0] = m_preamble;
-    packet[1] = m_request;
-    packet[2] = m_requestFirmwareVersion;
-    m_deviceSend(std::span<const uint8_t>(packet, 33));
+    constexpr std::array<uint8_t, 3> packet{m_preamble, m_request,
+                                            m_requestFirmwareVersion};
+    m_deviceSend(std::span(packet));
 }
 
 void LightFX::m_SendRequestStatus() {
-    uint8_t packet[33] = {0};
-    packet[0] = m_preamble;
-    packet[1] = m_request;
-    packet[2] = m_requestStatus;
-    m_deviceSend(std::span<const uint8_t>(packet, 33));
+    constexpr std::array<uint8_t, 3> packet{m_preamble, m_request,
+                                            m_requestStatus};
+    m_deviceSend(std::span(packet));
 }
 
 void LightFX::m_SendRequestElcConfig() {
-    uint8_t packet[33] = {0};
-    packet[0] = m_preamble;
-    packet[1] = m_request;
-    packet[2] = m_requestElcConfig;
-    m_deviceSend(std::span<const uint8_t>(packet, 33));
+    constexpr std::array<uint8_t, 3> packet{m_preamble, m_request,
+                                            m_requestElcConfig};
+    m_deviceSend(std::span(packet));
 }
 
 void LightFX::m_SendRequestAnimationCount() {
-    uint8_t packet[33] = {0};
-    packet[0] = m_preamble;
-    packet[1] = m_request;
-    packet[2] = m_requestAnimationCount;
-    m_deviceSend(std::span<const uint8_t>(packet, 33));
+    constexpr std::array<uint8_t, 3> packet{m_preamble, m_request,
+                                            m_requestAnimationCount};
+    m_deviceSend(std::span(packet));
 }
 
 void LightFX::SendAnimationConfigStart(uint16_t animationId) {
-    uint8_t packet[33] = {0};
-    packet[0] = m_preamble;
-    packet[1] = m_animation;
-    packet[2] = static_cast<uint8_t>((m_animationConfigStart >> 8) & 0xFF);
-    packet[3] = static_cast<uint8_t>(m_animationConfigStart & 0xFF);
-    packet[4] = static_cast<uint8_t>((animationId >> 8) & 0xFF);
-    packet[5] = static_cast<uint8_t>(animationId & 0xFF);
-    m_deviceSend(std::span<const uint8_t>(packet, 33));
+    std::array<uint8_t, 6> packet{
+        m_preamble,
+        m_animation,
+        static_cast<uint8_t>((m_animationConfigStart >> 8) & 0xFF),
+        static_cast<uint8_t>(m_animationConfigStart & 0xFF),
+        static_cast<uint8_t>((animationId >> 8) & 0xFF),
+        static_cast<uint8_t>(animationId & 0xFF),
+    };
+    m_deviceSend(std::span(packet));
 }
 
 void LightFX::SendAnimationConfigPlay(uint16_t animationId) {
-    uint8_t packet[33] = {0};
-    packet[0] = m_preamble;
-    packet[1] = m_animation;
-    packet[2] = static_cast<uint8_t>((m_animationConfigPlay >> 8) & 0xFF);
-    packet[3] = static_cast<uint8_t>(m_animationConfigPlay & 0xFF);
-    packet[4] = static_cast<uint8_t>((animationId >> 8) & 0xFF);
-    packet[5] = static_cast<uint8_t>(animationId & 0xFF);
-    m_deviceSend(std::span<const uint8_t>(packet, 33));
+    std::array<uint8_t, 6> packet{
+        m_preamble,
+        m_animation,
+        static_cast<uint8_t>((m_animationConfigPlay >> 8) & 0xFF),
+        static_cast<uint8_t>(m_animationConfigPlay & 0xFF),
+        static_cast<uint8_t>((animationId >> 8) & 0xFF),
+        static_cast<uint8_t>(animationId & 0xFF),
+    };
+    m_deviceSend(std::span(packet));
 }
 
 void LightFX::SendAnimationConfigSave(uint16_t animationId) {
-    uint8_t packet[33] = {0};
-    packet[0] = m_preamble;
-    packet[1] = m_animation;
-    packet[2] = static_cast<uint8_t>((m_animationConfigSave >> 8) & 0xFF);
-    packet[3] = static_cast<uint8_t>(m_animationConfigSave & 0xFF);
-    packet[4] = static_cast<uint8_t>((animationId >> 8) & 0xFF);
-    packet[5] = static_cast<uint8_t>(animationId & 0xFF);
-    m_deviceSend(std::span<const uint8_t>(packet, 33));
+    std::array<uint8_t, 6> packet{
+        m_preamble,
+        m_animation,
+        static_cast<uint8_t>((m_animationConfigSave >> 8) & 0xFF),
+        static_cast<uint8_t>(m_animationConfigSave & 0xFF),
+        static_cast<uint8_t>((animationId >> 8) & 0xFF),
+        static_cast<uint8_t>(animationId & 0xFF),
+    };
+    m_deviceSend(std::span(packet));
 }
 
 void LightFX::SendAnimationRemove(uint16_t animationId) {
-    uint8_t packet[33] = {0};
-    packet[0] = m_preamble;
-    packet[1] = m_animation;
-    packet[2] = static_cast<uint8_t>((m_animationRemove >> 8) & 0xFF);
-    packet[3] = static_cast<uint8_t>(m_animationRemove & 0xFF);
-    packet[4] = static_cast<uint8_t>((animationId >> 8) & 0xFF);
-    packet[5] = static_cast<uint8_t>(animationId & 0xFF);
-    m_deviceSend(std::span<const uint8_t>(packet, 33));
+    std::array<uint8_t, 6> packet{
+        m_preamble,
+        m_animation,
+        static_cast<uint8_t>((m_animationRemove >> 8) & 0xFF),
+        static_cast<uint8_t>(m_animationRemove & 0xFF),
+        static_cast<uint8_t>((animationId >> 8) & 0xFF),
+        static_cast<uint8_t>(animationId & 0xFF),
+    };
+    m_deviceSend(std::span(packet));
 }
 
 void LightFX::SendAnimationPlay(uint16_t animationId) {
-    uint8_t packet[33] = {0};
-    packet[0] = m_preamble;
-    packet[1] = m_animation;
-    packet[2] = static_cast<uint8_t>((m_animationPlay >> 8) & 0xFF);
-    packet[3] = static_cast<uint8_t>(m_animationPlay & 0xFF);
-    packet[4] = static_cast<uint8_t>((animationId >> 8) & 0xFF);
-    packet[5] = static_cast<uint8_t>(animationId & 0xFF);
-    m_deviceSend(std::span<const uint8_t>(packet, 33));
+    std::array<uint8_t, 6> packet{
+        m_preamble,
+        m_animation,
+        static_cast<uint8_t>((m_animationPlay >> 8) & 0xFF),
+        static_cast<uint8_t>(m_animationPlay & 0xFF),
+        static_cast<uint8_t>((animationId >> 8) & 0xFF),
+        static_cast<uint8_t>(animationId & 0xFF),
+    };
+    m_deviceSend(std::span(packet));
 }
 
 void LightFX::SendAnimationSetDefault(uint16_t animationId) {
-    uint8_t packet[33] = {0};
-    packet[0] = m_preamble;
-    packet[1] = m_animation;
-    packet[2] = static_cast<uint8_t>((m_animationSetDefault >> 8) & 0xFF);
-    packet[3] = static_cast<uint8_t>(m_animationSetDefault & 0xFF);
-    packet[4] = static_cast<uint8_t>((animationId >> 8) & 0xFF);
-    packet[5] = static_cast<uint8_t>(animationId & 0xFF);
-    m_deviceSend(std::span<const uint8_t>(packet, 33));
+    std::array<uint8_t, 6> packet{
+        m_preamble,
+        m_animation,
+        static_cast<uint8_t>((m_animationSetDefault >> 8) & 0xFF),
+        static_cast<uint8_t>(m_animationSetDefault & 0xFF),
+        static_cast<uint8_t>((animationId >> 8) & 0xFF),
+        static_cast<uint8_t>(animationId & 0xFF),
+    };
+    m_deviceSend(std::span(packet));
 }
 
 void LightFX::SendAnimationSetStartup(uint16_t animationId) {
-    uint8_t packet[33] = {0};
-    packet[0] = m_preamble;
-    packet[1] = m_animation;
-    packet[2] = static_cast<uint8_t>((m_animationSetStartup >> 8) & 0xFF);
-    packet[3] = static_cast<uint8_t>(m_animationSetStartup & 0xFF);
-    packet[4] = static_cast<uint8_t>((animationId >> 8) & 0xFF);
-    packet[5] = static_cast<uint8_t>(animationId & 0xFF);
-    m_deviceSend(std::span<const uint8_t>(packet, 33));
+    std::array<uint8_t, 6> packet{
+        m_preamble,
+        m_animation,
+        static_cast<uint8_t>((m_animationSetStartup >> 8) & 0xFF),
+        static_cast<uint8_t>(m_animationSetStartup & 0xFF),
+        static_cast<uint8_t>((animationId >> 8) & 0xFF),
+        static_cast<uint8_t>(animationId & 0xFF),
+    };
+    m_deviceSend(std::span(packet));
 }
 
+// For zone lists, use std::vector since the size is dynamic
 void LightFX::SendZoneSelect(uint8_t loop, std::span<const uint8_t> zones) {
-    uint8_t packet[33] = {0};
+    const size_t zoneCount = zones.size();
+    std::vector<uint8_t> packet(5 + zoneCount);
     packet[0] = m_preamble;
     packet[1] = m_zoneSelect;
     packet[2] = loop;
-    size_t zoneCount = std::min(zones.size(), size_t(28)); // 5+28=33
     packet[3] = static_cast<uint8_t>((zoneCount >> 8) & 0xFF);
     packet[4] = static_cast<uint8_t>(zoneCount & 0xFF);
-    std::memcpy(packet + 5, zones.data(), zoneCount);
-    m_deviceSend(std::span<const uint8_t>(packet, 33));
+    std::ranges::copy(zones, packet.begin() + 5);
+    m_deviceSend(std::span(packet));
 }
 
 void LightFX::SendAddAction(uint16_t action, uint16_t duration, uint16_t tempo,
                             uint32_t color) {
-    uint8_t packet[33] = {0};
-    packet[0] = m_preamble;
-    packet[1] = m_addAction;
-    packet[2] = static_cast<uint8_t>(action);
-    packet[3] = static_cast<uint8_t>((duration >> 8) & 0xFF);
-    packet[4] = static_cast<uint8_t>(duration & 0xFF);
-    packet[5] = static_cast<uint8_t>((tempo >> 8) & 0xFF);
-    packet[6] = static_cast<uint8_t>(tempo & 0xFF);
-    packet[7] = static_cast<uint8_t>((color >> 16) & 0xFF);
-    packet[8] = static_cast<uint8_t>((color >> 8) & 0xFF);
-    packet[9] = static_cast<uint8_t>(color & 0xFF);
-    m_deviceSend(std::span<const uint8_t>(packet, 33));
+    std::array<uint8_t, 10> packet{
+        m_preamble,
+        m_addAction,
+        static_cast<uint8_t>(action),
+        static_cast<uint8_t>((duration >> 8) & 0xFF),
+        static_cast<uint8_t>(duration & 0xFF),
+        static_cast<uint8_t>((tempo >> 8) & 0xFF),
+        static_cast<uint8_t>(tempo & 0xFF),
+        static_cast<uint8_t>((color >> 16) & 0xFF),
+        static_cast<uint8_t>((color >> 8) & 0xFF),
+        static_cast<uint8_t>(color & 0xFF),
+    };
+    m_deviceSend(std::span(packet));
 }
 
 void LightFX::SendSetDim(uint8_t dim, std::span<const uint8_t> zones) {
-    uint8_t packet[33] = {0};
+    const size_t zoneCount = zones.size();
+    std::vector<uint8_t> packet(5 + zoneCount);
     packet[0] = m_preamble;
     packet[1] = m_setDim;
     packet[2] = dim;
-    size_t zoneCount = std::min(zones.size(), size_t(28)); // 5+28=33
     packet[3] = static_cast<uint8_t>((zoneCount >> 8) & 0xFF);
     packet[4] = static_cast<uint8_t>(zoneCount & 0xFF);
-    std::memcpy(packet + 5, zones.data(), zoneCount);
-    m_deviceSend(std::span<const uint8_t>(packet, 33));
+    std::ranges::copy(zones, packet.begin() + 5);
+    m_deviceSend(std::span(packet));
 }
