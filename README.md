@@ -60,6 +60,12 @@ paru -S awcc-git
 - `stb_image`
 - `libevdev`
 
+OR if you are a debianoid 
+
+```
+sudo apt-get install acpi-call-dkms git make cmake  libusb-1.0-0-dev  libglfw3-dev  libx11-dev libgl-dev libevdev-dev pkgconf g++-13
+```
+
 ```bash
 git clone https://github.com/tr1xem/AWCC
 cd AWCC && mkdir build/
@@ -71,6 +77,19 @@ Then enable the `awccd.service` using :
 
 ```bash
 sudo systemctl enable --now awccd.service
+```
+
+Reload udev rules using 
+
+```
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
+Load ACPI module using
+
+```
+sudo modprobe acpi_call
 ```
 
 ## Support and Feedback
