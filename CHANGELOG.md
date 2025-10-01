@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/tr1xem/AWCC/compare/v1.1.0...v1.2.0) (2025-10-01)
+
+
+### 🚀 New Features
+
+* **autorealse:** testing ([f6d74c0](https://github.com/tr1xem/AWCC/commit/f6d74c0866d79ddd44b55b2e58c9675a8cf5a1d8))
+
+
+### ⚙️ Chores
+
+* **main:** release 1.1.0 ([8017b60](https://github.com/tr1xem/AWCC/commit/8017b6082766ba114d91e90c3cb4722dda93a965))
+
 ## [1.1.0](https://github.com/tr1xem/AWCC/compare/v1.0.0...v1.1.0) (2025-10-01)
 
 
