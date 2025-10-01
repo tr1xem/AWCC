@@ -9,10 +9,15 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
+            - name: Set CMake project version to release
+              run: |
+                  VERSION="${GITHUB_REF_NAME#v}"
+                  sed -i 's/project(awcc LANGUAGES CXX VERSION .*)/project(awcc LANGUAGES CXX VERSION '"$VERSION"')/' CMakeLists.txt
+
             - name: Install dependencies
               run: |
                   sudo apt-get update
-                  sudo apt-get install -y acpi-call-dkms git make cmake libusb-1.0-0-dev libglfw3-dev libx11-dev libgl-dev libevdev-dev pkgconf g++-13
+                  sudo apt-get install -y git make cmake libusb-1.0-0-dev libglfw3-dev libx11-dev libgl-dev libevdev-dev pkgconf g++-13
 
             - name: Build AWCC
               run: |
@@ -31,7 +36,7 @@ jobs:
 
             - name: Create tarball with awcc binary, app folder, and LICENSE
               run: |
-                  tar -czvf AWCC-${{ github.event.release.tag_name }}.tar.gz -C release .
+                  tar -czvf AWCC-${{ github.event.release.tag_name }}.tar.gz -C release awcc app LICENSE
 
             - name: Upload tarball as release asset
               uses: softprops/action-gh-release@v2
