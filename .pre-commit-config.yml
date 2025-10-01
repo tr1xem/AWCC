@@ -1,0 +1,38 @@
+repos:
+    # Default pre-commit hooks for general code quality and safety
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v6.0.0
+      hooks:
+          - id: fix-byte-order-marker
+          - id: check-case-conflict
+          - id: check-symlinks
+          - id: debug-statements
+          - id: end-of-file-fixer
+          - id: trailing-whitespace
+          - id: mixed-line-ending
+            args: ["--fix=lf"]
+          - id: check-added-large-files
+            args: ["--maxkb=500"]
+          - id: check-merge-conflict
+          - id: check-executables-have-shebangs
+
+    # clang-format for C/C++ formatting (uses .clang-format config if present)
+    - repo: https://github.com/pre-commit/mirrors-clang-format
+      rev: v18.1.4
+      hooks:
+          - id: clang-format
+
+    # clang-tidy for C/C++ linting (uses .clang-tidy config if present)
+    - repo: https://github.com/pocc/pre-commit-hooks
+      rev: v5.0.0
+      hooks:
+          - id: clang-tidy
+            args: ["--quiet"]
+
+    # Optional: shellcheck for shell script linting
+    - repo: https://github.com/shellcheck-py/shellcheck-py
+      rev: v0.10.0.1
+      hooks:
+          - id: shellcheck
+
+default_stages: [pre-commit]
