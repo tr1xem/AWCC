@@ -1,0 +1,50 @@
+name: Release Please & Build Tarball
+
+on:
+    push:
+        branches:
+            - master
+            - main
+    release:
+        types: [created]
+
+jobs:
+    release-please:
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push'
+        permissions:
+            contents: write
+            pull-requests: write
+            issues: write
+        steps:
+            - uses: googleapis/release-please-action@v4
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+    build-and-upload:
+        runs-on: ubuntu-latest
+        if: github.event_name == 'release'
+        steps:
+            - uses: actions/checkout@v4
+            - name: Install dependencies
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y acpi-call-dkms git make cmake libusb-1.0-0-dev libglfw3-dev libx11-dev libgl-dev libevdev-dev pkgconf g++-13
+            - name: Build AWCC
+              run: |
+                  mkdir build
+                  cd build
+                  cmake ..
+                  make
+            - name: Copy app folder to build
+              run: |
+                  cp -r app build/
+            - name: Create tarball with build output and app folder
+              run: |
+                  tar -czvf AWCC-${{ github.event.release.tag_name }}.tar.gz -C build .
+            - name: Upload tarball as release asset
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: AWCC-${{ github.event.release.tag_name }}.tar.gz
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
