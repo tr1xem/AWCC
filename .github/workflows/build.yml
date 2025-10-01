@@ -1,0 +1,41 @@
+name: "Build and Upload"
+on:
+    push:
+        tags: ["v*.*.*"]
+
+jobs:
+    build-and-upload:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Install dependencies
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y acpi-call-dkms git make cmake libusb-1.0-0-dev libglfw3-dev libx11-dev libgl-dev libevdev-dev pkgconf g++-13
+
+            - name: Build AWCC
+              run: |
+                  mkdir build
+                  cd build
+                  cmake ..
+                  make
+                  cd ..
+
+            - name: Prepare release files
+              run: |
+                  mkdir release
+                  cp build/awcc release/
+                  cp -r app release/
+                  cp LICENSE release/
+
+            - name: Create tarball with awcc binary, app folder, and LICENSE
+              run: |
+                  tar -czvf AWCC-${{ github.event.release.tag_name }}.tar.gz -C release .
+
+            - name: Upload tarball as release asset
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: AWCC-${{ github.event.release.tag_name }}.tar.gz
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
