@@ -22,6 +22,7 @@ class EffectController {
     void Rainbow(uint16_t duration);
     void BackAndForth(uint32_t color);
     void DefaultBlue();
+    void ScanZones();
     int getBrightness();
 
   private:
