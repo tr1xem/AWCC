@@ -78,6 +78,7 @@ Extra:
 
 System Information:
   device-info              Show detected device model and supported features
+  test-zones                 Scans for zones
 )" << "\n";
 }
 
@@ -228,6 +229,10 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
         return 0;
     }
 
+    if (cmd == "test-zones") {
+        effects.ScanZones();
+        return 0;
+    }
     LOG_S(ERROR) << "Unknown command: " << cmd << "\n";
     // printHelp();
     return 1;
@@ -264,6 +269,7 @@ int main(int argc, char *argv[]) {
         LOG_S(INFO) << "Initializing Thermals Module";
         Thermals awccthermals(acpiUtils);
 
+        // TODO: Add check for light mode in gui
         if (daemon.isDaemonRunning()) {
             LOG_S(INFO) << "Rendering UI";
             RenderUi::Init(awccthermals, acpiUtils, effects);

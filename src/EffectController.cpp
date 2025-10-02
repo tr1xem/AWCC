@@ -1,8 +1,11 @@
 #include "EffectController.h"
 #include <algorithm> // for std::min
 #include <fstream>
+#include <iostream>
+#include <map>
+#include <string>
 #include <sys/stat.h>
-
+#include <vector>
 void EffectController::Brightness(uint8_t value) {
     value = std::min<int>(value, 100);
     m_lightfx.deviceAcquire();
@@ -213,4 +216,74 @@ void EffectController::DefaultBlue() {
     m_lightfx.SendAnimationConfigSave(1);
     m_lightfx.SendAnimationSetDefault(1);
     m_lightfx.deviceRelease();
+}
+
+void EffectController::ScanZones() {
+    std::map<std::string, int> zonesFound;
+    int maxZone = 0x8000;
+
+    int zone = 1;
+    for (; zone <= 0x20; ++zone) {
+        std::vector<uint8_t> zoneVec = {static_cast<uint8_t>(zone)};
+
+        m_lightfx.deviceAcquire();
+        m_lightfx.SendAnimationConfigStart(0);
+        m_lightfx.SendZoneSelect(1, std::span<const uint8_t>(zoneVec));
+        m_lightfx.SendAddAction(m_actionColor, 1, 2, 0x00FFFF); // white blink
+        m_lightfx.SendAnimationConfigPlay(0);
+        m_lightfx.deviceRelease();
+
+        while (true) {
+            std::cout << "Is zone 0x" << std::hex << zone
+                      << " colored? (y/n): ";
+            std::string reply;
+            std::getline(std::cin >> std::ws, reply);
+
+            if (!reply.empty() && (reply[0] == 'y' || reply[0] == 'Y')) {
+                std::cout << "Enter a name for this zone: ";
+                std::string zonename;
+                std::getline(std::cin >> std::ws, zonename);
+                zonesFound[zonename] = zone;
+                break;
+            } else if (!reply.empty() && (reply[0] == 'n' || reply[0] == 'N')) {
+                break;
+            } else {
+                std::cout << "Please enter only 'y' or 'n'." << std::endl;
+            }
+        }
+    }
+    for (zone = 0x40; zone <= maxZone; zone *= 2) {
+        std::vector<uint8_t> zoneVec = {static_cast<uint8_t>(zone)};
+
+        m_lightfx.deviceAcquire();
+        m_lightfx.SendAnimationConfigStart(0);
+        m_lightfx.SendZoneSelect(1, std::span<const uint8_t>(zoneVec));
+        m_lightfx.SendAddAction(m_actionColor, 1, 2, 0x00FFFF); // white blink
+        m_lightfx.SendAnimationConfigPlay(0);
+        m_lightfx.deviceRelease();
+
+        while (true) {
+            std::cout << "Is zone 0x" << std::hex << zone
+                      << " colored? (y/n): ";
+            std::string reply;
+            std::getline(std::cin >> std::ws, reply);
+
+            if (!reply.empty() && (reply[0] == 'y' || reply[0] == 'Y')) {
+                std::cout << "Enter a name for this zone: ";
+                std::string zonename;
+                std::getline(std::cin >> std::ws, zonename);
+                zonesFound[zonename] = zone;
+                break;
+            } else if (!reply.empty() && (reply[0] == 'n' || reply[0] == 'N')) {
+                break;
+            } else {
+                std::cout << "Please enter only 'y' or 'n'." << std::endl;
+            }
+        }
+    }
+
+    std::cout << "Zones found:\n";
+    for (const auto &z : zonesFound) {
+        std::cout << z.first << ": 0x" << std::hex << z.second << "\n";
+    }
 }
