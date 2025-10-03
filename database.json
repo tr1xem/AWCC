@@ -13,5 +13,10 @@
         "featureSet": "1111111",
         "thermalModes": "11001111",
         "lightingModes": "000111"
+    },
+    "Alienware m16 R2": {
+        "featureSet": "1111111",
+        "thermalModes": "11110111",
+        "lightingModes": "111111"
     }
 }
