@@ -60,6 +60,7 @@ Fan Controls (Run as root):
   quiet        (q )        Quiet mode for minimal noise
   battery      (bs)        Battery saving mode
   balance      (b )        Balanced performance and power
+  fullspeed    (fs)        Full Speed mode
   performance  (p )        High performance mode
   gmode        (g )        Gaming mode (G-Mode)
   cool         (c )        Cool Mode
@@ -73,12 +74,12 @@ Fan Boost Controls (Run as root):
   sgb <value>              Set GPU fan boost (1-100)
 
 Extra:
-  setturbo <0,1> (st)         Sets Cpu turbo boost mode
-  getturbo                    Gets Cpu turbo boost mode
+  setturbo <0,1> (st)      Sets Cpu turbo boost mode
+  getturbo                 Gets Cpu turbo boost mode
 
 System Information:
   device-info              Show detected device model and supported features
-  test-zones                 Scans for zones
+  test-zones               Scans for zones
 )" << "\n";
 }
 
@@ -158,6 +159,11 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
     if (cmd == "quiet" || cmd == "q") {
         thermals.setThermalMode(ThermalModes::Quiet);
         std::cout << "Set fan to quiet mode." << "\n";
+        return 0;
+    }
+    if (cmd == "fullspeed" || cmd == "fs") {
+        thermals.setThermalMode(ThermalModes::FullSpeed);
+        std::cout << "Set fan to full speed mode." << "\n";
         return 0;
     }
     if (cmd == "battery" || cmd == "bs") {
