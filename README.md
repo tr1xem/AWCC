@@ -2,7 +2,9 @@
 
 [![Build and Upload](https://github.com/tr1xem/AWCC/actions/workflows/build.yml/badge.svg)](https://github.com/tr1xem/AWCC/actions/workflows/build.yml)
 
-AWCC is an unofficial alternative to Alienware Command Centre of Windows for the Dell G series and Alienware Series Laptops on Linux, supporting almost all features that the Windows version supports, including custom fan controls, light effects, g-mode, and autoboost.
+AWCC* is an unofficial alternative to Alienware Command Centre of Windows for the Dell G series and Alienware Series Laptops on Linux, supporting almost all features that the Windows version supports, including custom fan controls, light effects, g-mode, and autoboost.
+
+###### *This project is not affiliated with, endorsed, sponsored, or produced by Dell. It is simply my personal contribution and hobby aimed at improving the Linux experience on Dell laptops.
 
 🎮 **Discord community for support and feedback** :
 
