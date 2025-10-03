@@ -227,6 +227,7 @@ void EffectController::ScanZones() {
         std::vector<uint8_t> zoneVec = {static_cast<uint8_t>(zone)};
 
         m_lightfx.deviceAcquire();
+        m_lightfx.SendSetDim(0, std::span<const uint8_t>(zoneVec));
         m_lightfx.SendAnimationConfigStart(0);
         m_lightfx.SendZoneSelect(1, std::span<const uint8_t>(zoneVec));
         m_lightfx.SendAddAction(m_actionColor, 1, 2, 0x00FFFF); // white blink
@@ -248,7 +249,7 @@ void EffectController::ScanZones() {
             } else if (!reply.empty() && (reply[0] == 'n' || reply[0] == 'N')) {
                 break;
             } else {
-                std::cout << "Please enter only 'y' or 'n'." << std::endl;
+                std::cout << "Please enter only 'y' or 'n'." << '\n';
             }
         }
     }
@@ -256,6 +257,7 @@ void EffectController::ScanZones() {
         std::vector<uint8_t> zoneVec = {static_cast<uint8_t>(zone)};
 
         m_lightfx.deviceAcquire();
+        m_lightfx.SendSetDim(0, std::span<const uint8_t>(zoneVec));
         m_lightfx.SendAnimationConfigStart(0);
         m_lightfx.SendZoneSelect(1, std::span<const uint8_t>(zoneVec));
         m_lightfx.SendAddAction(m_actionColor, 1, 2, 0x00FFFF); // white blink
@@ -277,7 +279,7 @@ void EffectController::ScanZones() {
             } else if (!reply.empty() && (reply[0] == 'n' || reply[0] == 'N')) {
                 break;
             } else {
-                std::cout << "Please enter only 'y' or 'n'." << std::endl;
+                std::cout << "Please enter only 'y' or 'n'." << '\n';
             }
         }
     }
