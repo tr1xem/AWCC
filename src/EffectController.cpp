@@ -3,9 +3,12 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <random>
 #include <string>
 #include <sys/stat.h>
 #include <vector>
+using std::mt19937;
+
 void EffectController::Brightness(uint8_t value) {
     value = std::min<int>(value, 100);
     m_lightfx.deviceAcquire();
@@ -218,19 +221,38 @@ void EffectController::DefaultBlue() {
     m_lightfx.deviceRelease();
 }
 
+static uint32_t m_randomColor() {
+    static const uint32_t colors[] = {
+        0xFF0000, // Red
+        0x00FF00, // Green
+        0x0000FF, // Blue
+        0xFFFF00, // Yellow
+        0xFF00FF, // Magenta
+        0x00FFFF, // Cyan
+        0xFF8000, // Orange
+        0x8000FF, // Purple
+    };
+
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<size_t> dist(0, std::size(colors) - 1);
+    return colors[dist(gen)];
+}
+
 void EffectController::ScanZones() {
     std::map<std::string, int> zonesFound;
     int maxZone = 0x8000;
 
     int zone = 1;
     for (; zone <= 0x20; ++zone) {
+        uint32_t color = m_randomColor();
         std::vector<uint8_t> zoneVec = {static_cast<uint8_t>(zone)};
 
         m_lightfx.deviceAcquire();
         m_lightfx.SendSetDim(0, std::span<const uint8_t>(zoneVec));
         m_lightfx.SendAnimationConfigStart(0);
         m_lightfx.SendZoneSelect(1, std::span<const uint8_t>(zoneVec));
-        m_lightfx.SendAddAction(m_actionColor, 1, 2, 0x00FFFF); // white blink
+        m_lightfx.SendAddAction(m_actionColor, 1, 2, color);
         m_lightfx.SendAnimationConfigPlay(0);
         m_lightfx.deviceRelease();
 
@@ -255,12 +277,13 @@ void EffectController::ScanZones() {
     }
     for (zone = 0x40; zone <= maxZone; zone *= 2) {
         std::vector<uint8_t> zoneVec = {static_cast<uint8_t>(zone)};
+        uint32_t color = m_randomColor();
 
         m_lightfx.deviceAcquire();
         m_lightfx.SendSetDim(0, std::span<const uint8_t>(zoneVec));
         m_lightfx.SendAnimationConfigStart(0);
         m_lightfx.SendZoneSelect(1, std::span<const uint8_t>(zoneVec));
-        m_lightfx.SendAddAction(m_actionColor, 1, 2, 0x00FFFF); // white blink
+        m_lightfx.SendAddAction(m_actionColor, 1, 2, color);
         m_lightfx.SendAnimationConfigPlay(0);
         m_lightfx.deviceRelease();
 
