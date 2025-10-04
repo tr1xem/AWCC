@@ -32,6 +32,7 @@ jobs:
                   mkdir release
                   cp build/awcc release/
                   cp -r app release/
+                  cp database.json release/
                   cp LICENSE release/
 
             - name: Create tarball with awcc binary, app folder, and LICENSE
