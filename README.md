@@ -104,9 +104,10 @@ Need support or want this project to support your device ? Join our [Discord com
 
 **Tested on:**
 
+- Dell G15 5511
+- Dell G15 5520
 - Dell G15 5530
 - Dell G16 7630
-- Dell G15 5511
 - Alienware m16 R2 (execpt keyboard all lights work)
 
 ## 🗺️ Roadmap
