@@ -37,7 +37,7 @@ jobs:
 
             - name: Create tarball with awcc binary, app folder, and LICENSE
               run: |
-                  tar -czvf AWCC-${{ github.ref_name }}.tar.gz -C release awcc app LICENSE
+                  tar -czvf AWCC-${{ github.ref_name }}.tar.gz -C release awcc app LICENSE database.json
 
             - name: Upload tarball as release asset
               uses: softprops/action-gh-release@v2
