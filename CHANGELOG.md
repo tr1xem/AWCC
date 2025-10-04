@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/tr1xem/AWCC/compare/v1.2.2...v1.3.0) (2025-10-04)
+
+
+### 🚀 New Features
+
+* **support:** added support for G15 5520 ([3f16f71](https://github.com/tr1xem/AWCC/commit/3f16f71e77b0b6cfecee11fdf905aceff4b9819b))
+
+
+### ⚙️ Chores
+
+* **release:** 1.3.0 ([391912e](https://github.com/tr1xem/AWCC/commit/391912e925da3073738614a5b03d8e57be3bdae8))
+
 ## [1.2.2](https://github.com/tr1xem/AWCC/compare/v1.2.1...v1.2.2) (2025-10-04)
 
 
