@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.1](https://github.com/tr1xem/AWCC/compare/v1.2.0...v1.2.1) (2025-10-04)
+
+
+### ⚙️ Chores
+
+* **update:** add database to release ([e331394](https://github.com/tr1xem/AWCC/commit/e331394c540af1204f8b6f14131f02ae7f710b10))
+* **update:** bump to ver 1.2.0 ([7f56a42](https://github.com/tr1xem/AWCC/commit/7f56a42dd67545cbd1314c15083df345bf152c9c))
+
 ## [1.2.0](https://github.com/tr1xem/AWCC/compare/v1.1.0...v1.2.0) (2025-10-04)
 
 
