@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.2.0](https://github.com/tr1xem/AWCC/compare/v1.1.0...v1.2.0) (2025-10-04)
+
+
+### 🚀 New Features
+
+* **alienware m16 R2:** all fan modes supported ([a76665a](https://github.com/tr1xem/AWCC/commit/a76665a5215837120b1f656b2125b68d87dc5f61))
+* **testzone:** tests light zone ([97f56ad](https://github.com/tr1xem/AWCC/commit/97f56ad10804c8ddbfc00915463cddf49c03241b))
+
+
+### ♻️ Code Refactoring
+
+* **tester:** set brighntess to 100 before packet ([7f64319](https://github.com/tr1xem/AWCC/commit/7f6431977733fbc89d87d77b75cf9104d485fa70))
+* **tests:** add bright color ([444691d](https://github.com/tr1xem/AWCC/commit/444691de8f67936d6a7785e2fe372a295180c0d9))
+
 ## [1.1.0](https://github.com/tr1xem/AWCC/compare/v1.0.3...v1.1.0) (2025-10-01)
 
 
