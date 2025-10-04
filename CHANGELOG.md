@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/tr1xem/AWCC/compare/v1.2.1...v1.2.2) (2025-10-04)
+
+
+### ♻️ Code Refactoring
+
+* **workflow:** Include database.json in release tarball ([4e58585](https://github.com/tr1xem/AWCC/commit/4e585855cd20993c058130a54fbdc25b63f65dd9))
+
 ## [1.2.1](https://github.com/tr1xem/AWCC/compare/v1.2.0...v1.2.1) (2025-10-04)
 
 
