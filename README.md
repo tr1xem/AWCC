@@ -37,7 +37,7 @@ AWCC* is an unofficial alternative to Alienware Command Centre of Windows for th
 #### 🗿 For Arch-Based Distros
 
 ```bash
-paru -S awcc-git
+paru -S awcc-bin
 ```
 
 ### 🛠️ Manual Installation
