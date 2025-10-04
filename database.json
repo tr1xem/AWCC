@@ -1,12 +1,17 @@
 {
-    "Dell G15 5530": {
+    "Dell G15 5511": {
+        "featureSet": "1111111",
+        "thermalModes": "11010111",
+        "lightingModes": "111111"
+    },
+    "Dell G15 5520": {
         "featureSet": "1111111",
         "thermalModes": "11001111",
         "lightingModes": "111111"
     },
-    "Dell G15 5511": {
+    "Dell G15 5530": {
         "featureSet": "1111111",
-        "thermalModes": "11010111",
+        "thermalModes": "11001111",
         "lightingModes": "111111"
     },
     "Dell G16 7630": {
