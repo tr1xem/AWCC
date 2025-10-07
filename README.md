@@ -2,9 +2,9 @@
 
 [![Build and Upload](https://github.com/tr1xem/AWCC/actions/workflows/build.yml/badge.svg)](https://github.com/tr1xem/AWCC/actions/workflows/build.yml)
 
-AWCC* is an unofficial alternative to Alienware Command Centre of Windows for the Dell G series and Alienware Series Laptops on Linux, supporting almost all features that the Windows version supports, including custom fan controls, light effects, g-mode, and autoboost.
+AWCC\* is an unofficial alternative to Alienware Command Centre of Windows for the Dell G series and Alienware Series Laptops on Linux, supporting almost all features that the Windows version supports, including custom fan controls, light effects, g-mode, and autoboost.
 
-###### *This project is not affiliated with, endorsed, sponsored, or produced by Dell. It is simply my personal contribution and hobby aimed at improving the Linux experience on Dell laptops.
+###### \*This project is not affiliated with, endorsed, sponsored, or produced by Dell. It is simply my personal contribution and hobby aimed at improving the Linux experience on Dell laptops.
 
 🎮 **Discord community for support and feedback** :
 
@@ -64,7 +64,7 @@ paru -S awcc-bin
 - `stb_image`
 - `libevdev`
 
-OR if you are a debianoid 
+OR if you are a debianoid
 
 ```
 sudo apt-get install acpi-call-dkms git make cmake  libusb-1.0-0-dev  libglfw3-dev  libx11-dev libgl-dev libevdev-dev pkgconf g++-13
@@ -83,7 +83,7 @@ Then enable the `awccd.service` using :
 sudo systemctl enable --now awccd.service
 ```
 
-Reload udev rules using 
+Reload udev rules using
 
 ```
 sudo udevadm control --reload-rules
@@ -106,6 +106,7 @@ Need support or want this project to support your device ? Join our [Discord com
 
 - Dell G15 5511
 - Dell G15 5520
+- Dell G15 5525
 - Dell G15 5530
 - Dell G16 7630
 - Alienware m16 R2 (execpt keyboard all lights work)
