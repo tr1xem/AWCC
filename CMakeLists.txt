@@ -5,6 +5,15 @@ set(APP_NAME awcc)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+    add_custom_target(link_compile_commands ALL
+        COMMAND ${CMAKE_COMMAND} -E create_symlink
+            ${CMAKE_BINARY_DIR}/compile_commands.json
+            ${CMAKE_SOURCE_DIR}/compile_commands.json
+        BYPRODUCTS ${CMAKE_SOURCE_DIR}/compile_commands.json
+        COMMENT "Updating symlink: compile_commands.json → project root"
+    )
+endif()
 set(BUILD_SHARED_LIBS OFF)
 set(CMAKE_BUILD_TYPE Release)
 add_compile_definitions(VERSION="${PROJECT_VERSION}")
