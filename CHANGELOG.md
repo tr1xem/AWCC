@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/tr1xem/AWCC/compare/v1.3.0...v1.4.0) (2025-10-07)
+
+
+### 🚀 New Features
+
+* **5525:** add support for 5525 ([a7accd7](https://github.com/tr1xem/AWCC/commit/a7accd7756df2f8caab5f379e77b712c0adb955a))
+
 ## [1.3.0](https://github.com/tr1xem/AWCC/compare/v1.2.2...v1.3.0) (2025-10-04)
 
 
