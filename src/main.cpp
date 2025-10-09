@@ -106,6 +106,16 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
         return 0;
     }
 
+    if (cmd == "lb" && args.size() > 2) {
+        effects.lightbarBrightness(std::stoi(args[2]));
+        std::cout << "Set lightbar brightness to " << args[2] << "\n";
+        return 0;
+    }
+    if (cmd == "lbdefaultblue") {
+        effects.lightBarDefaultBlue();
+        std::cout << "Set default blue color for lightbar." << "\n";
+        return 0;
+    }
     // Lighting Controls
     if (cmd == "static" && args.size() > 2) {
         uint32_t color = parseHexColor(args[2]);
@@ -236,6 +246,10 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
         return 0;
     }
 
+    if (cmd == "device-info") {
+        acpiUtils.deviceInfo();
+        return 0;
+    }
     if (cmd == "test-zones") {
         effects.ScanZones();
         return 0;
