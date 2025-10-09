@@ -15,10 +15,12 @@ class EffectController {
     };
 
     void Brightness(uint8_t value);
+    void lightbarBrightness(uint8_t value);
     void StaticColor(uint32_t color);
     void Breathe(uint32_t color);
     void Spectrum(uint16_t duration);
     void Wave(uint32_t color);
+    void lightBarDefaultBlue();
     void Rainbow(uint16_t duration);
     void BackAndForth(uint32_t color);
     void DefaultBlue();
@@ -30,6 +32,9 @@ class EffectController {
     std::string m_brightnessFile = "/tmp/brightness"; // path of your choice
     static constexpr uint8_t m_actionColor = 0x00;
     static constexpr uint8_t m_actionMorph = 0x02;
+    // TODO: Add way to individually set color for each zone
+    static constexpr std::array<uint8_t, 13> m_lightbar = {
+        0x1, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9};
     static constexpr std::array<uint8_t, 1> m_zoneLeft = {0x00};
     static constexpr std::array<uint8_t, 1> m_zoneMiddleLeft = {0x01};
     static constexpr std::array<uint8_t, 1> m_zoneMiddleRight = {0x02};

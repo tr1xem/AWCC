@@ -22,6 +22,20 @@ void EffectController::Brightness(uint8_t value) {
     LOG_S(INFO) << "Device Brightness set to: " << static_cast<int>(value)
                 << "%";
 }
+void EffectController::lightbarBrightness(uint8_t value) {
+    value = std::min<int>(value, 100);
+    m_lightfx.deviceAcquire();
+    m_lightfx.SendSetDim(100 - value, m_lightbar);
+    m_lightfx.deviceRelease();
+    std::ofstream ofs(m_brightnessFile, std::ios::trunc);
+    if (ofs.is_open()) {
+        ofs << static_cast<int>(value);
+        chmod(m_brightnessFile.c_str(), 0666); // set permission
+    }
+    LOG_S(INFO) << "Lightbar Brightness set to: " << static_cast<int>(value)
+                << "%";
+}
+
 int EffectController::getBrightness() {
     std::ifstream ifs(m_brightnessFile);
     int value = 0;
@@ -221,6 +235,16 @@ void EffectController::DefaultBlue() {
     m_lightfx.deviceRelease();
 }
 
+void EffectController::lightBarDefaultBlue() {
+    m_lightfx.deviceAcquire();
+    m_lightfx.SendAnimationRemove(1);
+    m_lightfx.SendAnimationConfigStart(1);
+    m_lightfx.SendZoneSelect(1, m_lightbar);
+    m_lightfx.SendAddAction(m_actionColor, 1, 2, 0x00FFFF);
+    m_lightfx.SendAnimationConfigSave(1);
+    m_lightfx.SendAnimationSetDefault(1);
+    m_lightfx.deviceRelease();
+}
 static uint32_t m_randomColor() {
     static const uint32_t colors[] = {
         0xFF0000, // Red
