@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/tr1xem/AWCC/compare/v1.4.0...v1.5.0) (2025-10-09)
+
+
+### 🚀 New Features
+
+* **device:** support Dell G15 Special Edition 5521 ([55512ac](https://github.com/tr1xem/AWCC/commit/55512ac13186830ad4d847ec4a260b3bb9fedde1))
+
 ## [1.4.0](https://github.com/tr1xem/AWCC/compare/v1.3.0...v1.4.0) (2025-10-07)
 
 
