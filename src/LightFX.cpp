@@ -56,7 +56,7 @@ void LightFX::deviceOpen() {
 
 void LightFX::deviceAcquire() {
     if (m_deviceHandle == nullptr) {
-        LOG_S(ERROR) << ("device not opened");
+        LOG_S(ERROR) << ("Device not opened");
         return;
     }
     if (m_deviceAcquired)

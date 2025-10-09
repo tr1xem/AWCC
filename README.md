@@ -106,6 +106,7 @@ Need support or want this project to support your device ? Join our [Discord com
 
 - Dell G15 5511
 - Dell G15 5520
+- Dell G15 Special Edition 5521
 - Dell G15 5525
 - Dell G15 5530
 - Dell G16 7630
