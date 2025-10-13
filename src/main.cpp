@@ -80,6 +80,7 @@ Extra:
 System Information:
   device-info              Show detected device model and supported features
   test-zones               Scans for zones
+  test-modes               Test all thermal modes and show device mappings
 )" << "\n";
 }
 
@@ -239,6 +240,12 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
         effects.ScanZones();
         return 0;
     }
+
+    if (cmd == "test-modes") {
+        acpiUtils.testThermalModes();
+        return 0;
+    }
+
     LOG_S(ERROR) << "Unknown command: " << cmd << "\n";
     // printHelp();
     return 1;

@@ -124,12 +124,10 @@ AcpiUtils::AcpiUtils(Daemon &daemon) : m_daemon(daemon) {
     // LOG_S(INFO) << "FeatureSet: " << m_featureSetBits;
     // LOG_S(INFO) << "ThermalModes: " << m_thermalModeBits;
     // LOG_S(INFO) << "LightingModes: " << m_lightingModesBits;
-    // if (m_daemon.isDaemonRunning())
-    //     LOG_S(WARNING) << "Daemon is running, commands will be sent to
-    //     daemon";
-    // else
-    //     LOG_S(WARNING) << "Daemon is not running, running in traditional
-    //     mode";
+    if (m_daemon.isDaemonRunning())
+        LOG_S(WARNING) << "Daemon is running, commands will be sent to daemon";
+    else
+        LOG_S(WARNING) << "Daemon is not running, running in traditional mode ";
 }
 
 // INFO: Any check for ACPI support should be done before calling this function
@@ -157,9 +155,9 @@ int AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4) {
                     result.pop_back();
                 try {
                     if (result.starts_with("0x")) { // starts with 0x
-                        return std::stoi(result, nullptr, 16);
+                        return std::stoul(result, nullptr, 16);
                     } else {
-                        return std::stoi(result); // decimal
+                        return std::stoul(result); // decimal
                     }
                 } catch (const std::exception &e) {
                     LOG_S(ERROR) << "Failed to parse ACPI output: " << e.what();
@@ -186,9 +184,9 @@ int AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4) {
                         result.pop_back();
                     try {
                         if (result.starts_with("0x")) { // starts with 0x
-                            return std::stoi(result, nullptr, 16);
+                            return std::stoul(result, nullptr, 16);
                         } else {
-                            return std::stoi(result); // decimal
+                            return std::stoul(result); // decimal
                         }
                     } catch (const std::exception &e) {
                         LOG_S(ERROR)
@@ -211,10 +209,9 @@ int AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4) {
 void AcpiUtils::deviceInfo(bool unknownDevice) {
     if (unknownDevice) {
 
-        LOG_S(ERROR) << "Device Found is currently not supported, please send "
-                        "the following details to the developer";
-        LOG_S(ERROR) << "Device Prefix: " << m_acpiPrefix;
-        LOG_S(ERROR) << "Device Name: " << m_deviceName;
+        LOG_S(ERROR)
+            << "Device Found is currently not supported, please run "
+               "\"awcc test-modes\" and send the output to the developer";
     }
 
     if (!unknownDevice) {
@@ -342,4 +339,99 @@ bool AcpiUtils::setTurboBoost(bool enable) {
     // Assume m_daemon.executeFromDaemon(cmd) returns true on success
     m_daemon.executeFromDaemon(cmd.c_str());
     return true;
+}
+
+const char *AcpiUtils::getThermalModeString(int mode) {
+    switch (mode) {
+    case 0xa0:
+        return "Balanced";
+    case 0xa1:
+        return "Performance";
+    case 0xa2:
+        return "Cool";
+    case 0xa3:
+        return "Quiet";
+    case 0xa4:
+        return "FullSpeed";
+    case 0xa5:
+        return "BatterySaver";
+    case 0xab:
+        return "Gmode";
+    case 0x0:
+        return "Manual";
+    default:
+        return "Unknown";
+    }
+}
+
+std::string AcpiUtils::generateThermalModesBitmap() {
+    std::bitset<8> bitmap{0};
+    if (executeAcpiCommand(0x15, 0x01, static_cast<int>(ThermalModes::Quiet),
+                           0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::Quiet);
+    }
+    if (executeAcpiCommand(0x15, 0x01, static_cast<int>(ThermalModes::Balanced),
+                           0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::Balanced);
+    }
+    if (executeAcpiCommand(0x15, 0x01,
+                           static_cast<int>(ThermalModes::Performance),
+                           0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::Performance);
+    }
+    if (executeAcpiCommand(0x15, 0x01,
+                           static_cast<int>(ThermalModes::BatterySaver),
+                           0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::BatterySaver);
+    }
+    if (executeAcpiCommand(0x15, 0x01, static_cast<int>(ThermalModes::Cool),
+                           0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::Cool);
+    }
+    if (executeAcpiCommand(
+            0x15, 0x01, static_cast<int>(ThermalModes::FullSpeed), 0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::FullSpeed);
+    }
+    if (executeAcpiCommand(0x15, 0x01, static_cast<int>(ThermalModes::Gmode),
+                           0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::GMode);
+    }
+    if (executeAcpiCommand(0x15, 0x01, static_cast<int>(ThermalModes::Manual),
+                           0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::Manual);
+    }
+    return bitmap.to_string();
+}
+
+void AcpiUtils::testThermalModes() {
+    std::cout << "Device Name: " << m_deviceName << "\n";
+    std::cout << "Testing thermal modes...\n\n";
+
+    std::vector<int> testModes;
+
+    for (int i = 0xa0; i <= 0xa9; ++i) {
+        testModes.push_back(i);
+    }
+
+    for (int i = 0xaa; i <= 0xab; ++i) {
+        testModes.push_back(i);
+    }
+
+    for (int mode : testModes) {
+        // std::cout << std::format("Trying mode {:#x}\n", mode);
+        // std::cout << std::format(
+        //     "\\_SB.{}.WMAX 0 0x15 {{0x01, {:#x}, 0x00, 0x00}}\n",
+        //     m_acpiPrefix, mode);
+
+        int result = executeAcpiCommand(0x15, 0x01, mode, 0x00);
+        std::cout << std::format("{:#x} -> {:#x} ({})\n", mode, result,
+                                 getThermalModeString(mode));
+    }
+
+    std::string bitmap = generateThermalModesBitmap();
+    std::cout << "\nGenerated thermal modes bitmap for database.json:\n";
+    std::cout << std::format("\"thermalModes\": \"{}\"\n", bitmap);
+
+    std::cout << "\nReverting to balanced.\n";
+    executeAcpiCommand(0x15, 0x01, 0xa0, 0x00);
 }
