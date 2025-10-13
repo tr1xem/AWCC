@@ -156,6 +156,11 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
         std::cout << "Set rainbow mode \n";
         return 0;
     }
+    if (cmd == "lbrainbow") {
+        effects.LightbarRainbow(500);
+        std::cout << "Set lightbar rainbow mode \n";
+        return 0;
+    }
     if (cmd == "defaultblue") {
         effects.DefaultBlue();
         std::cout << "Set default blue color." << "\n";

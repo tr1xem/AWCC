@@ -22,6 +22,7 @@ class EffectController {
     void Wave(uint32_t color);
     void lightBarDefaultBlue();
     void Rainbow(uint16_t duration);
+    void LightbarRainbow(uint16_t duration);
     void BackAndForth(uint32_t color);
     void DefaultBlue();
     void ScanZones();

@@ -181,6 +181,37 @@ void EffectController::Rainbow(uint16_t duration) {
     m_lightfx.deviceRelease();
 }
 
+void EffectController::LightbarRainbow(uint16_t duration) {
+    m_lightfx.deviceAcquire();
+    m_lightfx.SendAnimationRemove(1);
+    m_lightfx.SendAnimationConfigStart(1);
+
+    const std::array<uint32_t, 7> colors = {
+        0xFF0000, // Red
+        0xFFA500, // Orange
+        0xFFFF00, // Yellow
+        0x008000, // Green
+        0x00BFFF, // Sky Blue
+        0x0000FF, // Blue
+        0x800080  // Purple
+    };
+
+    for (size_t i = 0; i < m_lightbar.size(); ++i) {
+        std::vector<uint8_t> zone = {m_lightbar[i]};
+        m_lightfx.SendZoneSelect(1, std::span<const uint8_t>(zone));
+
+        for (size_t j = 0; j < colors.size(); ++j) {
+            size_t colorIndex = (i + j) % colors.size();
+            m_lightfx.SendAddAction(m_actionMorph, duration, 64,
+                                    colors[colorIndex]);
+        }
+    }
+
+    m_lightfx.SendAnimationConfigSave(1);
+    m_lightfx.SendAnimationSetDefault(1);
+    m_lightfx.deviceRelease();
+}
+
 void EffectController::BackAndForth(uint32_t color) {
     m_lightfx.deviceAcquire();
     m_lightfx.SendAnimationRemove(1);
