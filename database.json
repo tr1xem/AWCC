@@ -38,5 +38,10 @@
         "featureSet": "1111111",
         "thermalModes": "11110111",
         "lightingModes": "111111"
+    },
+    "Alienware m17 R5 AMD": {
+        "featureSet": "1111111",
+        "thermalModes": "11100111",
+        "lightingModes": "111111"
     }
 }
