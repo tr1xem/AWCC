@@ -15,9 +15,10 @@ class EffectController {
     };
 
     void Brightness(uint8_t value);
-    void lightbarBrightness(uint8_t value);
+    void LightBarBrightness(uint8_t value);
     void StaticColor(uint32_t color);
     void Breathe(uint32_t color);
+    void LightBarBreathe(uint32_t color);
     void Spectrum(uint16_t duration);
     void LightBarSpectrum(uint16_t duration);
     void Wave(uint32_t color);
