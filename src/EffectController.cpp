@@ -99,6 +99,23 @@ void EffectController::Spectrum(uint16_t duration) {
     m_lightfx.deviceRelease();
 }
 
+void EffectController::LightBarSpectrum(uint16_t duration) {
+    m_lightfx.deviceAcquire();
+    m_lightfx.SendAnimationRemove(1);
+    m_lightfx.SendAnimationConfigStart(1);
+    m_lightfx.SendZoneSelect(1, m_lightbar);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFF0000);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFFA500);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFFFF00);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x008000);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x00BFFF);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x0000FF);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x800080);
+    m_lightfx.SendAnimationConfigSave(1);
+    m_lightfx.SendAnimationSetDefault(1);
+    m_lightfx.deviceRelease();
+}
+
 void EffectController::Wave(uint32_t color) {
     m_lightfx.deviceAcquire();
     m_lightfx.SendAnimationRemove(1);
