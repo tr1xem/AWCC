@@ -151,6 +151,11 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
         std::cout << "Set spectrum Mode \n";
         return 0;
     }
+    if (cmd == "lspectrum") {
+        effects.LightBarSpectrum(1000);
+        std::cout << "Set Light Bar spectrum Mode \n";
+        return 0;
+    }
     if (cmd == "rainbow") {
         effects.Rainbow(500);
         std::cout << "Set rainbow mode \n";
