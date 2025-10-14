@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.6.0](https://github.com/tr1xem/AWCC/compare/v1.5.0...v1.6.0) (2025-10-14)
+
+
+### 🚀 New Features
+
+* **acpi:** Add thermal mode testing command ([312f2f2](https://github.com/tr1xem/AWCC/commit/312f2f2b78a477a8e11d068ceff3501373db79c3))
+* **device:** support for Alienware m17 R5 ([a610d2b](https://github.com/tr1xem/AWCC/commit/a610d2b7b82811923ca7de01c9c9d72030140665))
+* **device:** support for G7 7500 ([be6bb36](https://github.com/tr1xem/AWCC/commit/be6bb36d44c3325fe9b944693ccf280a42112652))
+* **effect:** Light Bar Spectrum ([19ec096](https://github.com/tr1xem/AWCC/commit/19ec09679fbf941aa5678469d7473c20601bfef1))
+* **effects:** breathe effect & refactor main.cpp ([f1ccc46](https://github.com/tr1xem/AWCC/commit/f1ccc460947f05a3f97eec5b1fd2ca51b7655ff3))
+* **lightbar:** added lightbar support ([fa14536](https://github.com/tr1xem/AWCC/commit/fa14536b5803640e554586dfa3233770b78a62a5))
+* **lightbar:** lightbar rainbow ([4ab9668](https://github.com/tr1xem/AWCC/commit/4ab966810e66ae3efedda91a15d43a14a922589a))
+
+
+### ⚙️ Chores
+
+* **logs:** redundancy ([c8a65a6](https://github.com/tr1xem/AWCC/commit/c8a65a60340ba9da1ca23acfa176e10b4bb5f53c))
+
+
+### ♻️ Code Refactoring
+
+* **effect:** naming convention ([8229281](https://github.com/tr1xem/AWCC/commit/8229281c3d0042efecebce3fe6edf7cf12a3d7a7))
+
 ## [1.5.0](https://github.com/tr1xem/AWCC/compare/v1.4.0...v1.5.0) (2025-10-09)
 
 
