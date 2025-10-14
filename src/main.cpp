@@ -12,6 +12,7 @@
 #include <string>
 #include <unistd.h> // for geteuid()
 
+// TODO: Added checks for various lightparts
 namespace awcc {
 static auto shouldRunDaemon(std::span<char *> args) -> bool {
     return std::ranges::any_of(args.subspan(1), // skip program name
