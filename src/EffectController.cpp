@@ -319,13 +319,11 @@ void EffectController::LightBarBrightness(uint8_t value) {
     m_lightfx.deviceAcquire();
     m_lightfx.SendSetDim(100 - value, m_lightbar);
     m_lightfx.deviceRelease();
-    std::ofstream ofs(m_brightnessFile, std::ios::trunc);
-    if (ofs.is_open()) {
-        ofs << static_cast<int>(value);
-        chmod(m_brightnessFile.c_str(), 0666); // set permission
-    }
-    LOG_S(INFO) << "Lightbar Brightness set to: " << static_cast<int>(value)
-                << "%";
+    // std::ofstream ofs(m_brightnessFile, std::ios::trunc);
+    // if (ofs.is_open()) {
+    //     ofs << static_cast<int>(value);
+    //     chmod(m_brightnessFile.c_str(), 0666); // set permission
+    // }
 }
 
 void EffectController::LightBarSpectrum(uint16_t duration) {
