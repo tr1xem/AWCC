@@ -22,7 +22,7 @@ class EffectController {
     void Spectrum(uint16_t duration);
     void LightBarSpectrum(uint16_t duration);
     void Wave(uint32_t color);
-    void lightBarDefaultBlue();
+    void LightBarDefaultBlue();
     void Rainbow(uint16_t duration);
     void LightbarRainbow(uint16_t duration);
     void BackAndForth(uint32_t color);
