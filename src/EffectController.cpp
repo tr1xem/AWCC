@@ -388,7 +388,7 @@ void EffectController::LightbarRainbow(uint16_t duration) {
     m_lightfx.deviceRelease();
 }
 
-void EffectController::lightBarDefaultBlue() {
+void EffectController::LightBarDefaultBlue() {
     m_lightfx.deviceAcquire();
     m_lightfx.SendAnimationRemove(1);
     m_lightfx.SendAnimationConfigStart(1);
