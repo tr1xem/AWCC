@@ -177,7 +177,7 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
         return 0;
     }
     if (cmd == "lbdefaultblue") {
-        effects.lightBarDefaultBlue();
+        effects.LightBarDefaultBlue();
         std::cout << "Set default blue color for lightbar." << "\n";
         return 0;
     }
