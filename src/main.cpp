@@ -45,7 +45,7 @@ App Commands:
   --gui        (-g)        Starts Gui
   -v           [0,-1,-2]   Runs app in verbose mosde
 
-Lighting Controls:
+Keyboard Lighting Controls:
   brightness <0-100>       Set keyboard brightness
   static <color_hex>       Set static color
   spectrum                 Color spectrum effect
@@ -54,6 +54,13 @@ Lighting Controls:
   wave <color_hex>         Wave effect
   bkf <color_hex>          Back and forth effect
   defaultblue              Default blue color
+
+Light bar Lighting Controls:
+  lbbrightness <0-100>     Set light bar brightness
+  lbrainbow                Rainbow wave effect
+  lbspectrum               Color spectrum effect
+  lbbreathe <color_hex>    Breathing effect
+  lbdefaultblue            Default blue color
 
 Fan Controls (Run as root):
   qm                       Query current fan mode
@@ -106,16 +113,6 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
         return 0;
     }
 
-    if (cmd == "lb" && args.size() > 2) {
-        effects.lightbarBrightness(std::stoi(args[2]));
-        std::cout << "Set lightbar brightness to " << args[2] << "\n";
-        return 0;
-    }
-    if (cmd == "lbdefaultblue") {
-        effects.lightBarDefaultBlue();
-        std::cout << "Set default blue color for lightbar." << "\n";
-        return 0;
-    }
     // Lighting Controls
     if (cmd == "static" && args.size() > 2) {
         uint32_t color = parseHexColor(args[2]);
@@ -151,19 +148,9 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
         std::cout << "Set spectrum Mode \n";
         return 0;
     }
-    if (cmd == "lspectrum") {
-        effects.LightBarSpectrum(1000);
-        std::cout << "Set Light Bar spectrum Mode \n";
-        return 0;
-    }
     if (cmd == "rainbow") {
         effects.Rainbow(500);
         std::cout << "Set rainbow mode \n";
-        return 0;
-    }
-    if (cmd == "lbrainbow") {
-        effects.LightbarRainbow(500);
-        std::cout << "Set lightbar rainbow mode \n";
         return 0;
     }
     if (cmd == "defaultblue") {
@@ -171,7 +158,34 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
         std::cout << "Set default blue color." << "\n";
         return 0;
     }
+    // NOTE: Lighbar commands
+    if (cmd == "lbspectrum") {
+        effects.LightBarSpectrum(1000);
+        std::cout << "Set light bar spectrum Mode \n";
+        return 0;
+    }
+    if (cmd == "lbrainbow") {
+        effects.LightbarRainbow(500);
+        std::cout << "Set light bar rainbow mode \n";
+        return 0;
+    }
 
+    if (cmd == "lbbrightness" && args.size() > 2) {
+        effects.LightBarBrightness(std::stoi(args[2]));
+        std::cout << "Set light bar brightness to " << args[2] << "\n";
+        return 0;
+    }
+    if (cmd == "lbdefaultblue") {
+        effects.lightBarDefaultBlue();
+        std::cout << "Set default blue color for lightbar." << "\n";
+        return 0;
+    }
+    if (cmd == "lbbreathe" && args.size() > 2) {
+        uint32_t color = parseHexColor(args[2]);
+        effects.LightBarBreathe(color);
+        std::cout << "Set light bar breathe color: " << args[2] << "\n";
+        return 0;
+    }
     // Fan Controls
     if (cmd == "qm") {
         std::cout << "Current Mode: " << thermals.getCurrentModeName() << "\n";
