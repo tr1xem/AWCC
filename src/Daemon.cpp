@@ -39,6 +39,7 @@ Daemon::Daemon(EffectController &effectsController, std::string socket_path)
 
 // Daemon::~Daemon() { stop(); }
 
+Daemon::~Daemon() { LOG_S(INFO) << "Daemon Module deinitialized"; }
 bool Daemon::isDaemonRunning() {
     return (access(m_socket_path.c_str(), F_OK) == 0 &&
             std::filesystem::exists(m_socket_path));

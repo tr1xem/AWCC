@@ -42,6 +42,7 @@ class LightFX {
 
   public:
     LightFX();
+    ~LightFX();
     void deviceOpen();
     void deviceAcquire();
     void deviceClose();

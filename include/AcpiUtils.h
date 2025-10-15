@@ -15,10 +15,12 @@ class AcpiUtils {
     int m_resolveDevicefromDatabase();
     static bool isIntel();
     static bool isAMD();
+    bool m_testMode{false};
     Daemon &m_daemon;
 
   public:
     AcpiUtils(Daemon &daemon, bool testMode = false);
+    ~AcpiUtils();
     int executeAcpiCommand(int arg1, int arg2 = 0x00, int arg3 = 0x00,
                            int arg4 = 0x00);
     [[nodiscard]] bool hasFeature(FeatureSet f) const;
