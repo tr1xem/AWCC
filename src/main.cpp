@@ -22,6 +22,14 @@ static auto shouldRunDaemon(std::span<char *> args) -> bool {
                                });
 }
 
+static auto shouldRunTestMode(std::span<char *> args) -> bool {
+    return std::ranges::any_of(args.subspan(1), // skip program name
+                               [](char *arg) {
+                                   std::string_view s{arg};
+                                   return s == "--test-mode";
+                               });
+}
+
 static void runDaemonServer(Daemon &daemon) {
 #ifdef NDEBUG
     if (geteuid() != 0) {
@@ -44,7 +52,8 @@ Copyright (c) 2025 tr1x_em. All Rights Reserved.
 App Commands:
   --daemon     (-d)        Run app in Daemon Mode (run with sudo)
   --gui        (-g)        Starts Gui
-  -v           [0,-1,-2]   Runs app in verbose mosde
+  --test-mode              Run in test mode (bypasses device detection)
+  -v                       Runs app in verbose mosde
 
 Keyboard Lighting Controls:
   brightness <0-100>       Set keyboard brightness
@@ -294,8 +303,22 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
 
 int main(int argc, char *argv[]) {
     std::span<char *> args(argv, argc);
-    loguru::g_stderr_verbosity = -1;
-    loguru::init(argc, argv);
+    // loguru::g_stderr_verbosity = -1;
+    // loguru::init(argc, argv);
+
+    bool verbose_mode = false;
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "-v") == 0) {
+            verbose_mode = true;
+            break;
+        }
+    }
+
+    if (verbose_mode) {
+        loguru::g_stderr_verbosity = 0;
+    } else {
+        loguru::g_stderr_verbosity = -1;
+    }
 
     bool start_gui = false;
     for (int i = 1; i < argc; ++i) {
@@ -316,7 +339,8 @@ int main(int argc, char *argv[]) {
         Daemon daemon(effects);
 
         LOG_S(INFO) << "Initializing AcpiUtils Module";
-        AcpiUtils acpiUtils(daemon);
+        bool testMode = awcc::shouldRunTestMode(args);
+        AcpiUtils acpiUtils(daemon, testMode);
 
         LOG_S(INFO) << "Initializing Thermals Module";
         Thermals awccthermals(acpiUtils);
@@ -343,7 +367,8 @@ int main(int argc, char *argv[]) {
         Daemon daemon(effects);
 
         LOG_S(INFO) << "Initializing AcpiUtils Module";
-        AcpiUtils acpiUtils(daemon);
+        bool testMode = awcc::shouldRunTestMode(args);
+        AcpiUtils acpiUtils(daemon, testMode);
 
         LOG_S(INFO) << "Initializing Thermals Module";
         Thermals awccthermals(acpiUtils);
@@ -371,7 +396,8 @@ int main(int argc, char *argv[]) {
         Daemon daemon(effects);
 
         LOG_S(INFO) << "Initializing AcpiUtils Module";
-        AcpiUtils acpiUtils(daemon);
+        bool testMode = awcc::shouldRunTestMode(args);
+        AcpiUtils acpiUtils(daemon, testMode);
 
         LOG_S(INFO) << "Initializing Thermals Module";
         Thermals awccthermals(acpiUtils);

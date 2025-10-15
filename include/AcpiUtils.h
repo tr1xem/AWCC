@@ -18,7 +18,7 @@ class AcpiUtils {
     Daemon &m_daemon;
 
   public:
-    AcpiUtils(Daemon &daemon);
+    AcpiUtils(Daemon &daemon, bool testMode = false);
     int executeAcpiCommand(int arg1, int arg2 = 0x00, int arg3 = 0x00,
                            int arg4 = 0x00);
     [[nodiscard]] bool hasFeature(FeatureSet f) const;

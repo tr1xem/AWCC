@@ -108,14 +108,19 @@ int AcpiUtils::m_resolveDevicefromDatabase() {
     }
 }
 
-AcpiUtils::AcpiUtils(Daemon &daemon) : m_daemon(daemon) {
+AcpiUtils::AcpiUtils(Daemon &daemon, bool testMode) : m_daemon(daemon) {
     LOG_S(INFO) << "Initializing ACPIUtils Module";
     m_acpiPrefix = getPrefix();
     int resolveStatus = m_resolveDevicefromDatabase();
 
     if (!m_deviceResolved || resolveStatus == -1) {
         LOG_S(ERROR) << "Device resolution failed";
-        std::exit(1);
+        if (!testMode) {
+            std::exit(1);
+        } else {
+            LOG_S(INFO) << "Running in test mode - continuing despite device "
+                           "resolution failure";
+        }
     }
 
     LOG_S(INFO)
@@ -211,9 +216,9 @@ int AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4) {
 void AcpiUtils::deviceInfo(bool unknownDevice) {
     if (unknownDevice) {
 
-        LOG_S(ERROR)
-            << "Device Found is currently not supported, please run "
-               "\"awcc test-modes\" and send the output to the developer";
+        LOG_S(ERROR) << "Device Found is currently not supported, please run "
+                        "\"awcc test-modes --test-mode\" and send the output "
+                        "to the developer";
     }
 
     if (!unknownDevice) {
