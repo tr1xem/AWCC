@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(awcc LANGUAGES CXX VERSION 1.7.0)
+project(awcc LANGUAGES CXX VERSION 1.8.0)
 set(APP_NAME awcc)
 
 set(CMAKE_CXX_STANDARD 23)
