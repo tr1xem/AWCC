@@ -2,6 +2,7 @@
 #include "database.h"
 #include <loguru.hpp>
 
+Thermals::~Thermals() { LOG_S(INFO) << "Thermals Module deinitialized"; }
 Thermals::Thermals(AcpiUtils &acpiUtils) : m_acpiUtils(acpiUtils) {
     m_currentMode = queryThermalMode();
     LOG_S(INFO) << "Thermals Module initialized";

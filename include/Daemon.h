@@ -24,6 +24,7 @@ class Daemon {
   public:
     Daemon(EffectController &effectsController,
            std::string socket_path = "/tmp/awcc.sock");
+    ~Daemon();
     void setOnGmodeKeyCallback(std::function<void()> cb) {
         m_onGmodeKeyCallback = std::move(cb);
     }

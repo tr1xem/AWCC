@@ -55,6 +55,9 @@ int AcpiUtils::m_resolveDevicefromDatabase() {
     m_deviceName = getDeviceName();
     std::string path = "/etc/awcc/database.json";
     std::ifstream file(path);
+    if (m_testMode) {
+        return 0;
+    }
 
     if (!file) {
         LOG_S(ERROR) << "Failed to find database.json in :" << path;
@@ -108,33 +111,38 @@ int AcpiUtils::m_resolveDevicefromDatabase() {
     }
 }
 
-AcpiUtils::AcpiUtils(Daemon &daemon, bool testMode) : m_daemon(daemon) {
+AcpiUtils::~AcpiUtils() { LOG_S(INFO) << "ACPIUtils Module deinitialized"; }
+
+AcpiUtils::AcpiUtils(Daemon &daemon, bool testMode)
+    : m_daemon(daemon), m_testMode(testMode) {
     LOG_S(INFO) << "Initializing ACPIUtils Module";
     m_acpiPrefix = getPrefix();
     int resolveStatus = m_resolveDevicefromDatabase();
 
     if (!m_deviceResolved || resolveStatus == -1) {
-        LOG_S(ERROR) << "Device resolution failed";
-        if (!testMode) {
+        if (!m_testMode) {
+            LOG_S(ERROR) << "Device resolution failed";
             std::exit(1);
-        } else {
-            LOG_S(INFO) << "Running in test mode - continuing despite device "
-                           "resolution failure";
         }
     }
-
-    LOG_S(INFO)
-        << "AcpiUtils Module initialization completed got device info and "
-           "feature supported";
-    // LOG_S(INFO) << "FeatureSet: " << m_featureSetBits;
-    // LOG_S(INFO) << "ThermalModes: " << m_thermalModeBits;
-    // LOG_S(INFO) << "LightingModes: " << m_lightingModesBits;
-    // if (m_daemon.isDaemonRunning())
-    //     LOG_S(WARNING) << "Daemon is running, commands will be sent to
-    //     daemon";
-    // else
-    //     LOG_S(WARNING) << "Daemon is not running, running in traditional mode
-    //     ";
+    if (!m_testMode) {
+        LOG_S(INFO)
+            << "AcpiUtils Module initialization completed got device info and "
+               "feature supported";
+        // LOG_S(INFO) << "FeatureSet: " << m_featureSetBits;
+        // LOG_S(INFO) << "ThermalModes: " << m_thermalModeBits;
+        // LOG_S(INFO) << "LightingModes: " << m_lightingModesBits;
+        // if (m_daemon.isDaemonRunning())
+        //     LOG_S(WARNING) << "Daemon is running, commands will be sent to
+        //     daemon";
+        // else
+        //     LOG_S(WARNING) << "Daemon is not running, running in traditional
+        //     mode
+        //     ";
+    } else {
+        LOG_S(WARNING) << "Running in test mode - continuing despite device "
+                          "resolution failure";
+    }
 }
 
 // INFO: Any check for ACPI support should be done before calling this function

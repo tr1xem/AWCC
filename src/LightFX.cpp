@@ -7,6 +7,10 @@
 
 LightFX::LightFX() { LOG_S(INFO) << "LightFX Module initialized"; }
 
+LightFX::~LightFX() {
+    LOG_S(INFO) << "LightFX Module deinitialized";
+    // deviceClose();
+}
 void LightFX::deviceOpen() {
     if (m_libusbContext != nullptr) {
         LOG_S(ERROR) << "LibUsb already initialized";

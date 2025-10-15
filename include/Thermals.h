@@ -12,6 +12,7 @@ class Thermals {
 
   public:
     Thermals(AcpiUtils &acpiUtils);
+    ~Thermals();
     void setThermalMode(ThermalModes mode);
     bool supportsThemeralMode(ThermalModes mode);
     void setCpuBoost(int boost);
