@@ -8,3 +8,4 @@ AGENTS.md
 .cache
 build/
 .cache/
+imgui.ini
