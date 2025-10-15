@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/tr1xem/AWCC/compare/v1.6.0...v1.7.0) (2025-10-15)
+
+
+### 🚀 New Features
+
+* **testmode:** added testmode flag ([86bd0c6](https://github.com/tr1xem/AWCC/commit/86bd0c62c3cd9c4364e190f41bfafa0a4c1c7985))
+
 ## [1.6.0](https://github.com/tr1xem/AWCC/compare/v1.5.0...v1.6.0) (2025-10-14)
 
 
