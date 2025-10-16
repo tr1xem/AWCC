@@ -368,7 +368,7 @@ int main(int argc, char *argv[]) {
 
         LOG_S(INFO) << "Initializing AcpiUtils Module";
         bool testMode = awcc::shouldRunTestMode(args);
-        AcpiUtils acpiUtils(daemon, testMode);
+        AcpiUtils acpiUtils(daemon, true);
 
         LOG_S(INFO) << "Initializing Thermals Module";
         Thermals awccthermals(acpiUtils);
