@@ -81,6 +81,7 @@ Fan Controls (Run as root):
   performance  (p )        High performance mode
   gmode        (g )        Gaming mode (G-Mode)
   cool         (c )        Cool Mode
+  manual       (m )        Manual mode
   gt                       Toggle G-Mode (useful for keybinds)
 
 
@@ -239,6 +240,11 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
     if (cmd == "cool" || cmd == "c") {
         thermals.setThermalMode(ThermalModes::Cool);
         std::cout << "Set fan to Cool mode." << "\n";
+        return 0;
+    }
+    if (cmd == "manual" || cmd == "m") {
+        thermals.setThermalMode(ThermalModes::Manual);
+        std::cout << "Set fan to manual mode." << "\n";
         return 0;
     }
 
