@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/tr1xem/AWCC/compare/v1.8.0...v1.8.1) (2025-10-16)
+
+
+### 🐛 Bug Fixes
+
+* **service:** new cmd line ([9be41c5](https://github.com/tr1xem/AWCC/commit/9be41c5386560b162a468ed42edaba3ed64d860e))
+
 ## [1.8.0](https://github.com/tr1xem/AWCC/compare/v1.7.0...v1.8.0) (2025-10-15)
 
 
