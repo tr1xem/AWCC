@@ -9,6 +9,11 @@
         "thermalModes": "11010111",
         "lightingModes": "111111"
     },
+    "Dell G15 5515": {
+        "featureSet": "1111111",
+        "thermalModes": "11000000",
+        "lightingModes": "111111"
+    },
     "Dell G15 5520": {
         "featureSet": "1111111",
         "thermalModes": "11001111",
