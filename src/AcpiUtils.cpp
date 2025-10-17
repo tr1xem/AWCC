@@ -232,6 +232,7 @@ void AcpiUtils::deviceInfo(bool unknownDevice) {
     if (!unknownDevice) {
         std::cout << "Device Name: " << m_deviceName << "\n";
         std::cout << "Device Prefix: " << m_acpiPrefix << "\n";
+        std::cout << "Version: " << VERSION << "\n";
         std::cout << "Features enabled:\n";
         if (hasFeature(FeatureSet::FanBoost))
             std::cout << "  Fan Boost\n";
