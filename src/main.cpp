@@ -6,6 +6,7 @@
 #include <Renderui.h>
 #include <algorithm>
 #include <cstring>
+#include <format>
 #include <ios>
 #include <iostream>
 #include <loguru.hpp>
@@ -45,7 +46,7 @@ static void runDaemonServer(Daemon &daemon) {
 }
 
 static void printHelp() {
-    std::cout << R"(Alienware Command Center
+    std::cout << std::format(R"(Alienware Command Center v{}
 Copyright (c) 2025 tr1x_em. All Rights Reserved.
 ==========================================
 
@@ -57,19 +58,19 @@ App Commands:
 
 Keyboard Lighting Controls:
   brightness <0-100>       Set keyboard brightness
-  static <color_hex>       Set static color
+  static     <color_hex>   Set static color
   spectrum                 Color spectrum effect
-  breathe <color_hex>      Breathing effect
+  breathe    <color_hex>   Breathing effect
   rainbow                  Rainbow wave effect
-  wave <color_hex>         Wave effect
-  bkf <color_hex>          Back and forth effect
+  wave       <color_hex>   Wave effect
+  bkf        <color_hex>   Back and forth effect
   defaultblue              Default blue color
 
 Light bar Lighting Controls:
   lbbrightness <0-100>     Set light bar brightness
   lbrainbow                Rainbow wave effect
   lbspectrum               Color spectrum effect
-  lbbreathe <color_hex>    Breathing effect
+  lbbreathe    <color_hex> Breathing effect
   lbdefaultblue            Default blue color
 
 Fan Controls (Run as root):
@@ -99,7 +100,9 @@ System Information:
   device-info              Show detected device model and supported features
   test-zones               Scans for zones
   test-modes               Test all thermal modes and show device mappings
-)" << "\n";
+)",
+                             VERSION)
+              << "\n";
 }
 
 static inline uint32_t parseHexColor(const std::string &hex) {
