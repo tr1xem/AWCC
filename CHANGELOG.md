@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.9.0](https://github.com/tr1xem/AWCC/compare/v1.8.1...v1.9.0) (2025-10-17)
+
+
+### 🚀 New Features
+
+* **device:** support for Dell G15 5515 ([3d20c8c](https://github.com/tr1xem/AWCC/commit/3d20c8c47bdd7b8c612b1747b33d4b0032768522))
+* **help:** show app version ([8f86a9f](https://github.com/tr1xem/AWCC/commit/8f86a9fbb86cc257328ae6d50d08a743585307cb))
+* **manual:** add manual mode ([346d785](https://github.com/tr1xem/AWCC/commit/346d785dceccf2c8e3288bfe0e8a36dc87904ba7))
+
+
+### 🐛 Bug Fixes
+
+* **daemon:** run daemon always ([c922e41](https://github.com/tr1xem/AWCC/commit/c922e41b0221252534026956c4a293570659452c))
+
 ## [1.8.1](https://github.com/tr1xem/AWCC/compare/v1.8.0...v1.8.1) (2025-10-16)
 
 
