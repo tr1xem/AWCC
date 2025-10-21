@@ -15,9 +15,13 @@ const char *AcpiUtils::getPrefix() {
         LOG_S(ERROR) << "Cannot read /proc/cpuinfo";
         std::exit(1);
     }
-    std::string deviceName = getDeviceName();
     std::string line;
-    LOG_S(INFO) << "Device Name: TEST BEABABABABABABBA " << deviceName;
+    std::string deviceName = getDeviceName();
+    // NOTE: Dell is just doing some weird things with this device only it made
+    // amd's perfix like intel's for no reason apparently
+    //
+    // TODO:
+    // Find some other device so that i can modularise it
     if (deviceName.contains("Alienware m18 R1 AMD")) {
         return "AMWW";
     }
