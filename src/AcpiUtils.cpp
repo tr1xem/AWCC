@@ -15,7 +15,11 @@ const char *AcpiUtils::getPrefix() {
         LOG_S(ERROR) << "Cannot read /proc/cpuinfo";
         std::exit(1);
     }
+    const char *deviceName = getDeviceName();
     std::string line;
+    if (deviceName == "Alienware m18 R1 AMD") {
+        return "AMWW";
+    }
     while (std::getline(cpuinfo, line)) {
         if (line.find("vendor_id") != std::string::npos) {
             if (line.find("GenuineIntel") != std::string::npos) {
