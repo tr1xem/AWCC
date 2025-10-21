@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.10.0](https://github.com/tr1xem/AWCC/compare/v1.9.0...v1.10.0) (2025-10-21)
+
+
+### 🚀 New Features
+
+* **device:** support for Alienware m18 R1 AMD ([ae163bd](https://github.com/tr1xem/AWCC/commit/ae163bd14ff0196e62adf60246540c4a7a4c35d6))
+* **gmode:** toggle for Dell G15 5515 ([4b2c28b](https://github.com/tr1xem/AWCC/commit/4b2c28bdd77b4fab8e899b553f104c33fcb1b1fa))
+* **lb:** lightbar brightness toggle ([7b76025](https://github.com/tr1xem/AWCC/commit/7b7602508ea31a9368794c79972b72a4162a38b9))
+
+
+### 🐛 Bug Fixes
+
+* **prefix:** for m18 ([ae3cae2](https://github.com/tr1xem/AWCC/commit/ae3cae2ecc2eb9b76a4fd7ea63c8cc638e19fbaa))
+
+
+### ⚙️ Chores
+
+* **device:** device tested ([9f322d4](https://github.com/tr1xem/AWCC/commit/9f322d4fbfb78c47325d92132000e1b1989c72e1))
+
 ## [1.9.0](https://github.com/tr1xem/AWCC/compare/v1.8.1...v1.9.0) (2025-10-17)
 
 
