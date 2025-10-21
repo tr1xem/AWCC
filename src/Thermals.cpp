@@ -124,7 +124,12 @@ const char *Thermals::getCurrentModeName() {
 }
 
 void Thermals::toggleGmode() {
+    std::string deviceName = AcpiUtils::getDeviceName();
     if (queryThermalMode() == ThermalModes::Gmode) {
+        if (deviceName.contains("Dell G15 5515")) {
+            setThermalMode(ThermalModes::Manual);
+            return;
+        }
         setThermalMode(m_defaultMode);
     } else {
         setThermalMode(ThermalModes::Gmode);
