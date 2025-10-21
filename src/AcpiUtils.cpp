@@ -17,6 +17,7 @@ const char *AcpiUtils::getPrefix() {
     }
     const char *deviceName = getDeviceName();
     std::string line;
+    LOG_S(INFO) << "Device Name: TEST BEABABABABABABBA " << deviceName;
     if (deviceName == "Alienware m18 R1 AMD") {
         return "AMWW";
     }
