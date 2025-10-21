@@ -114,6 +114,7 @@ Need support or want this project to support your device ? Join our [Discord com
 - Dell G16 7630
 - Alienware m16 R2 (execpt keyboard all lights work)
 - Alienware m17 R5 AMD
+- Alienware m18 R1 AMD
 
 ## 🗺️ Roadmap
 
