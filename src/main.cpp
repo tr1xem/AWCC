@@ -384,6 +384,8 @@ int main(int argc, char *argv[]) {
 
         daemon.setOnGmodeKeyCallback(
             [&awccthermals]() { awccthermals.toggleGmode(); });
+        daemon.setDeviceName(
+            [&acpiUtils]() { return AcpiUtils::getDeviceName(); });
         awcc::runDaemonServer(daemon);
 
         if (geteuid() != 0) {

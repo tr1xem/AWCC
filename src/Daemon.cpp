@@ -89,6 +89,10 @@ void Daemon::m_onLightKey() {
         break;
     }
     m_effectsController.Brightness(m_brightness);
+    std::string deviceName = m_deviceName();
+    if (deviceName.contains("Dell G15 Special Edition 5521")) {
+        m_effectsController.LightBarBrightness(m_brightness);
+    }
 }
 
 // TODO: Make it only allow a certain type of commands
