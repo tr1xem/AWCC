@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.0](https://github.com/tr1xem/AWCC/compare/v1.10.0...v1.11.0) (2025-10-27)
+
+
+### 🚀 New Features
+
+* **device:** support Alienware 16 Area-51 AA16250 ([c766eb0](https://github.com/tr1xem/AWCC/commit/c766eb0421ca61e974f0ce2a327f4e51e0e80de6))
+* **device:** support for Alienware 16 Aurora AC16250 ([c90df84](https://github.com/tr1xem/AWCC/commit/c90df849d00f1b101332bb395bcd52302e5d6ff3))
+
 ## [1.10.0](https://github.com/tr1xem/AWCC/compare/v1.9.0...v1.10.0) (2025-10-21)
 
 
