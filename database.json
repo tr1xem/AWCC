@@ -34,6 +34,11 @@
         "thermalModes": "11001111",
         "lightingModes": "111111"
     },
+    "Dell G16 7620": {
+        "featureSet": "1111111",
+        "thermalModes": "11001111",
+        "lightingModes": "000111"
+    },
     "Dell G16 7630": {
         "featureSet": "1111111",
         "thermalModes": "11001111",
