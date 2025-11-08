@@ -116,6 +116,7 @@ Need support or want this project to support your device ? Join our [Discord com
 - Alienware m16 R2 (execpt keyboard all lights work)
 - Alienware m17 R5 AMD
 - Alienware m18 R1 AMD
+- Alienware m18 R2
 - Alienware 16 Area-51 AA16250(lighting is bugged)
 - Alienware 16 Aurora AC16250
 
