@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.12.0](https://github.com/tr1xem/AWCC/compare/v1.11.0...v1.12.0) (2025-11-13)
+
+
+### 🚀 New Features
+
+* **device:** add support for Dell G16 7620 ([889cc70](https://github.com/tr1xem/AWCC/commit/889cc70777c1b416c0707092340f1ac52618d791))
+* **device:** support for Alienware x16 R2 ([892bf72](https://github.com/tr1xem/AWCC/commit/892bf72d9d71a04e8a3b89a102cda56eeedb293e))
+* **device:** support for m18 r2 ([2fd86eb](https://github.com/tr1xem/AWCC/commit/2fd86eb9549fb330934defc4fab63f9e7034668a))
+
+
+### ♻️ Code Refactoring
+
+* **helper:** minor refactor ([a6545ff](https://github.com/tr1xem/AWCC/commit/a6545ff493ae0d97865ea5881d02e757beb5e77e))
+
 ## [1.11.0](https://github.com/tr1xem/AWCC/compare/v1.10.0...v1.11.0) (2025-10-27)
 
 
