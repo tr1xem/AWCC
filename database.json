@@ -78,5 +78,10 @@
         "featureSet": "1111111",
         "thermalModes": "11110111",
         "lightingModes": "111111"
+    },
+    "Alienware Aurora R9": {
+        "featureSet": "1111111",
+        "thermalModes": "00000110",
+        "lightingModes": "111111"
     }
 }
