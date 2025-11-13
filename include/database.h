@@ -12,14 +12,14 @@ enum class FeatureSet : std::uint8_t {
 };
 
 enum class ThermalModes : std::uint8_t {
-    Manual = 0x0,
-    Balanced = 0xa0,
-    Performance = 0xa1,
-    Cool = 0xa2,
-    Quiet = 0xa3,
-    FullSpeed = 0xa4, // Legacy
-    BatterySaver = 0xa5,
-    Gmode = 0xab,
+    Manual,
+    Balanced,
+    Performance,
+    Cool,
+    Quiet,
+    FullSpeed, // Legacy
+    BatterySaver,
+    Gmode,
 };
 
 enum class ThermalModeSet : std::uint8_t {
