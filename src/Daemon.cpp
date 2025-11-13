@@ -2,6 +2,7 @@
 #include "EffectController.h"
 #include "KeyBinder.h"
 #include "LightFX.h"
+#include "helper.h"
 #include <csignal>
 #include <cstdlib>
 #include <cstring>
@@ -89,7 +90,7 @@ void Daemon::m_onLightKey() {
         break;
     }
     m_effectsController.Brightness(m_brightness);
-    std::string deviceName = m_deviceName();
+    std::string deviceName = Helper::getDeviceName();
     if (deviceName.contains("Dell G15 Special Edition 5521")) {
         m_effectsController.LightBarBrightness(m_brightness);
     }

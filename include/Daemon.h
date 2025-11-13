@@ -19,7 +19,6 @@ class Daemon {
     void m_onGmodeKey();
     void m_onLightKey();
     std::function<void()> m_onGmodeKeyCallback;
-    std::function<std::string()> m_deviceName;
     static bool m_CommandAllowed(const std::string &cmd);
 
   public:
@@ -28,9 +27,6 @@ class Daemon {
     ~Daemon();
     void setOnGmodeKeyCallback(std::function<void()> cb) {
         m_onGmodeKeyCallback = std::move(cb);
-    }
-    void setDeviceName(std::function<std::string()> cb) {
-        m_deviceName = std::move(cb);
     }
     bool isDaemonRunning();
     void init();
