@@ -299,7 +299,7 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
     }
 
     if (cmd == "test-modes") {
-        acpiUtils.testThermalModes();
+        thermals.testThermalModes();
         return 0;
     }
 
