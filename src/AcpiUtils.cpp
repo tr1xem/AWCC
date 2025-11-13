@@ -1,4 +1,5 @@
 #include "AcpiUtils.h"
+#include "helper.h"
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -16,7 +17,7 @@ const char *AcpiUtils::getPrefix() {
         std::exit(1);
     }
     std::string line;
-    std::string deviceName = getDeviceName();
+    std::string deviceName = Helper::getDeviceName();
     // NOTE: Dell is just doing some weird things with this device only it made
     // amd's perfix like intel's for no reason apparently
     //
@@ -24,6 +25,10 @@ const char *AcpiUtils::getPrefix() {
     // Find some other device so that i can modularise it
     if (deviceName.contains("Alienware m18 R1 AMD")) {
         return "AMWW";
+    }
+    // NOTE: Aurora are weird??
+    if (deviceName.contains("Aurora")) {
+        return "AMW1";
     }
     while (std::getline(cpuinfo, line)) {
         if (line.find("vendor_id") != std::string::npos) {
@@ -41,27 +46,8 @@ const char *AcpiUtils::getPrefix() {
     return "";
 }
 
-const char *AcpiUtils::getDeviceName() {
-    static std::string deviceName;
-    std::ifstream dmiFile("/sys/class/dmi/id/product_name");
-    if (!dmiFile.is_open()) {
-        LOG_S(ERROR) << "Cannot read /sys/class/dmi/id/product_name";
-        std::exit(1);
-    }
-
-    std::stringstream buffer;
-    buffer << dmiFile.rdbuf();
-    deviceName = buffer.str();
-
-    if (!deviceName.empty() && deviceName.back() == '\n') {
-        deviceName.pop_back();
-    }
-
-    return deviceName.c_str();
-};
-
 int AcpiUtils::m_resolveDevicefromDatabase() {
-    m_deviceName = getDeviceName();
+    m_deviceName = Helper::getDeviceName();
     std::string path = "/etc/awcc/database.json";
     std::ifstream file(path);
     if (m_testMode) {

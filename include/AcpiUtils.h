@@ -29,7 +29,6 @@ class AcpiUtils {
 
     [[nodiscard]] bool hasLightingMode(LightingSet l) const;
     void deviceInfo(bool unknownDevice = false);
-    static const char *getDeviceName();
     [[nodiscard]] bool getTurboBoost() const;
     bool setTurboBoost(bool enable);
     void testThermalModes();

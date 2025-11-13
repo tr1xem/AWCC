@@ -1,5 +1,6 @@
 #include "Thermals.h"
 #include "database.h"
+#include "helper.h"
 #include <loguru.hpp>
 
 Thermals::~Thermals() { LOG_S(INFO) << "Thermals Module deinitialized"; }
@@ -124,7 +125,7 @@ const char *Thermals::getCurrentModeName() {
 }
 
 void Thermals::toggleGmode() {
-    std::string deviceName = AcpiUtils::getDeviceName();
+    std::string deviceName = Helper::getDeviceName();
     if (queryThermalMode() == ThermalModes::Gmode) {
         if (deviceName.contains("Dell G15 5515")) {
             setThermalMode(ThermalModes::Manual);

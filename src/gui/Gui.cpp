@@ -5,6 +5,7 @@
 #include "database.h"
 #include "imgui.h"
 #define STB_IMAGE_IMPLEMENTATION
+#include "helper.h"
 #include <GL/gl.h>
 #include <stb_image.h>
 #include <string>
@@ -387,8 +388,7 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
 
         ImGui::PushFont(&fontbold);
         ImGui::SetCursorPos(ImVec2(10, 10));
-        ImGui::Text("Alienware Command Centre - %s",
-                    AcpiUtils::getDeviceName());
+        ImGui::Text("Alienware Command Centre - %s", Helper::getDeviceName());
         // ImGui::SameLine();
         // ImGui::SetCursorPosX(ImGui::GetWindowWidth() -
         //                      ImGui::CalcTextSize("x").x -

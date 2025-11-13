@@ -1,6 +1,7 @@
 #include "EffectController.h"
 #include "Gui.h"
 #include "Renderui.h"
+#include "helper.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -25,8 +26,8 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    std::string title = std::format("Alienware Command Centre - {}",
-                                    AcpiUtils::getDeviceName());
+    std::string title =
+        std::format("Alienware Command Centre - {}", Helper::getDeviceName());
     float main_scale =
         ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
     GLFWwindow *window =
