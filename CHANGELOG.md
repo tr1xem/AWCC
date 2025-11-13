@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.13.0](https://github.com/tr1xem/AWCC/compare/v1.12.0...v1.13.0) (2025-11-13)
+
+
+### 🚀 New Features
+
+* **device:** support Alienware Aurora R9 ([865b372](https://github.com/tr1xem/AWCC/commit/865b372fe5e62211e162e70ccf4da7e538ea3598))
+
+
+### ♻️ Code Refactoring
+
+* **acpi:** thermal mode reference ([37e0f98](https://github.com/tr1xem/AWCC/commit/37e0f9853b6a8cb795fdc7cb9fe08ec093bb973d))
+* **thermal:** bidirectional patching ([2b16f20](https://github.com/tr1xem/AWCC/commit/2b16f209e851d1d0d92b3ce90cd0846ea25a5cd1))
+
 ## [1.12.0](https://github.com/tr1xem/AWCC/compare/v1.11.0...v1.12.0) (2025-11-13)
 
 
