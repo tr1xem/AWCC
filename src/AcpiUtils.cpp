@@ -27,7 +27,7 @@ const char *AcpiUtils::getPrefix() {
         return "AMWW";
     }
     // NOTE: Aurora are weird??
-    if (deviceName.contains("Aurora")) {
+    if (deviceName.contains("Alienware Aurora R9")) {
         return "AMW1";
     }
     while (std::getline(cpuinfo, line)) {

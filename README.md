@@ -120,6 +120,7 @@ Need support or want this project to support your device ? Join our [Discord com
 - Alienware m18 R2
 - Alienware 16 Area-51 AA16250(lighting is bugged)
 - Alienware 16 Aurora AC16250
+- Alienware Aurora R9
 
 ## 🗺️ Roadmap
 
