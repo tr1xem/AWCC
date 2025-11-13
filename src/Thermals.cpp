@@ -1,7 +1,11 @@
 #include "Thermals.h"
 #include "database.h"
 #include "helper.h"
+#include <bitset>
+#include <format>
+#include <iostream>
 #include <loguru.hpp>
+#include <vector>
 
 Thermals::~Thermals() { LOG_S(INFO) << "Thermals Module deinitialized"; }
 Thermals::Thermals(AcpiUtils &acpiUtils) : m_acpiUtils(acpiUtils) {
@@ -169,4 +173,116 @@ void Thermals::patchModes(const std::string &deviceName) {
         m_modeToSetCode[ThermalModes::Performance] = 0x198;
         m_getCodeToMode[0x98] = ThermalModes::Performance;
     }
+}
+
+std::uint16_t Thermals::getThermalModeCode(ThermalModes mode) {
+    // Static method to provide default thermal mode codes for testing
+    // This returns the standard codes without device-specific overrides
+    switch (mode) {
+    case ThermalModes::Manual:
+        return 0x0;
+    case ThermalModes::Balanced:
+        return 0xa0;
+    case ThermalModes::Performance:
+        return 0xa1;
+    case ThermalModes::Cool:
+        return 0xa2;
+    case ThermalModes::Quiet:
+        return 0xa3;
+    case ThermalModes::FullSpeed:
+        return 0xa4;
+    case ThermalModes::BatterySaver:
+        return 0xa5;
+    case ThermalModes::Gmode:
+        return 0xab;
+    default:
+        return 0x0; // fallback to Manual
+    }
+}
+
+void Thermals::testThermalModes() {
+    std::cout << "Device Name: " << Helper::getDeviceName() << "\n";
+    std::cout << "Testing thermal modes...\n\n";
+
+    std::vector<int> testModes;
+
+    for (int i = 0xa0; i <= 0xa9; ++i) {
+        testModes.push_back(i);
+    }
+
+    for (int i = 0xaa; i <= 0xab; ++i) {
+        testModes.push_back(i);
+    }
+
+    for (int mode : testModes) {
+        int result = m_acpiUtils.executeAcpiCommand(0x15, 0x01, mode, 0x00);
+
+        // Find the mode name using reverse lookup
+        std::string modeName = "Unknown";
+        auto it = m_getCodeToMode.find(static_cast<std::uint16_t>(mode));
+        if (it != m_getCodeToMode.end()) {
+            modeName = m_modeToName[it->second];
+        }
+
+        std::cout << std::format("{:#x} -> {:#x} ({})\n", mode, result,
+                                 modeName);
+    }
+
+    std::string bitmap = generateThermalModesBitmap();
+    std::cout << "\nGenerated thermal modes bitmap for database.json:\n";
+    std::cout << std::format("\"thermalModes\": \"{}\"\n", bitmap);
+
+    std::cout << "\nReverting to balanced.\n";
+    setThermalMode(ThermalModes::Balanced);
+}
+
+std::string Thermals::generateThermalModesBitmap() {
+    std::bitset<8> bitmap{0};
+
+    if (m_acpiUtils.executeAcpiCommand(
+            0x15, 0x01, static_cast<int>(m_modeToSetCode[ThermalModes::Quiet]),
+            0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::Quiet);
+    }
+    if (m_acpiUtils.executeAcpiCommand(
+            0x15, 0x01,
+            static_cast<int>(m_modeToSetCode[ThermalModes::Balanced]),
+            0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::Balanced);
+    }
+    if (m_acpiUtils.executeAcpiCommand(
+            0x15, 0x01,
+            static_cast<int>(m_modeToSetCode[ThermalModes::Performance]),
+            0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::Performance);
+    }
+    if (m_acpiUtils.executeAcpiCommand(
+            0x15, 0x01,
+            static_cast<int>(m_modeToSetCode[ThermalModes::BatterySaver]),
+            0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::BatterySaver);
+    }
+    if (m_acpiUtils.executeAcpiCommand(
+            0x15, 0x01, static_cast<int>(m_modeToSetCode[ThermalModes::Cool]),
+            0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::Cool);
+    }
+    if (m_acpiUtils.executeAcpiCommand(
+            0x15, 0x01,
+            static_cast<int>(m_modeToSetCode[ThermalModes::FullSpeed]),
+            0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::FullSpeed);
+    }
+    if (m_acpiUtils.executeAcpiCommand(
+            0x15, 0x01, static_cast<int>(m_modeToSetCode[ThermalModes::Gmode]),
+            0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::GMode);
+    }
+    if (m_acpiUtils.executeAcpiCommand(
+            0x15, 0x01, static_cast<int>(m_modeToSetCode[ThermalModes::Manual]),
+            0x00) == 0) {
+        bitmap |= static_cast<uint8_t>(ThermalModeSet::Manual);
+    }
+
+    return bitmap.to_string();
 }

@@ -34,4 +34,11 @@ class Thermals {
     ThermalModes queryThermalMode();
     const char *getCurrentModeName();
     void toggleGmode();
+
+    // Static method to get thermal mode codes for testing purposes
+    static std::uint16_t getThermalModeCode(ThermalModes mode);
+
+    // Thermal mode testing functionality
+    void testThermalModes();
+    std::string generateThermalModesBitmap();
 };

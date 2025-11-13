@@ -31,7 +31,4 @@ class AcpiUtils {
     void deviceInfo(bool unknownDevice = false);
     [[nodiscard]] bool getTurboBoost() const;
     bool setTurboBoost(bool enable);
-    void testThermalModes();
-    static const char *getThermalModeString(int mode);
-    std::string generateThermalModesBitmap();
 };
