@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.13.0](https://github.com/tr1xem/AWCC/compare/v1.12.0...v1.13.0) (2025-11-22)
+
+
+### 🚀 New Features
+
+* **device:** 5510 ([2c7653e](https://github.com/tr1xem/AWCC/commit/2c7653ef555b68f3f04a7c14c7f5575261ab2a63))
+* **device:** support Alienware Aurora R9 ([865b372](https://github.com/tr1xem/AWCC/commit/865b372fe5e62211e162e70ccf4da7e538ea3598))
+
+
+### 🐛 Bug Fixes
+
+* **gui:** fix gui shinking in hyprland ([73452d4](https://github.com/tr1xem/AWCC/commit/73452d474d146814a248e78f14d1b44762877dfc))
+
+
+### ♻️ Code Refactoring
+
+* **acpi:** thermal mode reference ([37e0f98](https://github.com/tr1xem/AWCC/commit/37e0f9853b6a8cb795fdc7cb9fe08ec093bb973d))
+* **thermal:** bidirectional patching ([2b16f20](https://github.com/tr1xem/AWCC/commit/2b16f209e851d1d0d92b3ce90cd0846ea25a5cd1))
+
 ## [1.12.0](https://github.com/tr1xem/AWCC/compare/v1.11.0...v1.12.0) (2025-11-13)
 
 
