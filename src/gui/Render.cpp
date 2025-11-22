@@ -24,8 +24,8 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
     const char *glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
+    // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    //
     std::string title =
         std::format("Alienware Command Centre - {}", Helper::getDeviceName());
     float main_scale =
