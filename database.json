@@ -49,6 +49,11 @@
         "thermalModes": "11001111",
         "lightingModes": "000111"
     },
+    "Alienware m15 Ryzen Ed. R5": {
+        "thermalModes": "11110111",
+        "thermalModes": "11000000",
+        "lightingModes": "111111"
+    },
     "Alienware m16 R1": {
         "featureSet": "1111111",
         "thermalModes": "11110111",

@@ -105,6 +105,7 @@ Need support or want this project to support your device ? Join our [Discord com
 **Tested on:**
 
 - Dell G7 7500
+- Dell G15 5510
 - Dell G15 5511
 - Dell G15 5515
 - Dell G15 5520
@@ -113,6 +114,7 @@ Need support or want this project to support your device ? Join our [Discord com
 - Dell G15 5530
 - Dell G16 7620
 - Dell G16 7630
+- Alienware m15 Ryzen Ed. R5
 - Alienware m16 R2 (execpt keyboard all lights work)
 - Alienware m17 R5 AMD
 - Alienware m18 R1 AMD
