@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.0](https://github.com/tr1xem/AWCC/compare/v1.13.0...v1.14.0) (2025-11-30)
+
+
+### 🚀 New Features
+
+* **device:** m15 Ryz ([a92b134](https://github.com/tr1xem/AWCC/commit/a92b1340dfe51fc57c66b5921f13b04a4d693c9f))
+
 ## [1.13.0](https://github.com/tr1xem/AWCC/compare/v1.12.0...v1.13.0) (2025-11-22)
 
 
