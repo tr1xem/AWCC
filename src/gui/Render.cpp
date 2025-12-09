@@ -5,6 +5,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "resource.h"
 #include <format>
 #include <loguru.hpp>
 #include <string>
@@ -15,24 +16,31 @@ static void glfw_error_callback(int error, const char *description) {
     LOG_S(ERROR) << "GLFW Error " << error << ": " << description;
 }
 
+static void keepWindowSizeFixed(GLFWwindow *window, int bufferWidth,
+                                int bufferHeight) {
+    int w = 600, h = 900;
+    glfwGetWindowSize(window, &w, &h);
+    if (w != bufferWidth) {
+        w = float(w);
+        h = float(h);
+        glfwSetWindowSize(window, w * w / bufferWidth, h * h / bufferHeight);
+    }
+}
 bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
                     EffectController &effects) {
     glfwSetErrorCallback(glfw_error_callback);
+    glfwInitHint(GLFW_WAYLAND_LIBDECOR, GLFW_WAYLAND_DISABLE_LIBDECOR);
     if (glfwInit() == 0)
         return false;
 
     const char *glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    //
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     std::string title =
         std::format("Alienware Command Centre - {}", Helper::getDeviceName());
-    float main_scale =
-        ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
     GLFWwindow *window =
-        glfwCreateWindow((int)(600 * main_scale), (int)(900 * main_scale),
-                         title.c_str(), nullptr, nullptr);
+        glfwCreateWindow(600, 900, title.c_str(), nullptr, nullptr);
     if (window == nullptr)
         return true;
     glfwMakeContextCurrent(window);
@@ -42,38 +50,18 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     (void)io;
+    ImFontConfig cfg;
+    cfg.FontDataOwnedByAtlas = false;
+    ImFont *font = io.Fonts->AddFontFromMemoryTTF(
+        roboto_regular, static_cast<int>(roboto_regular_len), 17.0F, &cfg);
+    ImFont *fontbold = io.Fonts->AddFontFromMemoryTTF(
+        roboto_bold, static_cast<int>(roboto_bold_len), 18.0F, &cfg);
+    ImFont *smallFont = io.Fonts->AddFontFromMemoryTTF(
+        roboto_light, static_cast<int>(roboto_light_len), 17.0F, &cfg);
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-
-    // io.ConfigViewportsNoAutoMerge = true;
-    // io.ConfigViewportsNoTaskBarIcon = true;
-
-    // Setup Dear ImGui style
-    // ImGui::StyleColorsDark();
-    // ImGui::StyleColorsLight();
-
-    ImGuiStyle &style = ImGui::GetStyle();
-    style.ScaleAllSizes(main_scale);
-
-    style.FontScaleDpi = main_scale;
-
-    // if ((io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) != 0) {
-    //     style.WindowRounding = 0.0F;
-    //     style.Colors[ImGuiCol_WindowBg].w = 1.0F;
-    // }
-
-    // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
-
-    ImFont *font =
-        io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Roboto-Regular.ttf");
-    if (font == nullptr) {
-        // Fallback 2: use default font
-        font = io.Fonts->AddFontDefault();
-    }
-
-    IM_ASSERT(font != nullptr);
 
     // Our state
 
@@ -101,20 +89,12 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
     static int gpuBoost{thermals.getGpuBoost()};
     static int cpuBoost{thermals.getCpuBoost()};
     static int brightness{effects.getBrightness()};
-    ImFont *fontbold =
-        io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Roboto-Bold.ttf");
-    if (fontbold == nullptr) {
-        // Fallback 2: use default font
-        fontbold = io.Fonts->AddFontDefault();
-    }
-    ImFont *smallFont = io.Fonts->AddFontFromFileTTF(
-        "/usr/share/fonts/TTF/Roboto-Light.ttf", 17.0F);
-    if (smallFont == nullptr) {
-        // Fallback 2: use default font
-        smallFont = io.Fonts->AddFontDefault();
-    }
+
     static bool turbo{acpiUtils.getTurboBoost()};
 
+    static int h, w;
+    // glfwGetFramebufferSize(window, &w, &h);
+    // keepWindowSizeFixed(window, w, h);
     // Main loop
     while (glfwWindowShouldClose(window) == 0) {
         glfwPollEvents();
@@ -124,13 +104,14 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
         }
 
         static int h, w;
-        glfwGetFramebufferSize(window, &w, &h);
+        glfwGetWindowSize(window, &w, &h);
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        ImVec4 clear_color = ImVec4(0.45F, 0.55F, 0.60F, 1.00F);
+        ImVec4 clear_color = ImVec4(0.00F, 0.00F, 0.00F, 0.00F);
 
+        // LOG_S(INFO) << "Rendering" << h << w;
         Gui::App(h, w, thermals, acpiUtils, selected, gpuBoost, cpuBoost,
                  *smallFont, *fontbold, brightness, effects, turbo);
 
