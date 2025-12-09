@@ -15,7 +15,7 @@ AWCC\* is an unofficial alternative to Alienware Command Centre of Windows for t
 ## ✨ Features
 
 - 🖥️ **GUI and CLI support**
-- ⚡ **Lightweight** (uses around ~100mb of RAM with GUI, else 6mb RAM)
+- ⚡ **Lightweight** (uses around ~88mb of RAM with GUI open, else 6mb RAM)
 - 🌈 **All Light Effects**
 - 🧑‍💻 **Daemon Support** (no sudo needed if daemon is running)
 - 🎮 **GMode and Light Key autobinding** just like Windows
@@ -140,6 +140,7 @@ Need support or want this project to support your device ? Join our [Discord com
 - [x] ⌨️ Grab Unmark keys directly from daemon using `evdev`
 - [ ] 👾 Other Zones like head and support for `Alienware` - Low Priority
 - [x] 🐞 Verbose and Debug Mode
+- [ ] New backend for thermal mode
 
 ## 🙏 Credits
 
