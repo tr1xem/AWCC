@@ -1,9 +1,9 @@
 #include "Gui.h"
 #include "AcpiUtils.h"
 #include "EffectController.h"
-#include "Resources.hpp"
 #include "database.h"
 #include "imgui.h"
+#include "resource.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "helper.h"
 #include <GL/gl.h>
@@ -240,8 +240,11 @@ static void ModeButtonList(const char *labels[], Thermals &thermals,
     float region_width = ImGui::GetContentRegionAvail().x;
     float button_width = (region_width - total_spacing) / button_count;
     float button_height = 80.0F;
-    ImTextureID icons[] = {batteryModeimg, quiteModeimg, balancedModeimg,
-                           performanceModeimg, gmodeimg};
+    ImTextureID icons[] = {(ImTextureID)(intptr_t)batteryModeimg,
+                           (ImTextureID)(intptr_t)quiteModeimg,
+                           (ImTextureID)(intptr_t)balancedModeimg,
+                           (ImTextureID)(intptr_t)performanceModeimg,
+                           (ImTextureID)(intptr_t)gmodeimg};
 
     for (int i = 0; i < button_count; ++i) {
         if (SelectableImageButton(
@@ -372,7 +375,7 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
     static ImGuiWindowFlags main_flags =
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoScrollWithMouse |
+        ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
         ImGuiWindowFlags_NoBringToFrontOnFocus;
 
     {
