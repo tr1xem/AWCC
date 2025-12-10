@@ -16,3 +16,5 @@ extern unsigned char roboto_light[];
 extern unsigned int roboto_light_len;
 extern unsigned char roboto_regular[];
 extern unsigned int roboto_regular_len;
+extern unsigned char roboto_medium[];
+extern unsigned int roboto_medium_len;
