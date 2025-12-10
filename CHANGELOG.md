@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.1](https://github.com/tr1xem/AWCC/compare/v1.14.0...v1.14.1) (2025-12-10)
+
+
+### 🐛 Bug Fixes
+
+* **font:** static footer font ([2cdfbf3](https://github.com/tr1xem/AWCC/commit/2cdfbf37da387970b700cc458a1b21dbfe5993d9))
+
 ## [1.14.0](https://github.com/tr1xem/AWCC/compare/v1.13.0...v1.14.0) (2025-12-09)
 
 
