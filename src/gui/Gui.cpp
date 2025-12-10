@@ -518,12 +518,11 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
         // NOTE: FO0TER
 
         static ImGuiIO &io = ImGui::GetIO();
-        static ImFont *fontfooter = ImGui::GetIO().Fonts->AddFontFromFileTTF(
-            "/usr/share/fonts/TTF/Roboto-Medium.ttf", 15.0F);
-        if (fontfooter == nullptr) {
-            // Fallback 2: use default font
-            fontfooter = io.Fonts->AddFontDefault();
-        }
+
+        ImFontConfig cfg;
+        cfg.FontDataOwnedByAtlas = false;
+        static ImFont *fontfooter = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(
+            roboto_medium, roboto_medium_len, 15.0F, &cfg);
         ImGui::PushFont(fontfooter);
 #ifndef NDEBUG
         const std::string VerText =
