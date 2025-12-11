@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.14.2](https://github.com/tr1xem/AWCC/compare/v1.14.1...v1.14.2) (2025-12-11)
+
+
+### 🐛 Bug Fixes
+
+* **alienware:** leagcy ([ef6371b](https://github.com/tr1xem/AWCC/commit/ef6371b8a99a2d2910b9f2e5f7c20b85e11a6f5a))
+* **alienware:** support area-51m ([110354b](https://github.com/tr1xem/AWCC/commit/110354bde6fa0746be9410fd0360555dd60c322b))
+
 ## [1.14.1](https://github.com/tr1xem/AWCC/compare/v1.14.0...v1.14.1) (2025-12-10)
 
 
