@@ -173,6 +173,19 @@ void Thermals::patchModes(const std::string &deviceName) {
         m_modeToSetCode[ThermalModes::Performance] = 0x198;
         m_getCodeToMode[0x98] = ThermalModes::Performance;
     }
+    if (deviceName.contains("Alienware 17 R5")) {
+        m_modeToSetCode[ThermalModes::Quiet] = 0x196;
+        m_getCodeToMode[0x96] = ThermalModes::Quiet;
+
+        m_modeToSetCode[ThermalModes::Balanced] = 0x197;
+        m_getCodeToMode[0x97] = ThermalModes::Balanced;
+
+        m_modeToSetCode[ThermalModes::Performance] = 0x198;
+        m_getCodeToMode[0x98] = ThermalModes::Performance;
+
+        // m_modeToSetCode[ThermalModes::Gmode] = 0x199;
+        // m_getCodeToMode[0x99] = ThermalModes::Gmode;
+    }
 }
 
 std::uint16_t Thermals::getThermalModeCode(ThermalModes mode) {
