@@ -124,6 +124,7 @@ Need support or want this project to support your device ? Join our [Discord com
 - Alienware 16 Aurora AC16250
 - Alienware Aurora R9
 - Alienware Area-51m R2
+- Alienware 16 Aurora AC16251
 
 ## 🗺️ Roadmap
 
