@@ -99,6 +99,11 @@
         "thermalModes": "11110111",
         "lightingModes": "111111"
     },
+    "Alienware 16 Aurora AC16251": {
+        "featureSet": "1111111",
+        "thermalModes": "11110111",
+        "lightingModes": "111111"
+    },
     "Alienware Aurora R9": {
         "featureSet": "1111111",
         "thermalModes": "00000110",
