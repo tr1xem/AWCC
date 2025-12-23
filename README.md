@@ -105,6 +105,7 @@ Need support or want this project to support your device ? Join our [Discord com
 **Tested on:**
 
 - Dell G7 7500
+- Dell G7 7700
 - Dell G15 5510
 - Dell G15 5511
 - Dell G15 5515
