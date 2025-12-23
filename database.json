@@ -89,6 +89,11 @@
         "thermalModes": "11110111",
         "lightingModes": "111111"
     },
+    "Alienware x17 R1": {
+        "featureSet": "1111111",
+        "thermalModes": "11001111",
+        "lightingModes": "111111"
+    },
     "Alienware 16 Area-51 AA16250": {
         "featureSet": "1111111",
         "thermalModes": "11110111",
