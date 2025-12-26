@@ -45,33 +45,33 @@ int EffectController::getBrightness() {
 
 void EffectController::StaticColor(uint32_t color) {
     m_lightfx.deviceAcquire();
-    m_lightfx.SendAnimationRemove(1);
-    m_lightfx.SendAnimationConfigStart(1);
+    m_lightfx.SendAnimationRemove(0x0061);
+    m_lightfx.SendAnimationConfigStart(0x0061);
     m_lightfx.SendZoneSelect(1, m_zoneAll);
     m_lightfx.SendAddAction(m_actionColor, 1, 2, color);
-    m_lightfx.SendAnimationConfigSave(1);
-    m_lightfx.SendAnimationSetDefault(1);
+    m_lightfx.SendAnimationConfigSave(0x0061);
+    m_lightfx.SendAnimationSetDefault(0x0061);
     m_lightfx.deviceRelease();
 }
 
 void EffectController::Breathe(uint32_t color) {
     m_lightfx.deviceAcquire();
-    m_lightfx.SendAnimationRemove(1);
-    m_lightfx.SendAnimationConfigStart(1);
+    m_lightfx.SendAnimationRemove(0x0061);
+    m_lightfx.SendAnimationConfigStart(0x0061);
     m_lightfx.SendZoneSelect(1, m_zoneAll);
     m_lightfx.SendAddAction(m_actionMorph, 500, 64, color);
     m_lightfx.SendAddAction(m_actionMorph, 2000, 64, color);
     m_lightfx.SendAddAction(m_actionMorph, 500, 64, 0);
     m_lightfx.SendAddAction(m_actionMorph, 2000, 64, 0);
-    m_lightfx.SendAnimationConfigSave(1);
-    m_lightfx.SendAnimationSetDefault(1);
+    m_lightfx.SendAnimationConfigSave(0x0061);
+    m_lightfx.SendAnimationSetDefault(0x0061);
     m_lightfx.deviceRelease();
 }
 
 void EffectController::Spectrum(uint16_t duration) {
     m_lightfx.deviceAcquire();
-    m_lightfx.SendAnimationRemove(1);
-    m_lightfx.SendAnimationConfigStart(1);
+    m_lightfx.SendAnimationRemove(0x0061);
+    m_lightfx.SendAnimationConfigStart(0x0061);
     m_lightfx.SendZoneSelect(1, m_zoneAll);
     m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFF0000);
     m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFFA500);
@@ -80,15 +80,15 @@ void EffectController::Spectrum(uint16_t duration) {
     m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x00BFFF);
     m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x0000FF);
     m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x800080);
-    m_lightfx.SendAnimationConfigSave(1);
-    m_lightfx.SendAnimationSetDefault(1);
+    m_lightfx.SendAnimationConfigSave(0x0061);
+    m_lightfx.SendAnimationSetDefault(0x0061);
     m_lightfx.deviceRelease();
 }
 
 void EffectController::Wave(uint32_t color) {
     m_lightfx.deviceAcquire();
-    m_lightfx.SendAnimationRemove(1);
-    m_lightfx.SendAnimationConfigStart(1);
+    m_lightfx.SendAnimationRemove(0x0061);
+    m_lightfx.SendAnimationConfigStart(0x0061);
 
     m_lightfx.SendZoneSelect(1, m_zoneLeft);
     m_lightfx.SendAddAction(m_actionMorph, 500, 64, color);
@@ -114,16 +114,16 @@ void EffectController::Wave(uint32_t color) {
     m_lightfx.SendAddAction(m_actionMorph, 500, 64, 0);
     m_lightfx.SendAddAction(m_actionMorph, 500, 64, color);
 
-    // m_lightfx.SendAnimationConfigPlay(1);
-    m_lightfx.SendAnimationConfigSave(1);
-    m_lightfx.SendAnimationSetDefault(1);
+    // m_lightfx.SendAnimationConfigPlay(0x0061);
+    m_lightfx.SendAnimationConfigSave(0x0061);
+    m_lightfx.SendAnimationSetDefault(0x0061);
     m_lightfx.deviceRelease();
 }
 
 void EffectController::Rainbow(uint16_t duration) {
     m_lightfx.deviceAcquire();
-    m_lightfx.SendAnimationRemove(1);
-    m_lightfx.SendAnimationConfigStart(1);
+    m_lightfx.SendAnimationRemove(0x0061);
+    m_lightfx.SendAnimationConfigStart(0x0061);
 
     m_lightfx.SendZoneSelect(1, m_zoneLeft);
     m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFF0000);
@@ -161,16 +161,16 @@ void EffectController::Rainbow(uint16_t duration) {
     m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFFFF00);
     m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x008000);
 
-    m_lightfx.SendAnimationConfigSave(1);
-    m_lightfx.SendAnimationSetDefault(1);
-    // m_lightfx.SendAnimationConfigPlay(1);
+    m_lightfx.SendAnimationConfigSave(0x0061);
+    m_lightfx.SendAnimationSetDefault(0x0061);
+    // m_lightfx.SendAnimationConfigPlay(0x0061);
     m_lightfx.deviceRelease();
 }
 
 void EffectController::BackAndForth(uint32_t color) {
     m_lightfx.deviceAcquire();
-    m_lightfx.SendAnimationRemove(1);
-    m_lightfx.SendAnimationConfigStart(1);
+    m_lightfx.SendAnimationRemove(0x0061);
+    m_lightfx.SendAnimationConfigStart(0x0061);
 
     m_lightfx.SendZoneSelect(1, m_zoneLeft);
     m_lightfx.SendAddAction(m_actionMorph, 500, 64, color);
@@ -204,20 +204,20 @@ void EffectController::BackAndForth(uint32_t color) {
     m_lightfx.SendAddAction(m_actionMorph, 500, 64, 0);
     m_lightfx.SendAddAction(m_actionMorph, 500, 64, 0);
 
-    // m_lightfx.SendAnimationConfigPlay(1);
-    m_lightfx.SendAnimationConfigSave(1);
-    m_lightfx.SendAnimationSetDefault(1);
+    // m_lightfx.SendAnimationConfigPlay(0x0061);
+    m_lightfx.SendAnimationConfigSave(0x0061);
+    m_lightfx.SendAnimationSetDefault(0x0061);
     m_lightfx.deviceRelease();
 }
 
 void EffectController::DefaultBlue() {
     m_lightfx.deviceAcquire();
-    m_lightfx.SendAnimationRemove(1);
-    m_lightfx.SendAnimationConfigStart(1);
+    m_lightfx.SendAnimationRemove(0x0061);
+    m_lightfx.SendAnimationConfigStart(0x0061);
     m_lightfx.SendZoneSelect(1, m_zoneAll);
-    m_lightfx.SendAddAction(m_actionColor, 1, 2, 0x00FFFF);
-    m_lightfx.SendAnimationConfigSave(1);
-    m_lightfx.SendAnimationSetDefault(1);
+    m_lightfx.SendAddAction(m_actionColor, 2000, 250, 0x00FFFF);
+    m_lightfx.SendAnimationConfigSave(0x0061);
+    m_lightfx.SendAnimationSetDefault(0x0061);
     m_lightfx.deviceRelease();
 }
 
@@ -328,8 +328,8 @@ void EffectController::LightBarBrightness(uint8_t value) {
 
 void EffectController::LightBarSpectrum(uint16_t duration) {
     m_lightfx.deviceAcquire();
-    m_lightfx.SendAnimationRemove(1);
-    m_lightfx.SendAnimationConfigStart(1);
+    m_lightfx.SendAnimationRemove(0x0061);
+    m_lightfx.SendAnimationConfigStart(0x0061);
     m_lightfx.SendZoneSelect(1, m_lightbar);
     m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFF0000);
     m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFFA500);
@@ -338,29 +338,29 @@ void EffectController::LightBarSpectrum(uint16_t duration) {
     m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x00BFFF);
     m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x0000FF);
     m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x800080);
-    m_lightfx.SendAnimationConfigSave(1);
-    m_lightfx.SendAnimationSetDefault(1);
+    m_lightfx.SendAnimationConfigSave(0x0061);
+    m_lightfx.SendAnimationSetDefault(0x0061);
     m_lightfx.deviceRelease();
 }
 
 void EffectController::LightBarBreathe(uint32_t color) {
     m_lightfx.deviceAcquire();
-    m_lightfx.SendAnimationRemove(1);
-    m_lightfx.SendAnimationConfigStart(1);
+    m_lightfx.SendAnimationRemove(0x0061);
+    m_lightfx.SendAnimationConfigStart(0x0061);
     m_lightfx.SendZoneSelect(1, m_lightbar);
     m_lightfx.SendAddAction(m_actionMorph, 500, 64, color);
     m_lightfx.SendAddAction(m_actionMorph, 2000, 64, color);
     m_lightfx.SendAddAction(m_actionMorph, 500, 64, 0);
     m_lightfx.SendAddAction(m_actionMorph, 2000, 64, 0);
-    m_lightfx.SendAnimationConfigSave(1);
-    m_lightfx.SendAnimationSetDefault(1);
+    m_lightfx.SendAnimationConfigSave(0x0061);
+    m_lightfx.SendAnimationSetDefault(0x0061);
     m_lightfx.deviceRelease();
 }
 
 void EffectController::LightbarRainbow(uint16_t duration) {
     m_lightfx.deviceAcquire();
-    m_lightfx.SendAnimationRemove(1);
-    m_lightfx.SendAnimationConfigStart(1);
+    m_lightfx.SendAnimationRemove(0x0061);
+    m_lightfx.SendAnimationConfigStart(0x0061);
 
     const std::array<uint32_t, 7> colors = {
         0xFF0000, // Red
@@ -383,18 +383,18 @@ void EffectController::LightbarRainbow(uint16_t duration) {
         }
     }
 
-    m_lightfx.SendAnimationConfigSave(1);
-    m_lightfx.SendAnimationSetDefault(1);
+    m_lightfx.SendAnimationConfigSave(0x0061);
+    m_lightfx.SendAnimationSetDefault(0x0061);
     m_lightfx.deviceRelease();
 }
 
 void EffectController::LightBarDefaultBlue() {
     m_lightfx.deviceAcquire();
-    m_lightfx.SendAnimationRemove(1);
-    m_lightfx.SendAnimationConfigStart(1);
+    m_lightfx.SendAnimationRemove(0x0061);
+    m_lightfx.SendAnimationConfigStart(0x0061);
     m_lightfx.SendZoneSelect(1, m_lightbar);
     m_lightfx.SendAddAction(m_actionColor, 1, 2, 0x00FFFF);
-    m_lightfx.SendAnimationConfigSave(1);
-    m_lightfx.SendAnimationSetDefault(1);
+    m_lightfx.SendAnimationConfigSave(0x0061);
+    m_lightfx.SendAnimationSetDefault(0x0061);
     m_lightfx.deviceRelease();
 }
