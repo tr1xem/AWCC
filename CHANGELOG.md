@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.16.0](https://github.com/tr1xem/AWCC/compare/v1.15.0...v1.16.0) (2025-12-27)
+
+
+### 🚀 New Features
+
+* **device:** add support for Alienware Aurora R12 ([59bc135](https://github.com/tr1xem/AWCC/commit/59bc135f69de037d488d9a5649c1f919a7113df3))
+* **device:** add support for Alienware Aurora R12 ([728ad36](https://github.com/tr1xem/AWCC/commit/728ad3675401b6ab91a80366e8112f515bd0897e))
+
 ## [1.15.0](https://github.com/tr1xem/AWCC/compare/v1.14.1...v1.15.0) (2025-12-27)
 
 
