@@ -126,40 +126,40 @@ void EffectController::Rainbow(uint16_t duration) {
     m_lightfx.SendAnimationConfigStart(0x0061);
 
     m_lightfx.SendZoneSelect(1, m_zoneLeft);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0xFF0000);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0xFFA500);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0xFFFF00);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x008000);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x00BFFF);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x0000FF);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x800080);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFF0000);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFFA500);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFFFF00);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x008000);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x00BFFF);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x0000FF);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x800080);
 
     m_lightfx.SendZoneSelect(1, m_zoneMiddleLeft);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x800080);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0xFF0000);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0xFFA500);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0xFFFF00);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x008000);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x00BFFF);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x0000FF);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x800080);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFF0000);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFFA500);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFFFF00);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x008000);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x00BFFF);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x0000FF);
 
     m_lightfx.SendZoneSelect(1, m_zoneMiddleRight);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x0000FF);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x800080);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0xFF0000);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0xFFA500);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0xFFFF00);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x008000);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x00BFFF);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x0000FF);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x800080);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFF0000);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFFA500);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFFFF00);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x008000);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x00BFFF);
 
     m_lightfx.SendZoneSelect(1, m_zoneRight);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x00BFFF);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x0000FF);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x800080);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0xFF0000);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0xFFA500);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0xFFFF00);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 15, 0x008000);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x00BFFF);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x0000FF);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x800080);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFF0000);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFFA500);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFFFF00);
+    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x008000);
 
     m_lightfx.SendAnimationConfigSave(0x0061);
     m_lightfx.SendAnimationSetDefault(0x0061);
