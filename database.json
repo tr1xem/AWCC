@@ -79,6 +79,11 @@
         "thermalModes": "11110111",
         "lightingModes": "111111"
     },
+    "Alienware m18 R1": {
+        "featureSet": "1111111",
+        "thermalModes": "11110111",
+        "lightingModes": "111111"
+    },
     "Alienware m18 R2": {
         "featureSet": "1111111",
         "thermalModes": "11110111",
