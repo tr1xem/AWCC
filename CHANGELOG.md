@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.15.0](https://github.com/tr1xem/AWCC/compare/v1.14.1...v1.15.0) (2025-12-27)
+
+
+### 🚀 New Features
+
+* **device:** add Dell G7 7700 ([c27edf7](https://github.com/tr1xem/AWCC/commit/c27edf7ae02bf0bf244ab6f24e69b6a3448ff2d1))
+* **device:** add support for Alienware m18 R1 ([97d7e8b](https://github.com/tr1xem/AWCC/commit/97d7e8bd7e946ce1b8d38e3d911b2a6f041a73cf))
+* **device:** x17 r1 ([c56a89d](https://github.com/tr1xem/AWCC/commit/c56a89d0500feea6555ec8c2f50437c80fd57969))
+
+
+### 🐛 Bug Fixes
+
+* **alienware:** leagcy ([ef6371b](https://github.com/tr1xem/AWCC/commit/ef6371b8a99a2d2910b9f2e5f7c20b85e11a6f5a))
+* **alienware:** support area-51m ([110354b](https://github.com/tr1xem/AWCC/commit/110354bde6fa0746be9410fd0360555dd60c322b))
+* **device:** x17 prefix ([f93a6d8](https://github.com/tr1xem/AWCC/commit/f93a6d8b7ffec003bc21ce54baa5f147ed6a2327))
+* **elc:** fixed setting default animation ([bdce8a7](https://github.com/tr1xem/AWCC/commit/bdce8a73102db6ab565aabce1b318b8db08d3a18))
+* **rainbow:** tempo ([2f711b3](https://github.com/tr1xem/AWCC/commit/2f711b37d3b80bd8872a8412b7b5813ce657bc1a))
+
 ## [1.14.1](https://github.com/tr1xem/AWCC/compare/v1.14.0...v1.14.1) (2025-12-10)
 
 
