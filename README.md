@@ -12,6 +12,11 @@ AWCC\* is an unofficial alternative to Alienware Command Centre of Windows for t
 
 ---
 
+> [!NOTE]
+> For lights and other light device that comes under dell (including everything like keyboard,mouse,monitors etc) I am working on a tool for it
+> which would be merge in awcc to provide a gui interface so if u have a light device which is not currently supported come to new repo https://github.com/tr1xem/alienfx-linux/
+> and create a issue with the output of ur `lsusb -v` and I would try bringing support for it 
+
 ## ✨ Features
 
 - 🖥️ **GUI and CLI support**
