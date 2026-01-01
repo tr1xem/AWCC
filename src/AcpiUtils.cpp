@@ -23,7 +23,8 @@ const char *AcpiUtils::getPrefix() {
     //
     // TODO:
     // Find some other device so that i can modularise it
-    if (deviceName.contains("Alienware m18 R1 AMD")) {
+    if (deviceName.contains("Alienware m18 R1 AMD") ||
+        deviceName.contains("Alienware m16 R1 AMD")) {
         return "AMWW";
     }
     // NOTE: Aurora are weird??
