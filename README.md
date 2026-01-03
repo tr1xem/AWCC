@@ -15,7 +15,7 @@ AWCC\* is an unofficial alternative to Alienware Command Centre of Windows for t
 > [!NOTE]
 > For lights and other light device that comes under dell (including everything like keyboard,mouse,monitors etc) I am working on a tool for it
 > which would be merge in awcc to provide a gui interface so if u have a light device which is not currently supported come to new repo https://github.com/tr1xem/alienfx-linux/
-> and create a issue with the output of ur `lsusb -v` and I would try bringing support for it 
+> and create a issue with the output of ur `lsusb -v` and I would try bringing support for it
 
 ## ✨ Features
 
@@ -109,29 +109,35 @@ Need support or want this project to support your device ? Join our [Discord com
 
 **Tested on:**
 
-- Dell G7 7500
-- Dell G7 7700
+- Alienware 16 Area-51 AA16250
+- Alienware 16 Aurora AC16250
+- Alienware 16 Aurora AC16251
+- Alienware 16X Aurora AC16251
+- Alienware Area-51m R2
+- Alienware Aurora R12
+- Alienware Aurora R9
+- Alienware m15 R7
+- Alienware m15 Ryzen Ed. R5
+- Alienware m16 R1
+- Alienware m16 R1 AMD
+- Alienware m16 R2
+- Alienware m17 R5 AMD
+- Alienware m18 R1
+- Alienware m18 R1 AMD
+- Alienware m18 R2
+- Alienware x16 R2
+- Alienware x17 R1
 - Dell G15 5510
 - Dell G15 5511
 - Dell G15 5515
 - Dell G15 5520
-- Dell G15 Special Edition 5521
 - Dell G15 5525
 - Dell G15 5530
+- Dell G15 Special Edition 5521
 - Dell G16 7620
 - Dell G16 7630
-- Alienware m15 Ryzen Ed. R5
-- Alienware m16 R2 (execpt keyboard all lights work)
-- Alienware m17 R5 AMD
-- Alienware m18 R1 AMD
-- Alienware x16 R2
-- Alienware x17 R1
-- Alienware m18 R2
-- Alienware 16 Area-51 AA16250(lighting is bugged)
-- Alienware 16 Aurora AC16250
-- Alienware Aurora R9
-- Alienware Area-51m R2
-- Alienware 16 Aurora AC16251
+- G7 7500
+- G7 7700
 
 ## 🗺️ Roadmap
 
