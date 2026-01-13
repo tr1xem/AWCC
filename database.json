@@ -1,4 +1,9 @@
 {
+    "G3 3590": {
+        "featureSet": "1111111",
+        "thermalModes": "11010111",
+        "lightingModes": "111111"
+    },
     "G7 7500": {
         "featureSet": "1111111",
         "thermalModes": "11010111",
