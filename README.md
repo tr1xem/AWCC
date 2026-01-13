@@ -101,6 +101,10 @@ Load ACPI module using
 sudo modprobe acpi_call
 ```
 
+
+> [!TIP]
+> Do `echo acpi_call | sudo tee /etc/modules-load.d/acpi_call.conf` to make acpi_call module auto load on startup so u dont have to type modprobe command everytime
+
 ## Support and Feedback
 
 Need support or want this project to support your device ? Join our [Discord community](https://discord.gg/EMWUTgegDm) or open a [Github Discussion](https://github.com/tr1xem/AWCC/discussions)
