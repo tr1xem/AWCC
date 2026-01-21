@@ -71,7 +71,7 @@ paru -S awcc-bin
 OR if you are a debianoid
 
 ```
-sudo apt-get install acpi-call-dkms git meson ninja cmake libx11-dev libgl-dev pkgconf g++-13 libxkbcommon-dev
+sudo apt-get install acpi-call-dkms git meson ninja-build cmake libx11-dev libgl-dev pkgconf g++-13 libxkbcommon-dev
 ```
 
 ```bash

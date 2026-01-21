@@ -17,7 +17,7 @@ jobs:
             - name: Install dependencies
               run: |
                   sudo apt-get update
-                  sudo apt-get install git meson ninja cmake libx11-dev libgl-dev pkgconf g++-13 libxkbcommon-dev
+                  sudo apt-get install git meson ninja-build cmake libx11-dev libgl-dev pkgconf g++-13 libxkbcommon-dev
 
             - name: Build AWCC
               run: |
