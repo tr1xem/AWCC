@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.16.0](https://github.com/tr1xem/AWCC/compare/v1.15.0...v1.16.0) (2026-01-21)
+
+
+### 🚀 New Features
+
+* **device:** add 16x ([1296a6c](https://github.com/tr1xem/AWCC/commit/1296a6c098b7b80b6a88cd83446299b0fb97e729))
+* **device:** add Alienware m15 R3 ([9014c20](https://github.com/tr1xem/AWCC/commit/9014c2002c61831170ba827dba6dba36fcb9ad2d))
+* **device:** add Alienware m15 R4 ([556ade4](https://github.com/tr1xem/AWCC/commit/556ade472c05549ca9a46c907f54d611edd06204))
+* **device:** add m16 r1 ([a5229a6](https://github.com/tr1xem/AWCC/commit/a5229a67e3478a0b265795337e6a467540e1320c))
+* **device:** add support for Alienware Aurora R12 ([59bc135](https://github.com/tr1xem/AWCC/commit/59bc135f69de037d488d9a5649c1f919a7113df3))
+* **device:** add support for Alienware Aurora R12 ([728ad36](https://github.com/tr1xem/AWCC/commit/728ad3675401b6ab91a80366e8112f515bd0897e))
+* **device:** support for Alienware m15 R7 ([df1cc11](https://github.com/tr1xem/AWCC/commit/df1cc11e64a19917882c49d2efcbad3bbb024aa4))
+* **device:** support G3 3590 ([a0983f2](https://github.com/tr1xem/AWCC/commit/a0983f2941f350a65b717c86eb69ad2037792dc8))
+* **static:** Build and link statically ([a6925ce](https://github.com/tr1xem/AWCC/commit/a6925ce41c7662ef24d48a0a3b89b85e1a133a1d))
+
+
+### 🐛 Bug Fixes
+
+* add tweaks for Alienware m15 R4 ([b0733e7](https://github.com/tr1xem/AWCC/commit/b0733e72d6f8253d6b1f273434dd4966130e6d0a))
+* **g3:** tweaks ([18f40fc](https://github.com/tr1xem/AWCC/commit/18f40fc11f520eece5c7b618720658b76ed28396))
+* **m15r3:** tweaks ([a209ebd](https://github.com/tr1xem/AWCC/commit/a209ebd7fd0cd357331ca417ff42c96241a51920))
+* **m16:** tweaks ([0a30880](https://github.com/tr1xem/AWCC/commit/0a30880c664ac1003e212fb852c52a8b71715a32))
+
+
+### ♻️ Code Refactoring
+
+* **build:** Refactor build system ([7987aa0](https://github.com/tr1xem/AWCC/commit/7987aa0c539383e4b0cb05c0a2481511e96e785e))
+* **readme:** Removed deps ([497fa3f](https://github.com/tr1xem/AWCC/commit/497fa3f8ef3c9a18c353bd52000b7795eb927f5d))
+
 ## [1.15.0](https://github.com/tr1xem/AWCC/compare/v1.14.1...v1.15.0) (2025-12-27)
 
 
