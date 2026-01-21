@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(
   awcc
   LANGUAGES CXX
-  VERSION 1.16.0)
+  VERSION 1.16.9)
 
 set(APP_NAME awcc)
 
@@ -127,45 +127,28 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(libusb)
 
 # ===================== libevdev ============================================
-find_package(PkgConfig REQUIRED)
+include(ExternalProject)
 
-include(FetchContent)
-
-FetchContent_Declare(
+ExternalProject_Add(
   libevdev
   GIT_REPOSITORY https://gitlab.freedesktop.org/libevdev/libevdev.git
   GIT_TAG master
-  GIT_SHALLOW TRUE)
-
-FetchContent_MakeAvailable(libevdev)
-
-include(ExternalProject)
-
-set(libevdev_BUILD_DIR ${libevdev_SOURCE_DIR}/../libevdev-build)
-set(libevdev_INSTALL_DIR ${libevdev_BUILD_DIR}/install)
-
-ExternalProject_Add(
-  libevdev-external
-  SOURCE_DIR ${libevdev_SOURCE_DIR}
-  BINARY_DIR ${libevdev_BUILD_DIR}
   CONFIGURE_COMMAND
-    meson setup ${libevdev_BUILD_DIR} ${libevdev_SOURCE_DIR}
-    --prefix=${libevdev_INSTALL_DIR} --default-library=static
+    meson setup <BINARY_DIR> <SOURCE_DIR> --default-library=static
     -Ddocumentation=disabled -Dtests=disabled -Dtools=disabled
-  BUILD_COMMAND meson compile -C ${libevdev_BUILD_DIR}
-  INSTALL_COMMAND
-    meson install -C ${libevdev_BUILD_DIR} # Needed to have header at
-                                           # predictable location
-  BUILD_BYPRODUCTS ${libevdev_INSTALL_DIR}/lib/libevdev.a)
+  BUILD_COMMAND meson compile -C <BINARY_DIR>
+  INSTALL_COMMAND "" # CMAKE NEEDS A INSTALL COMMAND or it will run make
+  BUILD_BYPRODUCTS <BINARY_DIR>/libevdev.a)
 
 add_library(libevdev::libevdev STATIC IMPORTED)
 
-set_target_properties(
-  libevdev::libevdev
-  PROPERTIES IMPORTED_LOCATION ${libevdev_INSTALL_DIR}/lib/libevdev.a
-             INTERFACE_INCLUDE_DIRECTORIES ${libevdev_SOURCE_DIR}/libevdev)
+ExternalProject_Get_Property(libevdev source_dir binary_dir)
 
-add_dependencies(libevdev::libevdev libevdev-external)
+set_target_properties(
+  libevdev::libevdev PROPERTIES IMPORTED_LOCATION ${binary_dir}/libevdev.a
+                                INTERFACE_INCLUDE_DIRECTORIES ${source_dir})
+
+add_dependencies(libevdev::libevdev libevdev)
 
 # ===================== stb =====================
 FetchContent_Declare(
