@@ -150,7 +150,7 @@ ExternalProject_Add(
   CONFIGURE_COMMAND
     meson setup ${CMAKE_BINARY_DIR}/libevdev-build ${libevdev_src_SOURCE_DIR}
     --prefix=${LIBEVDEV_INSTALL_DIR} --default-library=static
-    -Ddocumentation=false -Dtests=false -Dtools=false
+    -Ddocumentation=disabled -Dtests=disabled -Dtools=disabled
   BUILD_COMMAND meson compile -C ${CMAKE_BINARY_DIR}/libevdev-build
   INSTALL_COMMAND meson install -C ${CMAKE_BINARY_DIR}/libevdev-build
   BUILD_BYPRODUCTS ${LIBEVDEV_INSTALL_DIR}/lib/libevdev.a)
