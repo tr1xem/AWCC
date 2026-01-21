@@ -18,7 +18,7 @@ jobs:
               run: |
                   sudo apt-get update
                   sudo apt install  libx11-dev  libxrandr-dev  libxinerama-dev  libxcursor-dev  libxi-dev  libgl1-mesa-dev  libxkbcommon-dev  wayland-protocols  libwayland-dev  libwayland-egl-backend-dev  pkg-config  cmake  ninja-build
-                  sudo apt-get install git meson ninja-build cmake libx11-dev libgl-dev pkgconf g++-13 libxkbcommon-dev libglfw3
+                  sudo apt-get install git meson libgl-dev pkgconf libudev-dev
 
             - name: Build AWCC
               run: |
