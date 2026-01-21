@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.6](https://github.com/tr1xem/AWCC/compare/v1.16.5...v1.16.6) (2026-01-21)
+
+
+### 🐛 Bug Fixes
+
+* **workflow:** add udev ([748371d](https://github.com/tr1xem/AWCC/commit/748371d3918e213227a936aeef7267e497d5a134))
+
 ## [1.16.5](https://github.com/tr1xem/AWCC/compare/v1.16.4...v1.16.5) (2026-01-21)
 
 
