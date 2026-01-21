@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.5](https://github.com/tr1xem/AWCC/compare/v1.16.4...v1.16.5) (2026-01-21)
+
+
+### 🐛 Bug Fixes
+
+* **cmake:** disable documentation, tests, and tools ([36cda5b](https://github.com/tr1xem/AWCC/commit/36cda5bb19d09972fb33224c8a794c8fd18a4c41))
+
 ## [1.16.4](https://github.com/tr1xem/AWCC/compare/v1.16.3...v1.16.4) (2026-01-21)
 
 
