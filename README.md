@@ -1,8 +1,11 @@
-# AWCC for Alienware & Dell G series 🚀
+# AWCC for Alienware & Dell G series devices 🚀
 
 [![Build and Upload](https://github.com/tr1xem/AWCC/actions/workflows/build.yml/badge.svg)](https://github.com/tr1xem/AWCC/actions/workflows/build.yml)
 
-AWCC\* is an unofficial alternative to Alienware Command Centre of Windows for the Dell G series and Alienware Series Laptops on Linux, supporting almost all features that the Windows version supports, including custom fan controls, light effects, g-mode, and autoboost.
+AWCC\* is an unofficial alternative to Alienware Command Centre of Windows for
+the Alienware Series Device on Linux, supporting almost all
+features that the Windows version supports, including custom fan controls,
+light effects, g-mode, and autoboost.
 
 ###### \*This project is not affiliated with, endorsed, sponsored, or produced by Dell. It is simply my personal contribution and hobby aimed at improving the Linux experience on Dell laptops.
 
@@ -13,9 +16,12 @@ AWCC\* is an unofficial alternative to Alienware Command Centre of Windows for t
 ---
 
 > [!NOTE]
-> For lights and other light device that comes under dell (including everything like keyboard,mouse,monitors etc) I am working on a tool for it
-> which would be merge in awcc to provide a gui interface so if u have a light device which is not currently supported come to new repo https://github.com/tr1xem/alienfx-linux/
-> and create a issue with the output of ur `lsusb -v` and I would try bringing support for it
+> For lights and other light device that comes under dell (including everything
+> like keyboard,mouse,monitors etc) I am working on a tool for it
+> which would be merge in awcc to provide a gui interface so if u have a light
+> device which is not currently supported come to new repo
+> https://github.com/tr1xem/alienfx-linux/ and create a issue with the output
+> of ur `lsusb -v` and I would try bringing support for it
 
 ## ✨ Features
 
@@ -95,7 +101,9 @@ sudo modprobe acpi_call
 ```
 
 > [!TIP]
-> Do `echo acpi_call | sudo tee /etc/modules-load.d/acpi_call.conf` to make acpi_call module auto load on startup so u dont have to type modprobe command everytime
+> Do `echo acpi_call | sudo tee /etc/modules-load.d/acpi_call.conf` to make
+> acpi_call module auto load on startup so u dont have to type modprobe command
+> everytime
 
 ## Support and Feedback
 
