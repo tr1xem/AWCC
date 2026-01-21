@@ -1,7 +1,7 @@
 #pragma once
 #include <chrono>
 #include <functional>
-#include <libevdev-1.0/libevdev/libevdev.h>
+#include <libevdev.h>
 #include <string>
 #include <unordered_map>
 
