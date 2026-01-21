@@ -31,3 +31,5 @@ Decoded as `03` is the preamble, `21` is set animation flag, `00 01` are high an
 
 `24` is add action flag,`00` is the action flag (00 is static colour more can be found in lightfx.h),`07 d0` are high
 & low for duration time,`00 fa` is the high & low for tempo, `f1 f5 ff` are the colours
+
+More info at https://github.com/tr1xem/alienfx-linux/tree/main/AlienFX-SDK
