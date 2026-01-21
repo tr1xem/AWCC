@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.1](https://github.com/tr1xem/AWCC/compare/v1.16.0...v1.16.1) (2026-01-21)
+
+
+### 🐛 Bug Fixes
+
+* **workflow:** missing dep ([0d07e5c](https://github.com/tr1xem/AWCC/commit/0d07e5cfb9164aa5d5cf950fe73e4712c37f1be4))
+
 ## [1.16.0](https://github.com/tr1xem/AWCC/compare/v1.15.0...v1.16.0) (2026-01-21)
 
 
