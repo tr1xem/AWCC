@@ -20,13 +20,13 @@ AWCC\* is an unofficial alternative to Alienware Command Centre of Windows for t
 ## ✨ Features
 
 - 🖥️ **GUI and CLI support**
-- ⚡ **Lightweight** (uses around ~88mb of RAM with GUI open, else 6mb RAM)
+- ⚡ **Lightweight** (uses around ~88mb of RAM with GUI open, else 6mb RAM while running in background)
 - 🌈 **All Light Effects**
 - 🧑‍💻 **Daemon Support** (no sudo needed if daemon is running)
 - 🎮 **GMode and Light Key autobinding** just like Windows
 - 🔥 **Supports All modes** that your device has
-- 💻 **Supports all of G15 and G16** with some Alienware
-- 🕵️ **No Telemetry and Open Source** :3
+- 💻 **Supports all of Alienware device** in including keyboard,mouse,monitors etc
+- 🕵️ \*_No Telemetry and Open Source_
 - 📈 **Custom Fan Curve** (Soon)
 
 ---
@@ -49,37 +49,30 @@ paru -S awcc-bin
 
 **Dependencies** :
 
-- `acpi_call-dkms`
-- `git`
-- `make`
-- `cmake`
-- `libusb`
-- `glfw`
+- `acpi_call-dkms` (Most important)
 - `libx11`
-- `libgl`
-- `ttf-roboto`
+- `libgl` or `libglvnd`
 
 **Make Dependencies** :
 
 > [!NOTE]
-> Recommended to install them first if you want a faster compile progress
+> Can be removed after installing
 
-- `loguru`
-- `nlohmann_json`
-- `stb_image`
-- `libevdev`
+- `cmake`
+- `ninja`
+- `meson`
 
 OR if you are a debianoid
 
 ```
-sudo apt-get install acpi-call-dkms git make cmake  libusb-1.0-0-dev  libglfw3-dev  libx11-dev libgl-dev libevdev-dev pkgconf g++-13
+sudo apt-get install acpi-call-dkms git meson ninja cmake libx11-dev libgl-dev pkgconf g++-13
 ```
 
 ```bash
 git clone https://github.com/tr1xem/AWCC
 cd AWCC && mkdir build/
-cd build && cmake ..
-sudo make install
+cd build && cmake .. -G Ninja
+sudo ninja install
 ```
 
 Then enable the `awccd.service` using :
@@ -101,7 +94,6 @@ Load ACPI module using
 sudo modprobe acpi_call
 ```
 
-
 > [!TIP]
 > Do `echo acpi_call | sudo tee /etc/modules-load.d/acpi_call.conf` to make acpi_call module auto load on startup so u dont have to type modprobe command everytime
 
@@ -120,6 +112,8 @@ Need support or want this project to support your device ? Join our [Discord com
 - Alienware Area-51m R2
 - Alienware Aurora R12
 - Alienware Aurora R9
+- Alienware m15 R3
+- Alienware m15 R4
 - Alienware m15 R7
 - Alienware m15 Ryzen Ed. R5
 - Alienware m16 R1
@@ -140,6 +134,7 @@ Need support or want this project to support your device ? Join our [Discord com
 - Dell G15 Special Edition 5521
 - Dell G16 7620
 - Dell G16 7630
+- G3 3590
 - G7 7500
 - G7 7700
 
@@ -150,16 +145,16 @@ Need support or want this project to support your device ? Join our [Discord com
 - [x] 🖥️ CLI Mode
 - [x] 📦 install script
 - [x] 🖼️ GUI - Using `Dear ImGui` and some visuals from Windows version
-- [ ] 🧩 Auto Zone identify using `libusb` and `Alien FX Sdk`
-- [ ] 📊 Fan Curve for AutoBoost
+- [ ]~~🧩 Auto Zone identify using `libusb` and `Alien FX Sdk` (New GUI)~~
+- [ ] ~~📊 Fan Curve for AutoBoost (New GUI)~~
 - [x] 🖲️ Improved DMI and Normal Device Detection
 - [x] 🧠 Better ACPI Executions with fallback and functions like `executeacip(0x2, 0x0, 0x0, 0x0)`
 - [x] 🕹️ Support for Legacy `USTT` modes
 - [x] 📝 JSON Config file and parsing
 - [x] ⌨️ Grab Unmark keys directly from daemon using `evdev`
-- [ ] 👾 Other Zones like head and support for `Alienware` - Low Priority
+- [x] 👾 Other Zones like head and support for `Alienware` - Low Priority (https://github.com/tr1xem/alienfx-linux/tree/main/AlienFX-SDK)
 - [x] 🐞 Verbose and Debug Mode
-- [ ] New backend for thermal mode
+- [x] New backend for thermal mode (https://github.com/tr1xem/alienfx-linux/tree/main/AlienFan-SDK)
 
 ## 🙏 Credits
 
