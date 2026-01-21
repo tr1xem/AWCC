@@ -17,14 +17,14 @@ jobs:
             - name: Install dependencies
               run: |
                   sudo apt-get update
-                  sudo apt-get install -y git make cmake libusb-1.0-0-dev libglfw3-dev libx11-dev libgl-dev libevdev-dev pkgconf g++-13
+                  sudo apt-get install git meson ninja cmake libx11-dev libgl-dev pkgconf g++-13 libxkbcommon-dev
 
             - name: Build AWCC
               run: |
                   mkdir build
                   cd build
-                  cmake ..
-                  make
+                  cmake .. -G Ninja
+                  ninja
                   cd ..
 
             - name: Prepare release files
