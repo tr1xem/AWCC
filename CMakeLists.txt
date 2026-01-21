@@ -85,25 +85,25 @@ FetchContent_MakeAvailable(glfw)
 
 # ===================== ImGui =====================
 FetchContent_Declare(
-  imgui_src
+  imgui
   GIT_REPOSITORY https://github.com/ocornut/imgui.git
   GIT_TAG master
   GIT_SHALLOW TRUE)
-FetchContent_MakeAvailable(imgui_src)
+FetchContent_MakeAvailable(imgui)
 
 add_library(imgui STATIC)
 target_sources(
   imgui
-  PRIVATE ${imgui_src_SOURCE_DIR}/imgui.cpp
-          ${imgui_src_SOURCE_DIR}/imgui_draw.cpp
-          ${imgui_src_SOURCE_DIR}/imgui_tables.cpp
-          ${imgui_src_SOURCE_DIR}/imgui_widgets.cpp
-          ${imgui_src_SOURCE_DIR}/imgui_demo.cpp
-          ${imgui_src_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
-          ${imgui_src_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp)
+  PRIVATE ${imgui_SOURCE_DIR}/imgui.cpp
+          ${imgui_SOURCE_DIR}/imgui_draw.cpp
+          ${imgui_SOURCE_DIR}/imgui_tables.cpp
+          ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+          ${imgui_SOURCE_DIR}/imgui_demo.cpp
+          ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+          ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp)
 
-target_include_directories(imgui PUBLIC ${imgui_src_SOURCE_DIR}
-                                        ${imgui_src_SOURCE_DIR}/backends)
+target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR}
+                                        ${imgui_SOURCE_DIR}/backends)
 
 target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
 
@@ -132,37 +132,40 @@ find_package(PkgConfig REQUIRED)
 include(FetchContent)
 
 FetchContent_Declare(
-  libevdev_src
+  libevdev
   GIT_REPOSITORY https://gitlab.freedesktop.org/libevdev/libevdev.git
   GIT_TAG master
   GIT_SHALLOW TRUE)
 
-FetchContent_MakeAvailable(libevdev_src)
+FetchContent_MakeAvailable(libevdev)
 
 include(ExternalProject)
 
-set(LIBEVDEV_INSTALL_DIR ${CMAKE_BINARY_DIR}/libevdev-install)
+set(libevdev_BUILD_DIR ${libevdev_SOURCE_DIR}/../libevdev-build)
+set(libevdev_INSTALL_DIR ${libevdev_BUILD_DIR}/install)
 
 ExternalProject_Add(
-  libevdev_ext
-  SOURCE_DIR ${libevdev_src_SOURCE_DIR}
-  BINARY_DIR ${CMAKE_BINARY_DIR}/libevdev-build
+  libevdev-external
+  SOURCE_DIR ${libevdev_SOURCE_DIR}
+  BINARY_DIR ${libevdev_BUILD_DIR}
   CONFIGURE_COMMAND
-    meson setup ${CMAKE_BINARY_DIR}/libevdev-build ${libevdev_src_SOURCE_DIR}
-    --prefix=${LIBEVDEV_INSTALL_DIR} --default-library=static
+    meson setup ${libevdev_BUILD_DIR} ${libevdev_SOURCE_DIR}
+    --prefix=${libevdev_INSTALL_DIR} --default-library=static
     -Ddocumentation=disabled -Dtests=disabled -Dtools=disabled
-  BUILD_COMMAND meson compile -C ${CMAKE_BINARY_DIR}/libevdev-build
-  INSTALL_COMMAND meson install -C ${CMAKE_BINARY_DIR}/libevdev-build
-  BUILD_BYPRODUCTS ${LIBEVDEV_INSTALL_DIR}/lib/libevdev.a)
+  BUILD_COMMAND meson compile -C ${libevdev_BUILD_DIR}
+  INSTALL_COMMAND
+    meson install -C ${libevdev_BUILD_DIR} # Needed to have header at
+                                           # predictable location
+  BUILD_BYPRODUCTS ${libevdev_INSTALL_DIR}/lib/libevdev.a)
 
 add_library(libevdev::libevdev STATIC IMPORTED)
 
 set_target_properties(
   libevdev::libevdev
-  PROPERTIES IMPORTED_LOCATION ${LIBEVDEV_INSTALL_DIR}/lib/libevdev.a
-             INTERFACE_INCLUDE_DIRECTORIES ${libevdev_src_SOURCE_DIR}/libevdev)
+  PROPERTIES IMPORTED_LOCATION ${libevdev_INSTALL_DIR}/lib/libevdev.a
+             INTERFACE_INCLUDE_DIRECTORIES ${libevdev_SOURCE_DIR}/libevdev)
 
-add_dependencies(libevdev::libevdev libevdev_ext)
+add_dependencies(libevdev::libevdev libevdev-external)
 
 # ===================== stb =====================
 FetchContent_Declare(
