@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.9](https://github.com/tr1xem/AWCC/compare/v1.16.8...v1.16.9) (2026-01-21)
+
+
+### 🐛 Bug Fixes
+
+* **build:** fix libevdev build ([49744c6](https://github.com/tr1xem/AWCC/commit/49744c630db858a5b8ac4f7753b2a33c10d7cafa))
+
 ## [1.16.8](https://github.com/tr1xem/AWCC/compare/v1.16.7...v1.16.8) (2026-01-21)
 
 
