@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.4](https://github.com/tr1xem/AWCC/compare/v1.16.3...v1.16.4) (2026-01-21)
+
+
+### 🐛 Bug Fixes
+
+* **workflows:** gl ([0a3affc](https://github.com/tr1xem/AWCC/commit/0a3affcf727a469bc02086de886e3504dcb637ad))
+
 ## [1.16.3](https://github.com/tr1xem/AWCC/compare/v1.16.2...v1.16.3) (2026-01-21)
 
 
