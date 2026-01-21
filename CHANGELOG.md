@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.2](https://github.com/tr1xem/AWCC/compare/v1.16.1...v1.16.2) (2026-01-21)
+
+
+### 🐛 Bug Fixes
+
+* **workflow:** wrong deb pkg ([02a8801](https://github.com/tr1xem/AWCC/commit/02a8801e3c106320f138809f114a8ca4f5976c0b))
+
 ## [1.16.1](https://github.com/tr1xem/AWCC/compare/v1.16.0...v1.16.1) (2026-01-21)
 
 
