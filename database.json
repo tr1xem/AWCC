@@ -134,6 +134,11 @@
         "thermalModes": "10110111",
         "lightingModes": "111111"
     },
+    "Alienware Area-51m": {
+        "featureSet": "1111111",
+        "thermalModes": "11010111",
+        "lightingModes": "111111"
+    },
     "Alienware 16 Aurora AC16250": {
         "featureSet": "1111111",
         "thermalModes": "11110111",
