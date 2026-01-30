@@ -25,6 +25,7 @@ const char *AcpiUtils::getPrefix() {
     // Find some other device so that i can modularise it
     if (deviceName.contains("Alienware m18 R1 AMD") ||
         deviceName.contains("Alienware m16 R1 AMD")) {
+        LOG_S(INFO) << "Special prefix detected using: AMWW";
         return "AMWW";
     }
     // NOTE: Aurora are weird??
@@ -39,6 +40,7 @@ const char *AcpiUtils::getPrefix() {
         deviceName.contains("Alienware m15 R4")
 
     ) {
+        LOG_S(INFO) << "Special prefix detected using: AMW1";
         return "AMW1";
     }
     while (std::getline(cpuinfo, line)) {
