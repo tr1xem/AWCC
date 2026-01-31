@@ -11,11 +11,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(BUILD_SHARED_LIBS OFF)
 
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE
-      Release
-      CACHE STRING "Build type" FORCE)
-endif()
+# if(NOT CMAKE_BUILD_TYPE)
+set(CMAKE_BUILD_TYPE
+    Release
+    CACHE STRING "Build type" FORCE)
+# endif()
 
 add_compile_definitions(VERSION="${PROJECT_VERSION}")
 
