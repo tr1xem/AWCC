@@ -117,6 +117,7 @@ Need support or want this project to support your device ? Join our [Discord com
 - Alienware 16 Aurora AC16250
 - Alienware 16 Aurora AC16251
 - Alienware 16X Aurora AC16251
+- Alienware Area-51m
 - Alienware Area-51m R2
 - Alienware Aurora R12
 - Alienware Aurora R9
@@ -143,6 +144,7 @@ Need support or want this project to support your device ? Join our [Discord com
 - Dell G16 7620
 - Dell G16 7630
 - G3 3590
+- G5 5590
 - G7 7500
 - G7 7700
 
