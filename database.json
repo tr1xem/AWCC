@@ -119,6 +119,11 @@
         "thermalModes": "11110111",
         "lightingModes": "111111"
     },
+    "Alienware x15 R2": {
+        "featureSet": "1111111",
+        "thermalModes": "11101111",
+        "lightingModes": "111111"
+    },
     "Alienware x16 R2": {
         "featureSet": "1111111",
         "thermalModes": "11110111",
