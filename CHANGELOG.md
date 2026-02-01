@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.17.0](https://github.com/tr1xem/AWCC/compare/v1.16.9...v1.17.0) (2026-02-01)
+
+
+### 🚀 New Features
+
+* **device:** add Alienware x15 R2 ([d645f10](https://github.com/tr1xem/AWCC/commit/d645f100c1393488e2c505b50d8923742b3a0c6d))
+* **device:** area51m ([74fd72a](https://github.com/tr1xem/AWCC/commit/74fd72abee97521b24546aff2db53e8c717c9d20))
+* **device:** g5 ([d9f057e](https://github.com/tr1xem/AWCC/commit/d9f057e3893bec9bd6f98044c7e39f64f92d13c2))
+
+
+### 🐛 Bug Fixes
+
+* **area51:** tweaks ([0155dee](https://github.com/tr1xem/AWCC/commit/0155dee037d9c3de41609089fe95a6398d6b423a))
+* **cmake:** force release ([8d01b5a](https://github.com/tr1xem/AWCC/commit/8d01b5ae4de4efd92722218850a2eed900f9caee))
+
+
+### ⚙️ Chores
+
+* **readme:** update ([29073a0](https://github.com/tr1xem/AWCC/commit/29073a0635550470d636f7a4c9e4980478884a50))
+
+
+### ♻️ Code Refactoring
+
+* **acpi:** AMW3 Tweaks ([6506d6e](https://github.com/tr1xem/AWCC/commit/6506d6e8cec869cd1134d74a26b73ebd8df8bd32))
+* **acpi:** x15 tweaks ([45628d9](https://github.com/tr1xem/AWCC/commit/45628d9c9f02dccef0ef1188bd899d3cc3b86ad1))
+* **log:** logging ([ddc02c4](https://github.com/tr1xem/AWCC/commit/ddc02c41715a58cef8e0a7c8a8459b212e614fa4))
+
 ## [1.16.9](https://github.com/tr1xem/AWCC/compare/v1.16.8...v1.16.9) (2026-01-21)
 
 
