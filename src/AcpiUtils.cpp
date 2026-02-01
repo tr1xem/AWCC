@@ -41,6 +41,7 @@ const char *AcpiUtils::getPrefix() {
         deviceName.contains("G3 3590") || deviceName.contains("G5 5590") ||
         deviceName.contains("Alienware m15 R3") ||
         deviceName.contains("Alienware Aurora R12") ||
+        deviceName.contains("Alienware x15 R2") ||
         deviceName.contains("Alienware m15 R4")
 
     ) {
