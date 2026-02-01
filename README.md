@@ -155,8 +155,8 @@ Need support or want this project to support your device ? Join our [Discord com
 - [x] 🖥️ CLI Mode
 - [x] 📦 install script
 - [x] 🖼️ GUI - Using `Dear ImGui` and some visuals from Windows version
-- [ ]~~🧩 Auto Zone identify using `libusb` and `Alien FX Sdk` (New GUI)~~
-- [ ] ~~📊 Fan Curve for AutoBoost (New GUI)~~
+- [-] ~~🧩 Auto Zone identify using `libusb` and `Alien FX Sdk` (New GUI)~~
+- [-] ~~📊 Fan Curve for AutoBoost (New GUI)~~
 - [x] 🖲️ Improved DMI and Normal Device Detection
 - [x] 🧠 Better ACPI Executions with fallback and functions like `executeacip(0x2, 0x0, 0x0, 0x0)`
 - [x] 🕹️ Support for Legacy `USTT` modes
