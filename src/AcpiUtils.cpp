@@ -23,6 +23,10 @@ const char *AcpiUtils::getPrefix() {
     //
     // TODO:
     // Find some other device so that i can modularise it
+    if (deviceName.contains("Dell G15 5515")) {
+        LOG_S(INFO) << "Special prefix detected using: AMW3";
+        return "AMW3";
+    }
     if (deviceName.contains("Alienware m18 R1 AMD") ||
         deviceName.contains("Alienware m16 R1 AMD")) {
         LOG_S(INFO) << "Special prefix detected using: AMWW";
