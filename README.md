@@ -121,6 +121,7 @@ Need support or want this project to support your device ? Join our [Discord com
 - Alienware Area-51m R2
 - Alienware Aurora R12
 - Alienware Aurora R9
+- Alienware Aurora Ryzen Edition
 - Alienware m15 R3
 - Alienware m15 R4
 - Alienware m15 R7
@@ -132,6 +133,7 @@ Need support or want this project to support your device ? Join our [Discord com
 - Alienware m18 R1
 - Alienware m18 R1 AMD
 - Alienware m18 R2
+- Alienware x15 R2
 - Alienware x16 R2
 - Alienware x17 R1
 - Dell G15 5510
