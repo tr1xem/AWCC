@@ -28,6 +28,7 @@ const char *AcpiUtils::getPrefix() {
         return "AMW3";
     }
     if (deviceName.contains("Alienware m18 R1 AMD") ||
+        deviceName.contains("G5 5505") ||
         deviceName.contains("Alienware m16 R1 AMD")) {
         LOG_S(INFO) << "Special prefix detected using: AMWW";
         return "AMWW";
