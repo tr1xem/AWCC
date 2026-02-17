@@ -117,6 +117,7 @@ Need support or want this project to support your device ? Join our [Discord com
 - Alienware 16 Aurora AC16250
 - Alienware 16 Aurora AC16251
 - Alienware 16X Aurora AC16251
+- Alienware Area-51 AAT2250
 - Alienware Area-51m
 - Alienware Area-51m R2
 - Alienware Aurora R12
@@ -129,10 +130,12 @@ Need support or want this project to support your device ? Join our [Discord com
 - Alienware m16 R1
 - Alienware m16 R1 AMD
 - Alienware m16 R2
+- Alienware m17 R2
 - Alienware m17 R5 AMD
 - Alienware m18 R1
 - Alienware m18 R1 AMD
 - Alienware m18 R2
+- Alienware x14 R2
 - Alienware x15 R2
 - Alienware x16 R2
 - Alienware x17 R1
