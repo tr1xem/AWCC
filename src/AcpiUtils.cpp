@@ -36,6 +36,7 @@ const char *AcpiUtils::getPrefix() {
     // NOTE: Aurora are weird??
     if (deviceName.contains("Alienware Aurora R9") ||
         deviceName.contains("Alienware 17 R5") ||
+        deviceName.contains("Alienware Aurora R16") ||
         deviceName.contains("Alienware Area-51m R2") ||
         deviceName.contains("Alienware Area-51m") ||
         deviceName.contains("Alienware x17 R1") ||
