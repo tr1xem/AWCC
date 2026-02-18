@@ -193,5 +193,10 @@
         "featureSet": "1111111",
         "thermalModes": "01000110",
         "lightingModes": "111111"
+    },
+    "Alienware Aurora R16": {
+        "featureSet": "1111111",
+        "thermalModes": "10000111",
+        "lightingModes": "111111"
     }
 }
