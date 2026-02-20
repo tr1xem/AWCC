@@ -39,7 +39,7 @@ light effects, g-mode, and autoboost.
 
 ## 📸 Screenshots
 
-![AWCC](assets/preview.png)
+![AWCC](./assets/preview.png)
 
 ---
 
