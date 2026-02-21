@@ -169,6 +169,11 @@
         "thermalModes": "11010111",
         "lightingModes": "111111"
     },
+    "Alienware Aurora ACT1250": {
+        "featureSet": "1111111",
+        "thermalModes": "11010111",
+        "lightingModes": "111111"
+    },
     "Alienware Aurora Ryzen Edition": {
         "featureSet": "1111111",
         "thermalModes": "10000111",
