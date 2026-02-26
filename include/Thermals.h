@@ -18,7 +18,7 @@ class Thermals {
 
     AcpiUtils &m_acpiUtils; // reference to external AcpiUtils
     ThermalModes m_currentMode;
-    ThermalModes m_defaultMode{ThermalModes::Performance};
+    ThermalModes m_defaultMode{ThermalModes::Balanced};
 
   public:
     Thermals(AcpiUtils &acpiUtils);
