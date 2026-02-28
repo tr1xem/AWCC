@@ -17,11 +17,7 @@ light effects, g-mode, and autoboost.
 
 > [!NOTE]
 > For lights and other light device that comes under dell (including everything
-> like keyboard,mouse,monitors etc) I am working on a tool for it
-> which would be merge in awcc to provide a gui interface so if u have a light
-> device which is not currently supported come to new repo
-> https://github.com/tr1xem/alienfx-linux/ and create a issue with the output
-> of ur `lsusb -v` and I would try bringing support for it
+> like keyboard,mouse,monitors etc) you can visit https://github.com/tr1xem/alienfx-linux/
 
 ## ✨ Features
 
@@ -32,7 +28,7 @@ light effects, g-mode, and autoboost.
 - 🎮 **GMode and Light Key autobinding** just like Windows
 - 🔥 **Supports All modes** that your device has
 - 💻 **Supports all of Alienware device** in including keyboard,mouse,monitors etc
-- 🕵️ \*_No Telemetry and Open Source_
+- 🕵️ **_No Telemetry and Open Source_**
 - 📈 **Custom Fan Curve** (Soon)
 
 ---
@@ -160,8 +156,8 @@ Need support or want this project to support your device ? Join our [Discord com
 - [x] 🖥️ CLI Mode
 - [x] 📦 install script
 - [x] 🖼️ GUI - Using `Dear ImGui` and some visuals from Windows version
-- [-] ~~🧩 Auto Zone identify using `libusb` and `Alien FX Sdk` (New GUI)~~
-- [-] ~~📊 Fan Curve for AutoBoost (New GUI)~~
+- [x] 🧩 Auto Zone identify using `libusb` and `Alien FX Sdk` (done in https://github.com/tr1xem/alienfx-linux/)
+- [ ] 📊 Fan Curve for AutoBoost (New GUI)
 - [x] 🖲️ Improved DMI and Normal Device Detection
 - [x] 🧠 Better ACPI Executions with fallback and functions like `executeacip(0x2, 0x0, 0x0, 0x0)`
 - [x] 🕹️ Support for Legacy `USTT` modes
