@@ -1,5 +1,47 @@
 # Changelog
 
+## [1.17.0](https://github.com/tr1xem/AWCC/compare/v1.16.9...v1.17.0) (2026-02-28)
+
+
+### 🚀 New Features
+
+* add new device ([183554e](https://github.com/tr1xem/AWCC/commit/183554e09f50d8f1b23878a5a2ec1542c74d8fdf))
+* add support for Alienware Aurora R15 ([e22c467](https://github.com/tr1xem/AWCC/commit/e22c467c47b377c7f84fa1a1bf96a21b069befeb))
+* add support for Alienware Aurora R15 ([3834160](https://github.com/tr1xem/AWCC/commit/38341600efc9ff02ef609b15032393330194a8af))
+* add support for Alienware Aurora R16 ([279f245](https://github.com/tr1xem/AWCC/commit/279f245ffd0d61f79ab725ce569f6a006c14982d))
+* **device:** add Alienware 18 Area-51 AA18250 ([a462abd](https://github.com/tr1xem/AWCC/commit/a462abdd29619455a9f0bcf72856f9082018afe8))
+* **device:** add Alienware x15 R2 ([d645f10](https://github.com/tr1xem/AWCC/commit/d645f100c1393488e2c505b50d8923742b3a0c6d))
+* **device:** area51m ([74fd72a](https://github.com/tr1xem/AWCC/commit/74fd72abee97521b24546aff2db53e8c717c9d20))
+* **device:** aurora r10 ([665d0a9](https://github.com/tr1xem/AWCC/commit/665d0a918fbde1ca7ae7269823d1fac9116acfb0))
+* **device:** aurora r10 support ([b4f4dfd](https://github.com/tr1xem/AWCC/commit/b4f4dfd005d19b35460fedab5d79d3a9ba34240d))
+* **device:** g5 ([d9f057e](https://github.com/tr1xem/AWCC/commit/d9f057e3893bec9bd6f98044c7e39f64f92d13c2))
+* **device:** m17 r2 ([4fe2381](https://github.com/tr1xem/AWCC/commit/4fe23818137ab9c5b048a45c8d207d4fd7a8ef1b))
+* **device:** support for Alienware Aurora ACT1250 ([d5d41bf](https://github.com/tr1xem/AWCC/commit/d5d41bf64e449b28a7bbc66706f6ef214fdaa2de))
+* **device:** tweak aurora r16 ([486e1a9](https://github.com/tr1xem/AWCC/commit/486e1a9a501465e255ca62f8f51065f896ad914f))
+* **device:** x15 R2 ([6ac2834](https://github.com/tr1xem/AWCC/commit/6ac28344ddb9a3c13fbd5afd1783c9326f8abc01))
+
+
+### 🐛 Bug Fixes
+
+* add missing device alienware aurora r7 ([765bace](https://github.com/tr1xem/AWCC/commit/765baceaba4a5a1209814ecc640cdc324dfdb23c))
+* **area51:** tweaks ([0155dee](https://github.com/tr1xem/AWCC/commit/0155dee037d9c3de41609089fe95a6398d6b423a))
+* **cmake:** force release ([8d01b5a](https://github.com/tr1xem/AWCC/commit/8d01b5ae4de4efd92722218850a2eed900f9caee))
+
+
+### ⚙️ Chores
+
+* prefix tweaks ([0dbcf9d](https://github.com/tr1xem/AWCC/commit/0dbcf9d8e6c35e53aedf75b1321fd89647b450b0))
+* **quirks:** g5 5505 ([62b750f](https://github.com/tr1xem/AWCC/commit/62b750f42a027b7668797f6a35eaac95fabcc712))
+* **readme:** update ([29073a0](https://github.com/tr1xem/AWCC/commit/29073a0635550470d636f7a4c9e4980478884a50))
+* **tweaks:** add support for Alienware m17 R2 ([3671b43](https://github.com/tr1xem/AWCC/commit/3671b43cd89f97afee37d3e04f0b73fba215f399))
+
+
+### ♻️ Code Refactoring
+
+* **acpi:** AMW3 Tweaks ([6506d6e](https://github.com/tr1xem/AWCC/commit/6506d6e8cec869cd1134d74a26b73ebd8df8bd32))
+* **acpi:** x15 tweaks ([45628d9](https://github.com/tr1xem/AWCC/commit/45628d9c9f02dccef0ef1188bd899d3cc3b86ad1))
+* **log:** logging ([ddc02c4](https://github.com/tr1xem/AWCC/commit/ddc02c41715a58cef8e0a7c8a8459b212e614fa4))
+
 ## [1.16.9](https://github.com/tr1xem/AWCC/compare/v1.16.8...v1.16.9) (2026-01-21)
 
 
