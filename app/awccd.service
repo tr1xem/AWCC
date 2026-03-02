@@ -1,0 +1,17 @@
+[Unit]
+Description=Alienware Command Centre Daemon
+Documentation=https://github.com/tr1xem/AWCC
+After=multi-user.target
+Wants=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/awcc -d -v
+ExecStop=/bin/kill -TERM $MAINPID
+Restart=always
+RestartSec=5
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
