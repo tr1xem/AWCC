@@ -351,6 +351,8 @@ int main(int argc, char *argv[]) {
         bool testMode = awcc::shouldRunTestMode(args);
         AcpiUtils acpiUtils(daemon, testMode);
 
+        effects.setZones(acpiUtils.getKeyboardZones());
+
         LOG_S(INFO) << "Initializing Thermals Module";
         Thermals awccthermals(acpiUtils);
 
@@ -379,6 +381,8 @@ int main(int argc, char *argv[]) {
         bool testMode = awcc::shouldRunTestMode(args);
         AcpiUtils acpiUtils(daemon, true);
 
+        effects.setZones(acpiUtils.getKeyboardZones());
+
         LOG_S(INFO) << "Initializing Thermals Module";
         Thermals awccthermals(acpiUtils);
 
@@ -404,9 +408,11 @@ int main(int argc, char *argv[]) {
         LOG_S(INFO) << "Initializing Daemon Module";
         Daemon daemon(effects);
 
-        // LOG_S(INFO) << "Initializing AcpiUtils Module";
+        LOG_S(INFO) << "Initializing AcpiUtils Module";
         bool testMode = awcc::shouldRunTestMode(args);
         AcpiUtils acpiUtils(daemon, testMode);
+
+        effects.setZones(acpiUtils.getKeyboardZones());
 
         LOG_S(INFO) << "Initializing Thermals Module";
         Thermals awccthermals(acpiUtils);

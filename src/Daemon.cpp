@@ -105,11 +105,11 @@ void Daemon::init() {
     }
 
     // NOTE: Start the key binder module
-    auto *binder = new KeyBinder("AT Translated Set 2 keyboard");
-    binder->setOnGModeKey([this]() { this->m_onGmodeKey(); });
-    binder->setOnLightKey([this]() { this->m_onLightKey(); });
+    m_binder = new KeyBinder("AT Translated Set 2 keyboard");
+    m_binder->setOnGModeKey([this]() { this->m_onGmodeKey(); });
+    m_binder->setOnLightKey([this]() { this->m_onLightKey(); });
 
-    std::thread keybinderThread([binder]() { binder->run(); });
+    m_keybinderThread = std::thread([this]() { this->m_binder->run(); });
 
     signal(SIGINT, daemon_signal_handler);
     signal(SIGTERM, daemon_signal_handler);
@@ -145,7 +145,7 @@ void Daemon::init() {
     LOG_S(INFO) << "Daemon listening on " << m_socket_path;
 
     while (m_running) {
-        if (!keybinderThread.joinable()) {
+        if (!m_keybinderThread.joinable()) {
             LOG_S(ERROR) << "KeyBinder thread has exited!";
             m_StopBinder();
             break;
@@ -153,6 +153,7 @@ void Daemon::init() {
 
         int client_fd = accept(m_server_fd, nullptr, nullptr);
         if (client_fd < 0) {
+            if (errno == EINTR) continue;
             LOG_S(ERROR) << "Accept failed: " << strerror(errno);
             continue;
         }

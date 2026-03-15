@@ -2,6 +2,8 @@
 #include "EffectController.h"
 #include "KeyBinder.h"
 #include <string>
+#include <functional>
+#include <loguru.hpp>
 #include <thread>
 
 class Daemon {
