@@ -1,18 +1,23 @@
 #pragma once
 #include "LightFX.h"
 #include <cstdint>
+#include <vector>
+#include <array>
 #include <loguru.hpp>
 
 class EffectController {
   public:
-    EffectController(LightFX &LightFX) : m_lightfx(LightFX) {
+    EffectController(LightFX &LightFX)
+        : m_lightfx(LightFX) {
         m_lightfx.deviceOpen();
-        LOG_S(INFO) << "Effect Controller intialized";
+        LOG_S(INFO) << "Effect Controller initialized";
     };
-    ~EffectController() {
-        m_lightfx.deviceClose();
-        LOG_S(INFO) << "Effect Controller deintialized";
-    };
+
+    void setZones(const std::vector<uint8_t> &kbdZones) {
+        m_zoneAll = kbdZones;
+        LOG_S(INFO) << "Keyboard zones updated to " << m_zoneAll.size() << " zones";
+    }
+    ~EffectController();
 
     void Brightness(uint8_t value);
     void LightBarBrightness(uint8_t value);
@@ -38,11 +43,7 @@ class EffectController {
     // TODO: Add way to individually set color for each zone
     static constexpr std::array<uint8_t, 13> m_lightbar = {
         0x1, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9};
-    static constexpr std::array<uint8_t, 1> m_zoneLeft = {0x00};
-    static constexpr std::array<uint8_t, 1> m_zoneMiddleLeft = {0x01};
-    static constexpr std::array<uint8_t, 1> m_zoneMiddleRight = {0x02};
-    static constexpr std::array<uint8_t, 1> m_zoneRight = {0x03};
-    static constexpr std::array<uint8_t, 4> m_zoneAll = {
-        *m_zoneLeft.data(), *m_zoneMiddleLeft.data(), *m_zoneMiddleRight.data(),
-        *m_zoneRight.data()};
+
+    // Keyboard zones fetched from database
+    std::vector<uint8_t> m_zoneAll = {0x00, 0x01, 0x02, 0x03};
 };

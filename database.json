@@ -37,7 +37,8 @@
     "Dell G15 5520": {
         "featureSet": "1111111",
         "thermalModes": "11001111",
-        "lightingModes": "111111"
+        "lightingModes": "111111",
+        "keyboardZones": ["0x10", "0x11", "0x12", "0x13"]
     },
     "Dell G15 Special Edition 5521": {
         "featureSet": "1111111",

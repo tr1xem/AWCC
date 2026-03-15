@@ -117,6 +117,25 @@ int AcpiUtils::m_resolveDevicefromDatabase() {
             found = true;
         }
 
+        if (device.contains("keyboardZones")) {
+            if (device["keyboardZones"].is_array()) {
+                m_keyboardZones.clear();
+                for (const auto &zone : device["keyboardZones"]) {
+                    if (zone.is_string()) {
+                        m_keyboardZones.push_back(
+                            std::stoul(zone.get<std::string>(), nullptr, 16));
+                    }
+                }
+#ifndef NDEBUG
+                LOG_S(INFO) << "Mapped " << m_keyboardZones.size() << " dynamic keyboard zones";
+#endif
+            } else {
+#ifndef NDEBUG
+                LOG_S(WARNING) << "keyboardZones exists but is not an array for device: " << m_deviceName;
+#endif
+            }
+        }
+
         if (!found) {
             deviceInfo(true);
             return -1;
