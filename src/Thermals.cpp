@@ -21,11 +21,17 @@ void Thermals::setThermalMode(ThermalModes mode) {
                      << " mode not supported by device, aborting";
         return;
     } else {
-        if (mode == ThermalModes::Gmode ||
-            m_currentMode == ThermalModes::Gmode) {
-            // NOTE: ACPI Flag needed to set while setting GMODE
+
+        // NOTE: GMODE handle
+        if (mode == ThermalModes::Gmode &&
+            m_currentMode != ThermalModes::Gmode) {
             m_acpiUtils.executeAcpiCommand(0x25, 0x01);
         }
+
+        if (m_currentMode == ThermalModes::Gmode) {
+            m_acpiUtils.executeAcpiCommand(0x25, 0x00);
+        }
+
         if (mode == m_currentMode) {
             LOG_S(WARNING) << "Current thermal mode is already set to: "
                            << m_thermalModeToName(mode);
@@ -102,7 +108,7 @@ void Thermals::toggleGmode() {
     std::string deviceName = Helper::getDeviceName();
     if (queryThermalMode() == ThermalModes::Gmode) {
         if (deviceName.contains("Dell G15 5515")) {
-            setThermalMode(ThermalModes::Manual);
+            // setThermalMode(ThermalModes::Manual);
             setCpuBoost(0);
             setGpuBoost(0);
             return;
