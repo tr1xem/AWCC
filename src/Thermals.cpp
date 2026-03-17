@@ -105,14 +105,7 @@ const char *Thermals::getCurrentModeName() {
 }
 
 void Thermals::toggleGmode() {
-    std::string deviceName = Helper::getDeviceName();
     if (queryThermalMode() == ThermalModes::Gmode) {
-        if (deviceName.contains("Dell G15 5515")) {
-            // setThermalMode(ThermalModes::Manual);
-            setCpuBoost(0);
-            setGpuBoost(0);
-            return;
-        }
         setThermalMode(m_defaultMode);
     } else {
         setThermalMode(ThermalModes::Gmode);
@@ -193,6 +186,10 @@ void Thermals::patchModes(const std::string &deviceName) {
 
         // m_modeToSetCode[ThermalModes::Gmode] = 0x199;
         // m_getCodeToMode[0x99] = ThermalModes::Gmode;
+    }
+    if (deviceName.contains("Dell G15 5515")) {
+        m_modeToSetCode[ThermalModes::Balanced] = 0x97;
+        m_getCodeToMode[0x97] = ThermalModes::Balanced;
     }
 }
 
