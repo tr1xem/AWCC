@@ -102,22 +102,48 @@ sudo modprobe acpi_call
 > acpi_call module auto load on startup so u dont have to type modprobe command
 > everytime
 
+## Frequently Asked Questions
+
+- **Auto enable gmode on game launch**?
+
+Install [gamemode](https://github.com/FeralInteractive/gamemode) using your package manager
+
+To autostart the gmode profile on game launch add following changes to: `/etc/gamemode.ini`
+
+```ini
+[custom]
+start=/usr/bin/awcc g
+end=/usr/bin/awcc b
+script_timeout=3
+```
+
+and now edit game's launch command to use gamemode `gamemoderun ./game` (or `gamemoderun %command%` if you are using steam) and it would autotoggle gmode on starting a game
+
+Thanks to [@kevin](https://github.com/kraaijmakers) for this snippet
+
 ## Support and Feedback
 
 Need support or want this project to support your device ? Join our [Discord community](https://discord.gg/EMWUTgegDm) or open a [Github Discussion](https://github.com/tr1xem/AWCC/discussions)
 
 ## Device Tested
 
-**Tested on:**
+<details>
+  <summary><b>Devices tested:</b></summary>
 
 - Alienware 16 Area-51 AA16250
 - Alienware 16 Aurora AC16250
 - Alienware 16 Aurora AC16251
 - Alienware 16X Aurora AC16251
+- Alienware 17 R5
+- Alienware 18 Area-51 AA18250
 - Alienware Area-51 AAT2250
 - Alienware Area-51m
 - Alienware Area-51m R2
+- Alienware Aurora ACT1250
 - Alienware Aurora R12
+- Alienware Aurora R15
+- Alienware Aurora R16
+- Alienware Aurora R7
 - Alienware Aurora R9
 - Alienware Aurora Ryzen Edition
 - Alienware m15 R3
@@ -149,6 +175,8 @@ Need support or want this project to support your device ? Join our [Discord com
 - G5 5590
 - G7 7500
 - G7 7700
+
+</details>
 
 ## 🗺️ Roadmap
 
