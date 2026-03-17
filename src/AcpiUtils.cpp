@@ -248,9 +248,10 @@ void AcpiUtils::deviceInfo(bool unknownDevice) {
                         "\"awcc test-modes --test-mode\" and send the output "
                         "to the developer";
     }
+    const char *deviceName = Helper::getDeviceName();
 
     if (!unknownDevice) {
-        std::cout << "Device Name: " << m_deviceName << "\n";
+        std::cout << "Device Name: " << deviceName << "\n";
         std::cout << "Device Prefix: " << m_acpiPrefix << "\n";
         std::cout << "Version: " << VERSION << "\n";
         std::cout << "Features enabled:\n";

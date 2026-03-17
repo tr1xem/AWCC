@@ -1,7 +1,6 @@
 #include "helper.h"
 #include <fstream>
 #include <loguru.hpp>
-#include <sstream>
 #include <string>
 
 const char *Helper::getDeviceName() {
@@ -12,10 +11,7 @@ const char *Helper::getDeviceName() {
         std::exit(1);
     }
 
-    std::stringstream buffer;
-    buffer << dmiFile.rdbuf();
-    deviceName = buffer.str();
-
+    std::getline(dmiFile, deviceName);
     if (!deviceName.empty() && deviceName.back() == '\n') {
         deviceName.pop_back();
     }
