@@ -49,6 +49,7 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
+    io.IniFilename = nullptr;  // Disable imgui.ini (window is fixed-size, no layout to save)
     (void)io;
     ImFontConfig cfg;
     cfg.FontDataOwnedByAtlas = false;
