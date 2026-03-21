@@ -209,13 +209,17 @@ int AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4) {
                 if (!result.empty() && result.back() == '\n')
                     result.pop_back();
                 try {
+                    if (result.empty()) {
+                         LOG_S(ERROR) << "ACPI output is empty";
+                         return -1;
+                    }
                     if (result.starts_with("0x")) { // starts with 0x
                         return std::stoul(result, nullptr, 16);
                     } else {
                         return std::stoul(result); // decimal
                     }
                 } catch (const std::exception &e) {
-                    LOG_S(ERROR) << "Failed to parse ACPI output: " << e.what();
+                    LOG_S(ERROR) << "Failed to parse ACPI output '" << result << "': " << e.what();
                     return -1;
                 }
 
@@ -238,6 +242,10 @@ int AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4) {
                     if (!result.empty() && result.back() == '\n')
                         result.pop_back();
                     try {
+                        if (result.empty()) {
+                            LOG_S(ERROR) << "ACPI output is empty";
+                            return -1;
+                        }
                         if (result.starts_with("0x")) { // starts with 0x
                             return std::stoul(result, nullptr, 16);
                         } else {
@@ -245,7 +253,7 @@ int AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4) {
                         }
                     } catch (const std::exception &e) {
                         LOG_S(ERROR)
-                            << "Failed to parse ACPI output: " << e.what();
+                            << "Failed to parse ACPI output '" << result << "': " << e.what();
                         return -1;
                     }
                 } else {

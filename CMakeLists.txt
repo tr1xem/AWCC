@@ -180,6 +180,10 @@ if(UNIX AND NOT APPLE)
 endif()
 
 # ===================== Install =====================
+set(UDEV_RULES_DIR "/etc/udev/rules.d" CACHE PATH "Directory for udev rules")
+set(SYSTEMD_UNIT_DIR "/etc/systemd/system" CACHE PATH "Directory for systemd service files")
+set(AWCC_CONFIG_DIR "/etc/awcc" CACHE PATH "Directory for configuration files")
+
 install(TARGETS ${APP_NAME} RUNTIME DESTINATION /usr/bin)
 
 install(
@@ -194,8 +198,8 @@ install(
   FILES_MATCHING
   PATTERN "*.png")
 
-install(FILES app/70-awcc.rules DESTINATION /etc/udev/rules.d)
+install(FILES app/70-awcc.rules DESTINATION ${UDEV_RULES_DIR})
 
-install(FILES app/awccd.service DESTINATION /etc/systemd/system)
+install(FILES app/awccd.service DESTINATION ${SYSTEMD_UNIT_DIR})
 
-install(FILES database.json DESTINATION /etc/awcc)
+install(FILES database.json DESTINATION ${AWCC_CONFIG_DIR})
