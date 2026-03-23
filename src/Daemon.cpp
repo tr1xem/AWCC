@@ -52,6 +52,7 @@ void Daemon::m_StopBinder() {
         m_binder->stop();
         if (m_keybinderThread.joinable())
             m_keybinderThread.join();
+        // Delete the binder
         delete m_binder;
         m_binder = nullptr;
     }
@@ -78,7 +79,6 @@ void Daemon::m_onGmodeKey() {
 void Daemon::m_onLightKey() {
     const std::string path = "/etc/awcc/brightness";
 
-    // Step 1: Read file if it exists
     if (std::filesystem::exists(path)) {
         std::ifstream in(path);
         int value;
@@ -89,7 +89,6 @@ void Daemon::m_onLightKey() {
         }
     }
 
-    // Step 2: Cycle brightness
     switch (m_brightness) {
     case 0:
         m_brightness = 50;
@@ -105,10 +104,8 @@ void Daemon::m_onLightKey() {
         break;
     }
 
-    // Step 3: Apply brightness
     m_effectsController.Brightness(m_brightness);
 
-    // Step 4: Save back to file
     std::ofstream out(path);
     if (out) {
         out << m_brightness;
