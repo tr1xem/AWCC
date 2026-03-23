@@ -8,6 +8,7 @@
 #include <cstring>
 #include <fcntl.h>
 #include <filesystem>
+#include <fstream>
 #include <loguru.hpp>
 #include <pwd.h>
 #include <regex>
@@ -75,6 +76,20 @@ void Daemon::m_onGmodeKey() {
 }
 
 void Daemon::m_onLightKey() {
+    const std::string path = "/etc/awcc/brightness";
+
+    // Step 1: Read file if it exists
+    if (std::filesystem::exists(path)) {
+        std::ifstream in(path);
+        int value;
+        if (in >> value) {
+            if (value == 0 || value == 50 || value == 100) {
+                m_brightness = value;
+            }
+        }
+    }
+
+    // Step 2: Cycle brightness
     switch (m_brightness) {
     case 0:
         m_brightness = 50;
@@ -89,8 +104,15 @@ void Daemon::m_onLightKey() {
         m_brightness = 0;
         break;
     }
+
+    // Step 3: Apply brightness
     m_effectsController.Brightness(m_brightness);
-    std::string deviceName = Helper::getDeviceName();
+
+    // Step 4: Save back to file
+    std::ofstream out(path);
+    if (out) {
+        out << m_brightness;
+    }
 }
 
 // TODO: Make it only allow a certain type of commands
