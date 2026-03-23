@@ -109,7 +109,8 @@ void EffectController::Wave(uint32_t color) {
         std::vector<uint8_t> zone = {m_zoneAll[i]};
         m_lightfx.SendZoneSelect(1, zone);
         for (size_t j = 0; j < n; ++j) {
-            m_lightfx.SendAddAction(m_actionMorph, 500, 64, (i == j) ? color : 0);
+            m_lightfx.SendAddAction(m_actionMorph, 500, 64,
+                                    (i == j) ? color : 0);
         }
     }
 
@@ -139,7 +140,8 @@ void EffectController::Rainbow(uint16_t duration) {
         m_lightfx.SendZoneSelect(1, zone);
         for (size_t j = 0; j < colors.size(); ++j) {
             size_t colorIndex = (i + j) % colors.size();
-            m_lightfx.SendAddAction(m_actionMorph, duration, 64, colors[colorIndex]);
+            m_lightfx.SendAddAction(m_actionMorph, duration, 64,
+                                    colors[colorIndex]);
         }
     }
 
@@ -157,14 +159,17 @@ void EffectController::BackAndForth(uint32_t color) {
     if (n > 1) {
         // Build sequence: 0, 1, ..., n-1, n-2, ..., 1
         std::vector<size_t> sequence;
-        for (size_t i = 0; i < n; ++i) sequence.push_back(i);
-        for (size_t i = n - 2; i > 0; --i) sequence.push_back(i);
+        for (size_t i = 0; i < n; ++i)
+            sequence.push_back(i);
+        for (size_t i = n - 2; i > 0; --i)
+            sequence.push_back(i);
 
         for (size_t i = 0; i < n; ++i) {
             std::vector<uint8_t> zone = {m_zoneAll[i]};
             m_lightfx.SendZoneSelect(1, zone);
             for (size_t step : sequence) {
-                m_lightfx.SendAddAction(m_actionMorph, 500, 64, (i == step) ? color : 0);
+                m_lightfx.SendAddAction(m_actionMorph, 500, 64,
+                                        (i == step) ? color : 0);
             }
         }
     } else if (n == 1) {
@@ -281,90 +286,4 @@ void EffectController::ScanZones() {
     for (const auto &z : zonesFound) {
         std::cout << z.first << ": 0x" << std::hex << z.second << "\n";
     }
-}
-
-// TODO: DOCUMENT LIGHTBAR
-void EffectController::LightBarBrightness(uint8_t value) {
-    value = std::min<int>(value, 100);
-    m_lightfx.deviceAcquire();
-    m_lightfx.SendSetDim(100 - value, m_lightbar);
-    m_lightfx.deviceRelease();
-    // std::ofstream ofs(m_brightnessFile, std::ios::trunc);
-    // if (ofs.is_open()) {
-    //     ofs << static_cast<int>(value);
-    //     chmod(m_brightnessFile.c_str(), 0666); // set permission
-    // }
-}
-
-void EffectController::LightBarSpectrum(uint16_t duration) {
-    m_lightfx.deviceAcquire();
-    m_lightfx.SendAnimationRemove(0x0061);
-    m_lightfx.SendAnimationConfigStart(0x0061);
-    m_lightfx.SendZoneSelect(1, m_lightbar);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFF0000);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFFA500);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0xFFFF00);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x008000);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x00BFFF);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x0000FF);
-    m_lightfx.SendAddAction(m_actionMorph, duration, 64, 0x800080);
-    m_lightfx.SendAnimationConfigSave(0x0061);
-    m_lightfx.SendAnimationSetDefault(0x0061);
-    m_lightfx.deviceRelease();
-}
-
-void EffectController::LightBarBreathe(uint32_t color) {
-    m_lightfx.deviceAcquire();
-    m_lightfx.SendAnimationRemove(0x0061);
-    m_lightfx.SendAnimationConfigStart(0x0061);
-    m_lightfx.SendZoneSelect(1, m_lightbar);
-    m_lightfx.SendAddAction(m_actionMorph, 500, 64, color);
-    m_lightfx.SendAddAction(m_actionMorph, 2000, 64, color);
-    m_lightfx.SendAddAction(m_actionMorph, 500, 64, 0);
-    m_lightfx.SendAddAction(m_actionMorph, 2000, 64, 0);
-    m_lightfx.SendAnimationConfigSave(0x0061);
-    m_lightfx.SendAnimationSetDefault(0x0061);
-    m_lightfx.deviceRelease();
-}
-
-void EffectController::LightbarRainbow(uint16_t duration) {
-    m_lightfx.deviceAcquire();
-    m_lightfx.SendAnimationRemove(0x0061);
-    m_lightfx.SendAnimationConfigStart(0x0061);
-
-    const std::array<uint32_t, 7> colors = {
-        0xFF0000, // Red
-        0xFFA500, // Orange
-        0xFFFF00, // Yellow
-        0x008000, // Green
-        0x00BFFF, // Sky Blue
-        0x0000FF, // Blue
-        0x800080  // Purple
-    };
-
-    for (size_t i = 0; i < m_lightbar.size(); ++i) {
-        std::vector<uint8_t> zone = {m_lightbar[i]};
-        m_lightfx.SendZoneSelect(1, std::span<const uint8_t>(zone));
-
-        for (size_t j = 0; j < colors.size(); ++j) {
-            size_t colorIndex = (i + j) % colors.size();
-            m_lightfx.SendAddAction(m_actionMorph, duration, 64,
-                                    colors[colorIndex]);
-        }
-    }
-
-    m_lightfx.SendAnimationConfigSave(0x0061);
-    m_lightfx.SendAnimationSetDefault(0x0061);
-    m_lightfx.deviceRelease();
-}
-
-void EffectController::LightBarDefaultBlue() {
-    m_lightfx.deviceAcquire();
-    m_lightfx.SendAnimationRemove(0x0061);
-    m_lightfx.SendAnimationConfigStart(0x0061);
-    m_lightfx.SendZoneSelect(1, m_lightbar);
-    m_lightfx.SendAddAction(m_actionColor, 1, 2, 0x00FFFF);
-    m_lightfx.SendAnimationConfigSave(0x0061);
-    m_lightfx.SendAnimationSetDefault(0x0061);
-    m_lightfx.deviceRelease();
 }
