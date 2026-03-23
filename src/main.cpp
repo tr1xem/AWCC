@@ -172,34 +172,6 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
         std::cout << "Set default blue color." << "\n";
         return 0;
     }
-    // NOTE: Lighbar commands
-    if (cmd == "lbspectrum") {
-        effects.LightBarSpectrum(1000);
-        std::cout << "Set light bar spectrum Mode \n";
-        return 0;
-    }
-    if (cmd == "lbrainbow") {
-        effects.LightbarRainbow(500);
-        std::cout << "Set light bar rainbow mode \n";
-        return 0;
-    }
-
-    if (cmd == "lbbrightness" && args.size() > 2) {
-        effects.LightBarBrightness(std::stoi(args[2]));
-        std::cout << "Set light bar brightness to " << args[2] << "\n";
-        return 0;
-    }
-    if (cmd == "lbdefaultblue") {
-        effects.LightBarDefaultBlue();
-        std::cout << "Set default blue color for lightbar." << "\n";
-        return 0;
-    }
-    if (cmd == "lbbreathe" && args.size() > 2) {
-        uint32_t color = parseHexColor(args[2]);
-        effects.LightBarBreathe(color);
-        std::cout << "Set light bar breathe color: " << args[2] << "\n";
-        return 0;
-    }
     // Fan Controls
     if (cmd == "qm") {
         std::cout << "Current Mode: " << thermals.getCurrentModeName() << "\n";
