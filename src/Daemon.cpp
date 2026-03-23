@@ -91,9 +91,6 @@ void Daemon::m_onLightKey() {
     }
     m_effectsController.Brightness(m_brightness);
     std::string deviceName = Helper::getDeviceName();
-    if (deviceName.contains("Dell G15 Special Edition 5521")) {
-        m_effectsController.LightBarBrightness(m_brightness);
-    }
 }
 
 // TODO: Make it only allow a certain type of commands
@@ -153,7 +150,8 @@ void Daemon::init() {
 
         int client_fd = accept(m_server_fd, nullptr, nullptr);
         if (client_fd < 0) {
-            if (errno == EINTR) continue;
+            if (errno == EINTR)
+                continue;
             LOG_S(ERROR) << "Accept failed: " << strerror(errno);
             continue;
         }
