@@ -148,6 +148,7 @@ Need support or want this project to support your device ? Join our [Discord com
 - Alienware Aurora Ryzen Edition
 - Alienware m15 R3
 - Alienware m15 R4
+- Alienware m15 R6
 - Alienware m15 R7
 - Alienware m15 Ryzen Ed. R5
 - Alienware m16 R1
