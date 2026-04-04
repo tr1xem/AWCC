@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(
   awcc
   LANGUAGES CXX
-  VERSION 1.16.9)
+  VERSION 1.17.0)
 
 set(APP_NAME awcc)
 
@@ -180,9 +180,15 @@ if(UNIX AND NOT APPLE)
 endif()
 
 # ===================== Install =====================
-set(UDEV_RULES_DIR "/etc/udev/rules.d" CACHE PATH "Directory for udev rules")
-set(SYSTEMD_UNIT_DIR "/etc/systemd/system" CACHE PATH "Directory for systemd service files")
-set(AWCC_CONFIG_DIR "/etc/awcc" CACHE PATH "Directory for configuration files")
+set(UDEV_RULES_DIR
+    "/etc/udev/rules.d"
+    CACHE PATH "Directory for udev rules")
+set(SYSTEMD_UNIT_DIR
+    "/etc/systemd/system"
+    CACHE PATH "Directory for systemd service files")
+set(AWCC_CONFIG_DIR
+    "/etc/awcc"
+    CACHE PATH "Directory for configuration files")
 
 install(TARGETS ${APP_NAME} RUNTIME DESTINATION /usr/bin)
 

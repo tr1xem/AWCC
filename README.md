@@ -23,7 +23,7 @@ light effects, g-mode, and autoboost.
 ## ✨ Features
 
 - 🖥️ **GUI and CLI support**
-- ⚡ **Lightweight** (uses around ~88mb of RAM with GUI open, else 6mb RAM while running in background)
+- ⚡ **Lightweight** (uses around ~88mb of RAM with GUI open, else 4mb RAM while running in background)
 - 🌈 **All Light Effects**
 - 🧑‍💻 **Daemon Support** (no sudo needed if daemon is running)
 - 🎮 **GMode and Light Key autobinding** just like Windows
