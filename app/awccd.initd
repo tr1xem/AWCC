@@ -1,0 +1,19 @@
+#!/sbin/openrc-run
+
+description="Alienware Command Centre Daemon"
+command="/usr/bin/awcc"
+command_args="-d -v"
+pidfile="/run/awcc.pid"
+command_background="yes"
+
+depend() {
+    need localmount
+    after bootmisc
+}
+
+start_pre() {
+    # Equivalent to ExecStartPre=-/usr/bin/rm -f /tmp/awcc.sock
+    if [ -e /tmp/awcc.sock ]; then
+        rm -f /tmp/awcc.sock
+    fi
+}

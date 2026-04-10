@@ -206,6 +206,19 @@ install(
 
 install(FILES app/70-awcc.rules DESTINATION ${UDEV_RULES_DIR})
 
-install(FILES app/awccd.service DESTINATION ${SYSTEMD_UNIT_DIR})
+if(OPENRC)
+    message(STATUS "Configuring for OpenRC installation")
+    install(FILES app/awccd.initd
+            DESTINATION /etc/init.d
+            RENAME awccd
+            PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+else()
+    message(STATUS "Configuring for systemd installation")
+    set(SYSTEMD_UNIT_DIR
+        "/etc/systemd/system"
+        CACHE PATH "Directory for systemd service files")
+
+    install(FILES app/awccd.service DESTINATION ${SYSTEMD_UNIT_DIR})
+endif()
 
 install(FILES database.json DESTINATION ${AWCC_CONFIG_DIR})
