@@ -23,7 +23,8 @@ const char *AcpiUtils::getPrefix() {
     //
     // TODO:
     // Find some other device so that i can modularise it
-    if (deviceName.contains("Dell G15 5515")) {
+    if (deviceName.contains("Dell G15 5515") ||
+        deviceName.contains("Alienware m15 R7 AMD")) {
         LOG_S(INFO) << "Special prefix detected using: AMW3";
         return "AMW3";
     }
@@ -127,11 +128,14 @@ int AcpiUtils::m_resolveDevicefromDatabase() {
                     }
                 }
 #ifndef NDEBUG
-                LOG_S(INFO) << "Mapped " << m_keyboardZones.size() << " dynamic keyboard zones";
+                LOG_S(INFO) << "Mapped " << m_keyboardZones.size()
+                            << " dynamic keyboard zones";
 #endif
             } else {
 #ifndef NDEBUG
-                LOG_S(WARNING) << "keyboardZones exists but is not an array for device: " << m_deviceName;
+                LOG_S(WARNING)
+                    << "keyboardZones exists but is not an array for device: "
+                    << m_deviceName;
 #endif
             }
         }
@@ -210,8 +214,8 @@ int AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4) {
                     result.pop_back();
                 try {
                     if (result.empty()) {
-                         LOG_S(ERROR) << "ACPI output is empty";
-                         return -1;
+                        LOG_S(ERROR) << "ACPI output is empty";
+                        return -1;
                     }
                     if (result.starts_with("0x")) { // starts with 0x
                         return std::stoul(result, nullptr, 16);
@@ -219,7 +223,8 @@ int AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4) {
                         return std::stoul(result); // decimal
                     }
                 } catch (const std::exception &e) {
-                    LOG_S(ERROR) << "Failed to parse ACPI output '" << result << "': " << e.what();
+                    LOG_S(ERROR) << "Failed to parse ACPI output '" << result
+                                 << "': " << e.what();
                     return -1;
                 }
 
@@ -252,8 +257,8 @@ int AcpiUtils::executeAcpiCommand(int arg1, int arg2, int arg3, int arg4) {
                             return std::stoul(result); // decimal
                         }
                     } catch (const std::exception &e) {
-                        LOG_S(ERROR)
-                            << "Failed to parse ACPI output '" << result << "': " << e.what();
+                        LOG_S(ERROR) << "Failed to parse ACPI output '"
+                                     << result << "': " << e.what();
                         return -1;
                     }
                 } else {
