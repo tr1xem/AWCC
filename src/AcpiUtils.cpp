@@ -1,11 +1,11 @@
 #include "AcpiUtils.h"
 #include "helper.h"
+#include "nlohmann/json.hpp"
 #include <filesystem>
 #include <format>
 #include <fstream>
 #include <iostream>
 #include <loguru.hpp>
-#include <nlohmann/json.hpp>
 #include <string>
 
 using json = nlohmann::json;
