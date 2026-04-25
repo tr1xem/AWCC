@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.18.0](https://github.com/tr1xem/AWCC/compare/v1.17.0...v1.18.0) (2026-04-25)
+
+
+### 🚀 New Features
+
+* add pre-start socket cleanup to awccd service and refactor CMake install paths to use variables. ([3f503d6](https://github.com/tr1xem/AWCC/commit/3f503d6ca7f149d149a94f7db0b2a451f4ba4e57))
+* **core:** implement dynamic keyboard lighting zones ([6be4bdb](https://github.com/tr1xem/AWCC/commit/6be4bdbc34e62a7bc6c43b9a8b4f1cc5f6f79964))
+* **daemon:** Persist brightness across restarts ([72e01af](https://github.com/tr1xem/AWCC/commit/72e01afde9e09bab33a9ba25c1a98be214a7bcb2))
+* **dev:** add support for Alienware m15 ([c62b2a1](https://github.com/tr1xem/AWCC/commit/c62b2a1b1a3d5735e6b96578b2fcbe6dc8078b24))
+* **device:** Add Alienware Area-51 AAT2250 ([aa8874e](https://github.com/tr1xem/AWCC/commit/aa8874e9fa6e0b63d7f50e1b150758b56e1dd176))
+* **device:** add Alienware m15 R7 AMD ([c5132e1](https://github.com/tr1xem/AWCC/commit/c5132e109283c3ee343f6c90773556658262e7a9))
+* **device:** add support for Alienware Aurora Ryzen Edition R14 ([94e265d](https://github.com/tr1xem/AWCC/commit/94e265d0857a9b5b29cca4fb31ba1522cade0319))
+* **openrc:** add openrc service and build flags ([c5bb03e](https://github.com/tr1xem/AWCC/commit/c5bb03e71550c975933f0618280cb4c675a0a653))
+
+
+### 🐛 Bug Fixes
+
+* **database:** Json format ([9f8fa44](https://github.com/tr1xem/AWCC/commit/9f8fa445edb3d361af6a4075e25580ec5ec90b5f))
+* **device:** add Alienware m15 ([4221c3e](https://github.com/tr1xem/AWCC/commit/4221c3e91ccff8a479f4376e5dde88cfea1ea21d))
+
+
+### ♻️ Code Refactoring
+
+* **daemon:** no comments ([1d16dfd](https://github.com/tr1xem/AWCC/commit/1d16dfd4820c3e21649d44a973477ce243b315dd))
+* **effect:** Clean up lightbar code ([eb243d2](https://github.com/tr1xem/AWCC/commit/eb243d2efe64d3097cc04caba68b8022ef9ed69e))
+
 ## [1.17.0](https://github.com/tr1xem/AWCC/compare/v1.16.9...v1.17.0) (2026-03-18)
 
 
