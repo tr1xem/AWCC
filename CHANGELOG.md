@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.1](https://github.com/tr1xem/AWCC/compare/v1.18.0...v1.18.1) (2026-04-25)
+
+
+### 🐛 Bug Fixes
+
+* **imports:** Replace universal imports with build ([152adef](https://github.com/tr1xem/AWCC/commit/152adef1f999210799b98f07864f596a62f4532a))
+
 ## [1.18.0](https://github.com/tr1xem/AWCC/compare/v1.17.0...v1.18.0) (2026-04-25)
 
 
