@@ -23,7 +23,7 @@ Paste the error you are getting by running the command here
 
 **Resources:**
 
-- Output of `awcc test-modes --testmode`
+- Output of `awcc test-modes --test-mode`
 
 ```
 paste in here
