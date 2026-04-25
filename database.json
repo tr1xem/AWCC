@@ -99,15 +99,7 @@
         "featureSet": "1111111",
         "thermalModes": "11110111",
         "lightingModes": "111111",
-        "keyboardZones":  [
-            "0x1",
-            "0x3",
-            "0x4",
-            "0x5",
-            "0x6",
-            "0x7",
-            "0x200"
-        ]
+        "keyboardZones": ["0x1", "0x3", "0x4", "0x5", "0x6", "0x7", "0x200"]
     },
     "Alienware m15 R7": {
         "featureSet": "1111111",
@@ -187,6 +179,11 @@
     "Alienware 18 Area-51 AA18250": {
         "featureSet": "1111111",
         "thermalModes": "11110111",
+        "lightingModes": "111111"
+    },
+    "Alienware Area-51 AAT2250": {
+        "featureSet": "1111111",
+        "thermalModes": "11010111",
         "lightingModes": "111111"
     },
     "Alienware Area-51 AAT2250": {
