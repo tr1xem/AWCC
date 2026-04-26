@@ -31,7 +31,7 @@ KeyBinder::KeyBinder(const std::string &target_device_name, double timeout_sec)
         }
     }
     if (dev_ == nullptr) {
-        LOG_S(ERROR) << "Device " << target_device_name << " not found!";
+        LOG_S(WARNING) << "Device " << target_device_name << " not found!";
     } else {
         LOG_S(INFO) << "KeyBinder module initialized";
     }
