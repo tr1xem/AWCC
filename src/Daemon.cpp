@@ -168,6 +168,13 @@ void Daemon::init() {
     LOG_S(INFO) << "Daemon listening on " << m_socket_path;
 
     while (m_running) {
+        if (m_binder != nullptr && m_binder->isAvailable() &&
+            !m_keybinderThread.joinable()) {
+            LOG_S(ERROR) << "KeyBinder thread has exited!";
+            m_StopBinder();
+            break;
+        }
+
         int client_fd = accept(m_server_fd, nullptr, nullptr);
         if (client_fd < 0) {
             if (errno == EINTR)
