@@ -14,6 +14,7 @@ class KeyBinder {
 
     void setOnGModeKey(std::function<void()> cb);
     void setOnLightKey(std::function<void()> cb);
+    [[nodiscard]] bool isAvailable() const { return dev_ != nullptr; }
     void run();
     void stop();
 

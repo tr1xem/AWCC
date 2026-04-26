@@ -120,12 +120,19 @@ void Daemon::init() {
         exit(1);
     }
 
-    // NOTE: Start the key binder module
+    // Desktop systems do not expose the internal laptop keyboard used for
+    // Alienware hotkeys. Keep the daemon usable and only skip those hotkeys.
     m_binder = new KeyBinder("AT Translated Set 2 keyboard");
-    m_binder->setOnGModeKey([this]() { this->m_onGmodeKey(); });
-    m_binder->setOnLightKey([this]() { this->m_onLightKey(); });
-
-    m_keybinderThread = std::thread([this]() { this->m_binder->run(); });
+    if (m_binder->isAvailable()) {
+        m_binder->setOnGModeKey([this]() { this->m_onGmodeKey(); });
+        m_binder->setOnLightKey([this]() { this->m_onLightKey(); });
+        m_keybinderThread = std::thread([this]() { this->m_binder->run(); });
+    } else {
+        LOG_S(WARNING) << "Internal keyboard hotkeys unavailable; continuing "
+                          "without KeyBinder";
+        delete m_binder;
+        m_binder = nullptr;
+    }
 
     signal(SIGINT, daemon_signal_handler);
     signal(SIGTERM, daemon_signal_handler);
@@ -161,12 +168,6 @@ void Daemon::init() {
     LOG_S(INFO) << "Daemon listening on " << m_socket_path;
 
     while (m_running) {
-        if (!m_keybinderThread.joinable()) {
-            LOG_S(ERROR) << "KeyBinder thread has exited!";
-            m_StopBinder();
-            break;
-        }
-
         int client_fd = accept(m_server_fd, nullptr, nullptr);
         if (client_fd < 0) {
             if (errno == EINTR)
