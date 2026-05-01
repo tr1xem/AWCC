@@ -1,124 +1,51 @@
 cmake_minimum_required(VERSION 3.16)
-project(
-  awcc
-  LANGUAGES CXX
-  VERSION 1.17.0)
-
+project(awcc LANGUAGES CXX)
 set(APP_NAME awcc)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(BUILD_SHARED_LIBS OFF)
+set(CMAKE_BUILD_TYPE Release)
 
-# if(NOT CMAKE_BUILD_TYPE)
-set(CMAKE_BUILD_TYPE
-    Release
-    CACHE STRING "Build type" FORCE)
-# endif()
-
-add_compile_definitions(VERSION="${PROJECT_VERSION}")
-
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE
+      Release
+      CACHE STRING "Build type" FORCE)
+endif()
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   set(CMAKE_INSTALL_PREFIX
       "/usr"
       CACHE PATH "Install path prefix" FORCE)
 endif()
 
-# compile_commands.json symlink
-if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
-  add_custom_target(
-    link_compile_commands ALL
-    COMMAND
-      ${CMAKE_COMMAND} -E create_symlink
-      ${CMAKE_BINARY_DIR}/compile_commands.json
-      ${CMAKE_SOURCE_DIR}/compile_commands.json
-    BYPRODUCTS ${CMAKE_SOURCE_DIR}/compile_commands.json)
-endif()
-
 include(FetchContent)
-find_package(OpenGL REQUIRED)
+find_package(PkgConfig REQUIRED)
 
-if(UNIX AND NOT APPLE)
-  find_package(X11 REQUIRED)
-endif()
-
-# ===================== Loguru =====================
+# ----------- Loguru ------------
 FetchContent_Declare(
-  loguru
-  GIT_REPOSITORY https://github.com/emilk/loguru
-  GIT_TAG master
-  GIT_SHALLOW TRUE)
-set(LOGURU_WITH_STREAMS
-    TRUE
-    CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(loguru)
+  LoguruGitRepo
+  GIT_REPOSITORY "https://github.com/emilk/loguru"
+  GIT_TAG "master"
+  GIT_SHALLOW TRUE
+  GIT_PROGRESS TRUE)
+set(LOGURU_WITH_STREAMS TRUE)
+FetchContent_MakeAvailable(LoguruGitRepo)
+set(LOGURU_LIBRARIES loguru::loguru)
+set(LOGURU_INCLUDE_DIRS ${LoguruGitRepo_SOURCE_DIR})
 
-# ===================== nlohmann_json =====================
+# ----------- nlohmann_json ------------
 FetchContent_Declare(
   json
-  GIT_REPOSITORY https://github.com/nlohmann/json.git
-  GIT_TAG master
-  GIT_SHALLOW TRUE)
+  GIT_REPOSITORY "https://github.com/nlohmann/json.git"
+  GIT_TAG "master"
+  GIT_SHALLOW TRUE
+  GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(json)
+set(NLOHMANN_JSON_LIBRARIES nlohmann_json::nlohmann_json)
+set(NLOHMANN_JSON_INCLUDE_DIRS ${json_SOURCE_DIR}/single_include)
 
-# ===================== GLFW =====================
-set(GLFW_BUILD_EXAMPLES
-    OFF
-    CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS
-    OFF
-    CACHE BOOL "" FORCE)
-set(GLFW_BUILD_DOCS
-    OFF
-    CACHE BOOL "" FORCE)
-set(GLFW_INSTALL
-    OFF
-    CACHE BOOL "" FORCE)
-
-FetchContent_Declare(
-  glfw
-  GIT_REPOSITORY https://github.com/glfw/glfw.git
-  GIT_TAG master
-  GIT_SHALLOW TRUE)
-FetchContent_MakeAvailable(glfw)
-
-# ===================== ImGui =====================
-FetchContent_Declare(
-  imgui
-  GIT_REPOSITORY https://github.com/ocornut/imgui.git
-  GIT_TAG master
-  GIT_SHALLOW TRUE)
-FetchContent_MakeAvailable(imgui)
-
-add_library(imgui STATIC)
-target_sources(
-  imgui
-  PRIVATE ${imgui_SOURCE_DIR}/imgui.cpp
-          ${imgui_SOURCE_DIR}/imgui_draw.cpp
-          ${imgui_SOURCE_DIR}/imgui_tables.cpp
-          ${imgui_SOURCE_DIR}/imgui_widgets.cpp
-          ${imgui_SOURCE_DIR}/imgui_demo.cpp
-          ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
-          ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp)
-
-target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR}
-                                        ${imgui_SOURCE_DIR}/backends)
-
-target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
-
-if(UNIX AND NOT APPLE)
-  target_link_libraries(imgui PUBLIC X11::X11 dl pthread)
-endif()
-
-# ===================== libusb =====================
-set(LIBUSB_BUILD_SHARED
-    OFF
-    CACHE BOOL "" FORCE)
-set(LIBUSB_BUILD_STATIC
-    ON
-    CACHE BOOL "" FORCE)
-
+# ----------- LIBUSB ------------
 FetchContent_Declare(
   libusb
   GIT_REPOSITORY https://github.com/libusb/libusb-cmake.git
@@ -126,99 +53,28 @@ FetchContent_Declare(
   GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(libusb)
 
-# ===================== libevdev ============================================
-include(ExternalProject)
+# ----------- EVDEV ------------
+pkg_check_modules(LIBEVDEV REQUIRED libevdev)
 
-ExternalProject_Add(
-  libevdev
-  GIT_REPOSITORY https://gitlab.freedesktop.org/libevdev/libevdev.git
-  GIT_TAG master
-  CONFIGURE_COMMAND
-    meson setup <BINARY_DIR> <SOURCE_DIR> --default-library=static
-    -Ddocumentation=disabled -Dtests=disabled -Dtools=disabled
-  BUILD_COMMAND meson compile -C <BINARY_DIR>
-  INSTALL_COMMAND "" # CMAKE NEEDS A INSTALL COMMAND or it will run make
-  BUILD_BYPRODUCTS <BINARY_DIR>/libevdev.a)
-
-add_library(libevdev::libevdev STATIC IMPORTED)
-
-ExternalProject_Get_Property(libevdev source_dir binary_dir)
-
-set_target_properties(
-  libevdev::libevdev PROPERTIES IMPORTED_LOCATION ${binary_dir}/libevdev.a
-                                INTERFACE_INCLUDE_DIRECTORIES ${source_dir})
-
-add_dependencies(libevdev::libevdev libevdev)
-
-# ===================== stb =====================
+# -----------ALINEFX ------------
 FetchContent_Declare(
-  stb
-  GIT_REPOSITORY https://github.com/nothings/stb.git
-  GIT_TAG master
+  alienfx
+  GIT_REPOSITORY https://github.com/tr1xem/alienfx-linux.git
+  GIT_TAG main
   GIT_SHALLOW TRUE)
-FetchContent_MakeAvailable(stb)
+FetchContent_MakeAvailable(alienfx)
+set(ALIENFX_INCLUDE_DIR ${alienfx_SOURCE_DIR})
 
-# ===================== App =====================
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 
 add_executable(${APP_NAME} ${SOURCES})
-
-target_include_directories(${APP_NAME} PRIVATE include ${stb_SOURCE_DIR})
-
+target_include_directories(
+  ${APP_NAME} PRIVATE include ${ALIENFX_INCLUDE_DIR} ${LIBEVDEV_INCLUDE_DIRS}
+                      ${LOGURU_INCLUDE_DIRS} ${NLOHMANN_JSON_INCLUDE_DIRS})
 target_link_libraries(
-  ${APP_NAME}
-  PRIVATE glfw
-          imgui
-          OpenGL::GL
-          loguru::loguru
-          nlohmann_json::nlohmann_json
-          usb-1.0
-          libevdev::libevdev)
+  ${APP_NAME} PRIVATE ${LOGURU_LIBRARIES} ${NLOHMANN_JSON_LIBRARIES} usb-1.0
+                      hidapi::libusb ${LIBEVDEV_LIBRARIES})
 
-if(UNIX AND NOT APPLE)
-  target_link_libraries(${APP_NAME} PRIVATE X11::X11 dl pthread)
-endif()
-
-# ===================== Install =====================
-set(UDEV_RULES_DIR
-    "/etc/udev/rules.d"
-    CACHE PATH "Directory for udev rules")
-set(SYSTEMD_UNIT_DIR
-    "/etc/systemd/system"
-    CACHE PATH "Directory for systemd service files")
-set(AWCC_CONFIG_DIR
-    "/etc/awcc"
-    CACHE PATH "Directory for configuration files")
+target_compile_options(${APP_NAME} PRIVATE ${LIBEVDEV_CFLAGS_OTHER})
 
 install(TARGETS ${APP_NAME} RUNTIME DESTINATION /usr/bin)
-
-install(
-  DIRECTORY app/
-  DESTINATION /usr/share/applications
-  FILES_MATCHING
-  PATTERN "*.desktop")
-
-install(
-  DIRECTORY app/
-  DESTINATION /usr/share/icons
-  FILES_MATCHING
-  PATTERN "*.png")
-
-install(FILES app/70-awcc.rules DESTINATION ${UDEV_RULES_DIR})
-
-if(OPENRC)
-    message(STATUS "Configuring for OpenRC installation")
-    install(FILES app/awccd.initd
-            DESTINATION /etc/init.d
-            RENAME awccd
-            PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-else()
-    message(STATUS "Configuring for systemd installation")
-    set(SYSTEMD_UNIT_DIR
-        "/etc/systemd/system"
-        CACHE PATH "Directory for systemd service files")
-
-    install(FILES app/awccd.service DESTINATION ${SYSTEMD_UNIT_DIR})
-endif()
-
-install(FILES database.json DESTINATION ${AWCC_CONFIG_DIR})
