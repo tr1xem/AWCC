@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.0](https://github.com/tr1xem/AWCC/compare/v1.18.1...v1.19.0) (2026-05-04)
+
+
+### 🚀 New Features
+
+* **device:** add support for Alienware m15 R7 AMD ([077fee7](https://github.com/tr1xem/AWCC/commit/077fee72698ff3f166a5bacd43b6aa2f00f3048f))
+
 ## [1.18.1](https://github.com/tr1xem/AWCC/compare/v1.18.0...v1.18.1) (2026-04-25)
 
 
