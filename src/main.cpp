@@ -66,13 +66,6 @@ Keyboard Lighting Controls:
   bkf        <color_hex>   Back and forth effect
   defaultblue              Default blue color
 
-Light bar Lighting Controls:
-  lbbrightness <0-100>     Set light bar brightness
-  lbrainbow                Rainbow wave effect
-  lbspectrum               Color spectrum effect
-  lbbreathe    <color_hex> Breathing effect
-  lbdefaultblue            Default blue color
-
 Fan Controls (Run as root):
   qm                       Query current fan mode
   quiet        (q )        Quiet mode for minimal noise

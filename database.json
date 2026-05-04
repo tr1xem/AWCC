@@ -17,7 +17,22 @@
     "G7 7700": {
         "featureSet": "1111111",
         "thermalModes": "11010111",
-        "lightingModes": "111111"
+        "lightingModes": "111111",
+        "keyboardZones": [
+            "0x1",
+            "0xa",
+            "0xb",
+            "0xc",
+            "0xd",
+            "0xe",
+            "0xf",
+            "0x4",
+            "0x5",
+            "0x6",
+            "0x7",
+            "0x8",
+            "0x9"
+        ]
     },
     "Dell G15 5510": {
         "featureSet": "1111111",
@@ -107,6 +122,11 @@
         "keyboardZones": ["0x1", "0x3", "0x4", "0x5", "0x6", "0x7", "0x200"]
     },
     "Alienware m15 R7": {
+        "featureSet": "1111111",
+        "thermalModes": "11101111",
+        "lightingModes": "111111"
+    },
+    "Alienware m15 R7 AMD": {
         "featureSet": "1111111",
         "thermalModes": "11101111",
         "lightingModes": "111111"

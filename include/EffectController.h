@@ -32,8 +32,7 @@ class EffectController {
 
   private:
     LightFX &m_lightfx;
-    std::string m_brightnessFile =
-        "/etc/awcc/brightness"; // path of your choice
+    std::string m_brightnessFile = "/etc/awcc/brightness";
     static constexpr uint8_t m_actionColor = 0x00;
     static constexpr uint8_t m_actionMorph = 0x02;
     // Keyboard zones fetched from database
