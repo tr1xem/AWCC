@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.19.0](https://github.com/tr1xem/AWCC/compare/v1.18.1...v1.19.0) (2026-06-04)
+
+
+### 🚀 New Features
+
+* **device:** add Dell G15 5535 ([f109158](https://github.com/tr1xem/AWCC/commit/f1091587ea1d7bfa1970c5fa323b218d44d0108e))
+* **device:** add support for Alienware m15 R7 AMD ([077fee7](https://github.com/tr1xem/AWCC/commit/077fee72698ff3f166a5bacd43b6aa2f00f3048f))
+* **device:** tweaks for m15 R4 ([c0f92e2](https://github.com/tr1xem/AWCC/commit/c0f92e25760117a6d160064c1fac2336c67db538))
+
 ## [1.18.1](https://github.com/tr1xem/AWCC/compare/v1.18.0...v1.18.1) (2026-04-25)
 
 
