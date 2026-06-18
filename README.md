@@ -65,6 +65,33 @@ paru -S awcc-bin
 - `ninja`
 - `meson`
 
+
+#### 🗿 For NixOS
+
+Add flake input in your config:
+
+```nix
+awcc = {
+  url = "github:tr1xem/AWCC";
+  inputs.nixpkgs.follows = "nixpkgs";
+}
+```
+
+Then, import `awcc.nixosModules.default` anywhere in your config and add `acpi_call` as kernel module.
+
+Example flake part `awcc.nix` setup:
+
+```nix
+{ ... }: {
+  flake.modules.nixos."system.awcc" = { inputs, config, pkgs, ... }: {
+    imports = [ inputs.awcc.nixosModules.default ];
+    boot.kernelModules = [ "acpi_call" ];
+    boot.extraModulePackages = with config.boot.kernelPackages; [ acpi_call ];
+  };
+}
+```
+
+
 OR if you are a debianoid
 
 ```
@@ -118,8 +145,6 @@ script_timeout=3
 ```
 
 and now edit game's launch command to use gamemode `gamemoderun ./game` (or `gamemoderun %command%` if you are using steam) and it would autotoggle gmode on starting a game
-
-Thanks to [@kevin](https://github.com/kraaijmakers) for this snippet
 
 ## Support and Feedback
 
@@ -201,7 +226,9 @@ Need support or want this project to support your device ? Join our [Discord com
 
 - [GasparVardanyan](https://github.com/GasparVardanyan)
 - [humanfx](https://github.com/tiagoporsch/humanfx)
+- [randomboi404](https://github.com/randomboi404) (NixOS Support)
 - [meduk0](https://github.com/meduk0)
+- [kevin](https://github.com/kraaijmakers) (G-Mode snippet)
 - [WMI Kernel Driver](https://docs.kernel.org/6.16/wmi/devices/alienware-wmi.html)
 
 **“Intelligence is the ability to avoid doing work, yet getting the work done.”** _~Linus Torvalds_

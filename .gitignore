@@ -9,3 +9,4 @@ AGENTS.md
 build/
 .cache/
 imgui.ini
+result
