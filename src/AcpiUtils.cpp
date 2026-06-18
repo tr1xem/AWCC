@@ -54,7 +54,8 @@ const char *AcpiUtils::getPrefix() {
         deviceName.contains("Alienware x15 R2") ||
         deviceName.contains("Alienware m15 R4") ||
         deviceName.contains("Alienware m17 R4") ||
-        deviceName.contains("Alienware m15")
+        deviceName.contains("Alienware m15") ||
+        deviceName.contains("Alienware x17 R2")
 
     ) {
         LOG_S(INFO) << "Special prefix detected using: AMW1";
