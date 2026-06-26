@@ -1,12 +1,14 @@
-#include "AcpiUtils.h"
-#include "helper.h"
+#include <string>
+
 #include <filesystem>
 #include <format>
 #include <fstream>
 #include <iostream>
 #include <loguru.hpp>
 #include <nlohmann/json.hpp>
-#include <string>
+
+#include "AcpiUtils.h"
+#include "helper.h"
 
 using json = nlohmann::json;
 
@@ -55,6 +57,7 @@ const char *AcpiUtils::getPrefix() {
         deviceName.contains("Alienware m15 R4") ||
         deviceName.contains("Alienware m17 R4") ||
         deviceName.contains("Alienware m15") ||
+        deviceName.contains("Alienware x14") ||
         deviceName.contains("Alienware x17 R2")
 
     ) {
