@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.20.0](https://github.com/tr1xem/AWCC/compare/v1.19.0...v1.20.0) (2026-06-29)
+
+
+### 🚀 New Features
+
+* add flake for NixOS support ([cc67060](https://github.com/tr1xem/AWCC/commit/cc670604b4dc10c4419f73c18236c6469acb44bc))
+* **device:** add Alienware x14 ([8eec83d](https://github.com/tr1xem/AWCC/commit/8eec83d05144f20e8c9e676631caecef38fc1330))
+* **device:** add support for Alienware x17 R2 ([075e4fb](https://github.com/tr1xem/AWCC/commit/075e4fb7e60c39df4f0d3ede8890e293255c3b15))
+* **device:** support G5 5505 ([8357cff](https://github.com/tr1xem/AWCC/commit/8357cff1a8f781b4524d9e71eec5b3a9139f05b1))
+* **device:** support x17 r2 ([7763387](https://github.com/tr1xem/AWCC/commit/7763387a009835992a05e4f1a29f43d8ec9e5f9b))
+* **device:** tweaks for Alienware x14 ([25076ec](https://github.com/tr1xem/AWCC/commit/25076ec11966131aa215c1541a02b114092ebf53))
+
+
+### 🐛 Bug Fixes
+
+* **daemon:** Permissions ([fb3c4ec](https://github.com/tr1xem/AWCC/commit/fb3c4ec2473d773ca05fc8fc97bf9be52db82d54))
+
 ## [1.19.0](https://github.com/tr1xem/AWCC/compare/v1.18.1...v1.19.0) (2026-06-04)
 
 
