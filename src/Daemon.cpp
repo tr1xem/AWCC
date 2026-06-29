@@ -161,7 +161,7 @@ void Daemon::init() {
     // Security: set permissions and ownership
     // If running as root, chown to your app user and chmod to 0600
     chown(m_socket_path.c_str(), EXPECTED_UID, EXPECTED_UID);
-    chmod(m_socket_path.c_str(), 0600);
+    chmod(m_socket_path.c_str(), 0666);
 
     listen(m_server_fd, 5);
     m_running = true;
@@ -184,21 +184,24 @@ void Daemon::init() {
         }
 
         // SO_PEERCRED security check (Linux only)
-        struct ucred cred;
-        socklen_t len = sizeof(cred);
-        if (getsockopt(client_fd, SOL_SOCKET, SO_PEERCRED, &cred, &len) == 0) {
-            if (cred.uid != EXPECTED_UID) {
-                LOG_S(ERROR)
-                    << "Rejected unauthorized client (UID=" << cred.uid << ")";
-                close(client_fd);
-                continue;
-            }
-        } else {
-            LOG_S(ERROR) << "Failed to get peer credentials: "
-                         << strerror(errno);
-            close(client_fd);
-            continue;
-        }
+        // struct ucred cred;
+        // socklen_t len = sizeof(cred);
+        // if (getsockopt(client_fd, SOL_SOCKET, SO_PEERCRED, &cred, &len) == 0)
+        // {
+        //     LOG_S(INFO) << "fixme: Client UID " << cred.uid;
+        //     // if (cred.uid != EXPECTED_UID) {
+        //     //     LOG_S(ERROR)
+        //     //         << "Rejected unauthorized client (UID=" << cred.uid <<
+        //     //         ")";
+        //     //     close(client_fd);
+        //     //     continue;
+        //     // }
+        // } else {
+        //     LOG_S(ERROR) << "Failed to get peer credentials: "
+        //                  << strerror(errno);
+        //     close(client_fd);
+        //     continue;
+        // }
 
         std::array<char, BUF_SIZE> buf{};
         int n = read(client_fd, buf.data(), buf.size() - 1);

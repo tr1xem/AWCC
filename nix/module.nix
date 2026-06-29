@@ -23,7 +23,7 @@ let
       sed -i 's~\\| sudo tee~\\| (?:sudo )?tee~g' src/Daemon.cpp
 
       # Allow root (sudo) clients to connect to daemon
-      sed -i 's|cred.uid != EXPECTED_UID|cred.uid != EXPECTED_UID \&\& cred.uid != 0|' src/Daemon.cpp
+      # sed -i 's|cred.uid != EXPECTED_UID|cred.uid != EXPECTED_UID \&\& cred.uid != 0|' src/Daemon.cpp
     '';
   });
 in {
