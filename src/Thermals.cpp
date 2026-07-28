@@ -2,10 +2,13 @@
 #include "database.h"
 #include "helper.h"
 #include <bitset>
+#include <cstring>
 #include <format>
 #include <iostream>
 #include <loguru.hpp>
 #include <vector>
+
+using std::strcmp;
 
 Thermals::~Thermals() { LOG_S(INFO) << "Thermals Module deinitialized"; }
 Thermals::Thermals(AcpiUtils &acpiUtils) : m_acpiUtils(acpiUtils) {
@@ -123,7 +126,13 @@ void Thermals::setCpuBoost(int boost) {
     LOG_S(INFO) << "Set CPU Boost to: " << boost << "%";
 }
 void Thermals::setGpuBoost(int boost) {
-    m_acpiUtils.executeAcpiCommand(0x15, 0x02, 0x33, boost);
+    if (strcmp(Helper::getDeviceName(), "Alienware Aurora R11") == 0) {
+        // FIXME: Hacky fix for Aurora R11 as it have fans at 0x36 and 0x3a
+        m_acpiUtils.executeAcpiCommand(0x15, 0x02, 0x36, boost);
+        m_acpiUtils.executeAcpiCommand(0x15, 0x02, 0x3a, boost);
+    } else {
+        m_acpiUtils.executeAcpiCommand(0x15, 0x02, 0x33, boost);
+    }
     LOG_S(INFO) << "Set GPU Boost to: " << boost << "%";
 }
 

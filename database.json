@@ -284,6 +284,11 @@
         "thermalModes": "00000110",
         "lightingModes": "111111"
     },
+    "Alienware Aurora R11": {
+        "featureSet": "1111111",
+        "thermalModes": "10000110",
+        "lightingModes": "111111"
+    },
     "Alienware Aurora R12": {
         "featureSet": "1111111",
         "thermalModes": "01000110",

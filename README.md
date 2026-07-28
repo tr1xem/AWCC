@@ -155,52 +155,59 @@ Need support or want this project to support your device ? Join our [Discord com
 <details>
   <summary><b>Devices tested:</b></summary>
 
-- Alienware 16 Area-51 AA16250
-- Alienware 16 Aurora AC16250
-- Alienware 16 Aurora AC16251
-- Alienware 16X Aurora AC16251
-- Alienware 17 R5
-- Alienware 18 Area-51 AA18250
-- Alienware Area-51 AAT2250
-- Alienware Area-51m
-- Alienware Area-51m R2
-- Alienware Aurora ACT1250
-- Alienware Aurora R12
-- Alienware Aurora R15
-- Alienware Aurora R16
-- Alienware Aurora R7
-- Alienware Aurora R9
-- Alienware Aurora Ryzen Edition
-- Alienware m15 R3
-- Alienware m15 R4
-- Alienware m15 R6
-- Alienware m15 R7
-- Alienware m15 Ryzen Ed. R5
-- Alienware m16 R1
-- Alienware m16 R1 AMD
-- Alienware m16 R2
-- Alienware m17 R2
-- Alienware m17 R5 AMD
-- Alienware m18 R1
-- Alienware m18 R1 AMD
-- Alienware m18 R2
-- Alienware x14 R2
-- Alienware x15 R2
-- Alienware x16 R2
-- Alienware x17 R1
-- Dell G15 5510
-- Dell G15 5511
-- Dell G15 5515
-- Dell G15 5520
-- Dell G15 5525
-- Dell G15 5530
-- Dell G15 Special Edition 5521
-- Dell G16 7620
-- Dell G16 7630
-- G3 3590
-- G5 5590
-- G7 7500
 - G7 7700
+- G7 7500
+- G5 5590
+- G5 5505
+- G3 3590
+- Dell G16 7630
+- Dell G16 7620
+- Dell G15 Special Edition 5521
+- Dell G15 5535
+- Dell G15 5530
+- Dell G15 5525
+- Dell G15 5520
+- Dell G15 5515
+- Dell G15 5511
+- Dell G15 5510
+- Alienware x17 R2
+- Alienware x17 R1
+- Alienware x16 R2
+- Alienware x15 R2
+- Alienware x14 R2
+- Alienware x14
+- Alienware m18 R2
+- Alienware m18 R1 AMD
+- Alienware m18 R1
+- Alienware m17 R5 AMD
+- Alienware m17 R2
+- Alienware m16 R2
+- Alienware m16 R1 AMD
+- Alienware m16 R1
+- Alienware m15 Ryzen Ed. R5
+- Alienware m15 R7 AMD
+- Alienware m15 R7
+- Alienware m15 R6
+- Alienware m15 R4
+- Alienware m15 R3
+- Alienware m15
+- Alienware Aurora Ryzen Edition
+- Alienware Aurora R9
+- Alienware Aurora R7
+- Alienware Aurora R16
+- Alienware Aurora R15
+- Alienware Aurora R12
+- Alienware Aurora R11
+- Alienware Aurora ACT1250
+- Alienware Area-51m R2
+- Alienware Area-51m
+- Alienware Area-51 AAT2250
+- Alienware 18 Area-51 AA18250
+- Alienware 17 R5
+- Alienware 16X Aurora AC16251
+- Alienware 16 Aurora AC16251
+- Alienware 16 Aurora AC16250
+- Alienware 16 Area-51 AA16250
 
 </details>
 
