@@ -21,6 +21,7 @@ void AutoBoost::Start(const struct AutoBoostConfig_t* config,
     // TODO: is there a better way to have ac and bat config?
     m_Internal.ConfigsForPowerModes[AWCCPowerStateAC] = config_ac;
     m_Internal.ConfigsForPowerModes[AWCCPowerStateBAT] = config_bat;
+    m_Internal.Config = m_Internal.ConfigsForPowerModes[m_Internal.PowerState];
 
     for (int i = 0; i < m_Internal.BoostInfos.size(); i++) {
         if (i < m_Internal.Config->FanConfigs.size()) {

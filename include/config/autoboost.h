@@ -157,13 +157,12 @@ struct ModeInfo {
 class Internal {
    public:
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-explicit-conversions,hicpp-member-init)
-    Internal(AlienFan_SDK::Control* Control)
-        : Control(Control) {
-              // BoostInfos.reserve(Control->fans.size());
-          };
+    Internal(AlienFan_SDK::Control* Control) : Control(Control) {
+        BoostInfos.reserve(Control->fans.size());
+    };
     AlienFan_SDK::Control* Control;
-    const AutoBoostConfig_t* Config;
-    std::array<AutoBoostConfig_t*, 2> ConfigsForPowerModes;
+    const AutoBoostConfig_t* Config = nullptr;
+    std::array<AutoBoostConfig_t*, 2> ConfigsForPowerModes = {nullptr, nullptr};
     std::time_t CurrentTime;
     std::vector<BoostInfo*> BoostInfos;
     ModeInfo ModeInfo;
