@@ -1,0 +1,3 @@
+[submodule "external/alienfx-linux"]
+	path = external/alienfx-linux
+	url = https://github.com/tr1xem/alienfx-linux.git

@@ -11,6 +11,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_definitions(VERSION="${PROJECT_VERSION}")
+set(ALIENFX_BUILD_CLI
+    OFF
+    CACHE BOOL "" FORCE)
+set(ALIENFX_BUILD_EXAMPLE
+    OFF
+    CACHE BOOL "" FORCE)
 
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   set(CMAKE_INSTALL_PREFIX
@@ -29,6 +35,7 @@ if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
     BYPRODUCTS ${CMAKE_SOURCE_DIR}/compile_commands.json)
 endif()
 
+add_subdirectory(external/alienfx-linux ${CMAKE_BINARY_DIR}/alienfx)
 # ===================== Loguru =====================
 # TODO: Use loguru header directly
 
@@ -45,3 +52,4 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 add_executable(${APP_NAME} ${SOURCES})
 
 target_include_directories(${APP_NAME} PRIVATE include)
+target_link_libraries(awcc PRIVATE AlienFX_SDK AlienFan_SDK)
