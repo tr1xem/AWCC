@@ -5,7 +5,7 @@
 
 #include "loguru.hpp"
 
-AWCCPowerState_t PowerState() {
+AWCCPowerState_t Helper::PowerState() {
     std::ifstream file("/sys/class/power_supply/BAT0/status");
 
     if (!file) {

@@ -18,6 +18,18 @@ struct AWCCNoBoostConfig_t {
     AWCCBoost_t* FanBoosts;
 };
 
+enum AWCCFanControl_t {
+    AWCCFanControlUnchanged,
+    AWCCFanControlSetAuto,
+    AWCCFanControlSetManual,
+};
+
+enum AWCCModeControl_t {
+    AWCCModeControlUnchanged,
+    AWCCModeControlSetAuto,
+    AWCCModeControlSetManual,
+};
+
 // NOLINTNEXTLINE(performance-enum-size)
 enum class AWCCBoostPhase_t {
     AWCCBoostPhaseInitial,
@@ -145,9 +157,10 @@ struct ModeInfo {
 class Internal {
    public:
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-explicit-conversions,hicpp-member-init)
-    Internal(AlienFan_SDK::Control* Control) : Control(Control) {
-        BoostInfos.reserve(Control->fans.size());
-    };
+    Internal(AlienFan_SDK::Control* Control)
+        : Control(Control) {
+              // BoostInfos.reserve(Control->fans.size());
+          };
     AlienFan_SDK::Control* Control;
     const AutoBoostConfig_t* Config;
     std::array<AutoBoostConfig_t*, 2> ConfigsForPowerModes;

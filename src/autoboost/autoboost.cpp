@@ -1,6 +1,7 @@
 #include "config/autoboost.h"
 
 #include <algorithm>
+#include <ranges>
 #include <thread>
 
 #include "helper.h"
@@ -41,9 +42,17 @@ void AutoBoost::Start(const struct AutoBoostConfig_t* config,
                 std::max(m_Internal.ModeInfo.MaxTemp,
                          m_Internal.BoostInfos[i]->Temperature);
         }
+
+#if DEBUG
+        LOG_F(INFO, "Max temperature: %d", m_Internal.ModeInfo.MaxTemp);
+#endif
         const enum AWCCPowerState_t powerState = Helper::PowerState();
         if (powerState != m_Internal.PowerState) {
             m_Internal.Config = m_Internal.ConfigsForPowerModes[powerState];
+#if DEBUG
+            LOG_F(INFO, "Power state changed from %d to %d",
+                  m_Internal.PowerState, powerState);
+#endif
 
             for (int i = 0; i < m_Internal.BoostInfos.size(); i++) {
                 m_Internal.ResetBoostInfo(&m_alienfan.fans[i]);
@@ -56,18 +65,33 @@ void AutoBoost::Start(const struct AutoBoostConfig_t* config,
         m_Internal.CurrentTime = time(nullptr);
         m_Internal.HandleControl();
         m_Internal.ManageMode();
+#if DEBUG
+        LOG_F(INFO, "Mode after ManageMode: %d, Phase: %d",
+              m_Internal.ModeInfo.Mode, m_Internal.ModeInfo.ModePhase);
+#endif
 
         if (AlienFan_SDK::ALIENFAN_PROFILE::PERFORMANCE !=
             m_Internal.ModeInfo.Mode) {
             m_Internal.ManageSuperBoost();
             for (int i = 0; i < m_Internal.BoostInfos.size(); i++) {
                 m_Internal.ManageFanBoost(&m_alienfan.fans[i]);
+#if DEBUG
+                LOG_F(INFO,
+                      "Fan %d - Current interval: %d, Target interval: %d, "
+                      "Boost: %d",
+                      i, m_Internal.BoostInfos[i]->BoostIntervalCurrent,
+                      m_Internal.BoostInfos[i]->BoostIntervalToSet,
+                      m_Internal.BoostInfos[i]->Boost);
             }
+#endif
         }
-
-        std::this_thread::sleep_for(
-            std::chrono::seconds(m_Internal.Config->TemperatureCheckInterval));
     }
+
+    LOG_F(INFO, "Sleeping for %d seconds",
+          m_Internal.Config->TemperatureCheckInterval);
+    std::this_thread::sleep_for(
+        std::chrono::seconds(m_Internal.Config->TemperatureCheckInterval));
+}
 }
 const AWCCFanConfig_t* Internal::m_GetFanConfig(
     const AutoBoostConfig_t* config, const AlienFan_SDK::ALIENFAN_FAN* fan) {
@@ -118,11 +142,11 @@ const AWCCSuperBoostConfig_t* Internal::m_GetSuperBoostConfig(
                            });
 
     if (it != config->SuperBoostConfig.end()) {
-        LOG_F(1, "Found SuperBoostConfig for fan");
+        LOG_F(ERROR, "Found SuperBoostConfig for fan");
         return &(*it);
     }
 
-    LOG_F(1, "No SuperBoostConfig found for fan");
+    LOG_F(ERROR, "No SuperBoostConfig found for fan");
     return nullptr;
 }
 void Internal::ManageFanBoost(const AlienFan_SDK::ALIENFAN_FAN* fan) {
@@ -304,8 +328,141 @@ void Internal::SetMode(int modeInterval) {
         ModeInfo.ModeSetTime = CurrentTime;
     }
 }
-void Internal::ResetBoostInfo(const AlienFan_SDK::ALIENFAN_FAN* fan) {}
+
+// TODO:
+void Internal::ResetBoostInfo(const AlienFan_SDK::ALIENFAN_FAN* fan) {
+    auto* currBoostInfo = m_GetBoostInfo(fan);
+    const auto* currFanConfig = m_GetFanConfig(Config, fan);
+
+    currBoostInfo->BoostPhase = AWCCBoostPhase_t::AWCCBoostPhaseInitial;
+    currBoostInfo->BoostPendingState = BoostInfo::PendingState::None;
+    currBoostInfo->BoostIntervalCurrent = -1;
+    currBoostInfo->BoostIntervalToSet = -1;
+    currBoostInfo->Boost = 0;
+    currBoostInfo->MaxBoost = currFanConfig->_BoostIntervalCount - 1;
+}
+void Internal::HandleControl() {
+    // TODO: What this does?
+}
+void Internal::ManageMode() {
+    if (ModeInfo.Auto) {
+        return;
+    }
+
+    int modeIntervalOfTemperature = 0;
+    for (int i = 0; i < Config->_ModeIntervalCount; i++) {
+        if (Config->ModeIntervals[i].TemperatureRange.Min <= ModeInfo.MaxTemp &&
+            Config->ModeIntervals[i].TemperatureRange.Max >= ModeInfo.MaxTemp) {
+            modeIntervalOfTemperature = i;
+            break;
+        }
+    }
+    bool pending = false;
+
+    if (ModeInfo::AWCCModePhaseInitial == ModeInfo.ModePhase) {
+        SetMode(modeIntervalOfTemperature);
+        ModeInfo.ModePhase = ModeInfo::AWCCModePhaseNormal;
+    } else if (modeIntervalOfTemperature > ModeInfo.ModeInterval) {
+        pending = true;
+
+        if (ModeInfo::AWCCModePendingUp == ModeInfo.ModePendingState) {
+            if (difftime(CurrentTime, ModeInfo.ModePendingTime) >=
+                Config->ModePendingTime) {
+                SetMode(modeIntervalOfTemperature);
+            }
+        } else {
+            ModeInfo.ModePendingState = ModeInfo::AWCCModePendingUp;
+            ModeInfo.ModePendingTime = CurrentTime;
+        }
+    } else if (modeIntervalOfTemperature < ModeInfo.ModeInterval &&
+               ModeInfo::AWCCModePhaseNormal == ModeInfo.ModePhase) {
+        pending = true;
+
+        if (ModeInfo::AWCCModePendingDown == ModeInfo.ModePendingState) {
+            if (difftime(CurrentTime, ModeInfo.ModePendingTime) >=
+                Config->ModePendingTime) {
+                if (ModeInfo.MaxTemp <=
+                    Config->ModeIntervals[ModeInfo.ModeInterval]
+                            .TemperatureRange.Min -
+                        Config->ModeDownHysteresis) {
+                    if (difftime(CurrentTime, ModeInfo.ModeSetTime) >=
+                        Config->MinTimeBeforeModeDown) {
+                        SetMode(ModeInfo.ModeInterval - 1);
+                    }
+                }
+            }
+        } else {
+            ModeInfo.ModePendingState = ModeInfo::AWCCModePendingDown;
+            ModeInfo.ModePendingTime = CurrentTime;
+        }
+    }
+
+    if (!pending) {
+        ModeInfo.ModePendingState = ModeInfo::AWCCModePendingNone;
+    }
+}
+void Internal::ManageSuperBoost() {
+    struct FanInfo {
+        int boostIntervalByTemperature{0};
+    };
+    std::vector<FanInfo> fanInfos(Config->FanConfigs.size());
+
+    auto containsTemp = [](const auto& range, int temp) {
+        return temp >= range.Min && temp <= range.Max;
+    };
+    int maxBoostInterval = 0;
+    for (size_t i = 0; i < Config->FanConfigs.size(); ++i) {
+        const auto& fanConfig = Config->FanConfigs[i];
+
+        if (i >= BoostInfos.size() || !BoostInfos[i]) {
+            continue;
+        }
+
+        const int currentTemp = BoostInfos[i]->Temperature;
+        const auto intervals = std::views::counted(
+            fanConfig.BoostIntervals, fanConfig._BoostIntervalCount);
+
+        auto it = std::ranges::find_if(intervals, [&](const auto& interval) {
+            return containsTemp(interval.TemperatureRange, currentTemp);
+        });
+
+        if (it != intervals.end()) {
+            fanInfos[i].boostIntervalByTemperature =
+                static_cast<int>(std::distance(intervals.begin(), it));
+        }
+
+        maxBoostInterval =
+            std::max(maxBoostInterval, fanInfos[i].boostIntervalByTemperature);
+    }
+
+    int equalizationZoneMax = std::numeric_limits<int>::max();
+    for (const auto& superBoost : Config->SuperBoostConfig) {
+        equalizationZoneMax =
+            std::min(equalizationZoneMax, superBoost.BoostEqualizationZoneMax);
+    }
+    const int minBoostIntervalToSet =
+        std::min(equalizationZoneMax, maxBoostInterval);
+
+    for (size_t i = 0; i < Config->FanConfigs.size(); ++i) {
+        if (i >= BoostInfos.size() || !BoostInfos[i]) {
+            continue;
+        }
+
+        auto& boostInfo = *BoostInfos[i];
+        const int intervalByTemp = fanInfos[i].boostIntervalByTemperature;
+
+        if (intervalByTemp < minBoostIntervalToSet) {
+            boostInfo.BoostPhase = AWCCBoostPhase_t::AWCCBoostPhaseHelping;
+            boostInfo.BoostIntervalToSet = minBoostIntervalToSet;
+        } else {
+            if (boostInfo.BoostPhase ==
+                AWCCBoostPhase_t::AWCCBoostPhaseHelping) {
+                boostInfo.BoostPhase = AWCCBoostPhase_t::AWCCBoostPhaseNormal;
+                boostInfo.BoostSetTime = CurrentTime;
+            }
+            boostInfo.BoostIntervalToSet = intervalByTemp;
+        }
+    }
+}
+// TODO: Implementation
 void Internal::ResetModeInfo() {}
-void Internal::HandleControl() {}
-void Internal::ManageMode() {}
-void Internal::ManageSuperBoost() {}
