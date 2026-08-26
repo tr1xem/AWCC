@@ -245,6 +245,65 @@ void Internal::ManageFanBoost(const AlienFan_SDK::ALIENFAN_FAN* fan) {
         currBoostInfo->BoostPendingState = BoostInfo::PendingState::None;
     }
 }
+enum { AWCCFanBoostMin = 0, AWCCFanBoostMax = 100 };
+
+void Internal::SetFanBoost(const AlienFan_SDK::ALIENFAN_FAN* fan,
+                           int boostInterval,
+                           enum AWCCBoostPhase_t boostPhase) {
+    const auto* currFanConfig = m_GetFanConfig(Config, fan);
+    auto* currBoostInfo = m_GetBoostInfo(fan);
+    const auto* currSuperBoostConfig = m_GetSuperBoostConfig(Config, fan);
+    AWCCBoost_t boost = currFanConfig->BoostIntervals[boostInterval].Boost;
+    if (AWCCFanBoostMin >= boost) {
+        boost = AWCCFanBoostMin;
+    } else if (AWCCFanBoostMax <= boost) {
+        boost = AWCCFanBoostMax;
+    } else {
+        if (AWCCBoostPhase_t::AWCCBoostPhaseUpShift == boostPhase) {
+            boost += currFanConfig->UpBoostShift;
+        } else if (AWCCBoostPhase_t::AWCCBoostPhaseShiftToLower == boostPhase) {
+            boost =
+                currFanConfig
+                    ->BoostIntervals[std::min(
+                        currBoostInfo->MaxBoost,
+                        currBoostInfo->BoostIntervalCurrent +
+                            currSuperBoostConfig->ShiftToLower.IntervalOffset)]
+                    .Boost;
+            currBoostInfo->ShiftToLowerTime = CurrentTime;
+        } else if (AWCCBoostPhase_t::AWCCBoostPhaseUpShift ==
+                   currBoostInfo->BoostPhase) {
+            currBoostInfo->UpShiftDownTime = CurrentTime;
+        }
+    }
+
+    currBoostInfo->BoostPhase = boostPhase;
+
+    Control->SetFanBoost(*fan, boost);
+    currBoostInfo->Boost = boost;
+
+    if (currBoostInfo->BoostIntervalCurrent != boostInterval) {
+        currBoostInfo->BoostIntervalCurrent = boostInterval;
+        currBoostInfo->BoostSetTime = CurrentTime;
+    }
+}
+void Internal::SetMode(int modeInterval) {
+    auto mode = Config->ModeIntervals[modeInterval].Profile;
+
+    Control->SetPowerProfile(mode);
+
+    if (mode != AlienFan_SDK::ALIENFAN_PROFILE::PERFORMANCE) {
+        for (int i = 0; i < BoostInfos.size(); i++) {
+            Control->SetFanBoost(Config->FanConfigs[i].Fan,
+                                 BoostInfos[i]->Boost);
+        }
+    }
+
+    if (ModeInfo.ModeInterval != modeInterval) {
+        ModeInfo.Mode = mode;
+        ModeInfo.ModeInterval = modeInterval;
+        ModeInfo.ModeSetTime = CurrentTime;
+    }
+}
 void Internal::ResetBoostInfo(const AlienFan_SDK::ALIENFAN_FAN* fan) {}
 void Internal::ResetModeInfo() {}
 void Internal::HandleControl() {}

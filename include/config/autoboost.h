@@ -76,8 +76,8 @@ struct AWCCBoostInterval_t {  // A temperature range to the desired boost level
 };
 
 struct AWCCModeInterval_t {  // A temperature range to the desired mode mapping
-    struct AWCCTemperatureRange_t TemperatureRange;
     AlienFan_SDK::ALIENFAN_PROFILE Profile;
+    struct AWCCTemperatureRange_t TemperatureRange;
 };
 
 struct AutoBoostConfig_t {
