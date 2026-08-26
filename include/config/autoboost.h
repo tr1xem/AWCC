@@ -52,6 +52,7 @@ struct AWCCSuperBoostShiftToLower_t {
 };
 
 struct AWCCSuperBoostConfig_t {
+    const AlienFan_SDK::ALIENFAN_FAN* fan;
     int BoostEqualizationZoneMax;  // The maximum boost interval to be active to
                                    // equalize the another boost interval if
                                    // it's lower
@@ -60,7 +61,7 @@ struct AWCCSuperBoostConfig_t {
     // amount of time, and the only condition preventing boost down is it, shift
     // up the boost level by the offset for a certain amount of time to drop the
     // temperature and set lower boost level.
-    struct std::array<AWCCSuperBoostShiftToLower_t, 2> ShiftToLower;
+    struct AWCCSuperBoostShiftToLower_t ShiftToLower;
 };
 
 struct AWCCTemperatureRange_t {
@@ -87,7 +88,7 @@ struct AutoBoostConfig_t {
     int ModeDownHysteresis;        // Hysteresis for selecting a lower mode
     int ModePendingTime;  // The minimum time of being in a new temperature
                           // range before switching to the corresponding mode
-    struct AWCCSuperBoostConfig_t SuperBoostConfig;
+    struct std::vector<AWCCSuperBoostConfig_t> SuperBoostConfig;
     struct std::vector<AWCCFanConfig_t> FanConfigs;
     struct AWCCModeInterval_t* ModeIntervals;
     // NOLINTNEXTLINE(cert-dcl51-cpp,bugprone-reserved-identifier,cert-dcl37-c)
@@ -155,21 +156,30 @@ class Internal {
     ModeInfo ModeInfo;
     enum AWCCPowerState_t PowerState;
 
-    void ResetBoostInfo(AlienFan_SDK::ALIENFAN_FAN fan);
+    void ResetBoostInfo(const AlienFan_SDK::ALIENFAN_FAN* fan);
     void ResetModeInfo();
     void HandleControl();
     void ManageMode();
     void ManageSuperBoost();
-    void ManageFanBoost(AlienFan_SDK::ALIENFAN_FAN fan);
+    void ManageFanBoost(const AlienFan_SDK::ALIENFAN_FAN* fan);
+    void SetFanBoost(const AlienFan_SDK::ALIENFAN_FAN* fan, int boostInterval,
+                     enum AWCCBoostPhase_t boostPhase);
+    void SetMode(int modeInterval);
 
    private:
-    const std::vector<std::pair<AWCCBoostPhase_t, const char*>> BoostPhaseNames{
-        {AWCCBoostPhase_t::AWCCBoostPhaseNormal, "Normal"},
-        {AWCCBoostPhase_t::AWCCBoostPhaseHelping, "Helping"},
-        {AWCCBoostPhase_t::AWCCBoostPhaseInitial, "Initial"},
-        {AWCCBoostPhase_t::AWCCBoostPhaseShiftToLower, "ShiftToLower"},
-        {AWCCBoostPhase_t::AWCCBoostPhaseUpShift, "UpShift"},
-    };
+    const std::vector<std::pair<AWCCBoostPhase_t, const char*>>
+        m_BoostPhaseNames{
+            {AWCCBoostPhase_t::AWCCBoostPhaseNormal, "Normal"},
+            {AWCCBoostPhase_t::AWCCBoostPhaseHelping, "Helping"},
+            {AWCCBoostPhase_t::AWCCBoostPhaseInitial, "Initial"},
+            {AWCCBoostPhase_t::AWCCBoostPhaseShiftToLower, "ShiftToLower"},
+            {AWCCBoostPhase_t::AWCCBoostPhaseUpShift, "UpShift"},
+        };
+    BoostInfo* m_GetBoostInfo(const AlienFan_SDK::ALIENFAN_FAN* fan);
+    const AWCCFanConfig_t* m_GetFanConfig(
+        const AutoBoostConfig_t* config, const AlienFan_SDK::ALIENFAN_FAN* fan);
+    const AWCCSuperBoostConfig_t* m_GetSuperBoostConfig(
+        const AutoBoostConfig_t* config, const AlienFan_SDK::ALIENFAN_FAN* fan);
 };
 
 class AutoBoost {

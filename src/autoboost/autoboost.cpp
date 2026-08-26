@@ -46,7 +46,7 @@ void AutoBoost::Start(const struct AutoBoostConfig_t* config,
             m_Internal.Config = m_Internal.ConfigsForPowerModes[powerState];
 
             for (int i = 0; i < m_Internal.BoostInfos.size(); i++) {
-                m_Internal.ResetBoostInfo(m_alienfan.fans[i]);
+                m_Internal.ResetBoostInfo(&m_alienfan.fans[i]);
             }
 
             m_Internal.ModeInfo.ModePhase = ModeInfo::AWCCModePhaseInitial;
@@ -61,7 +61,7 @@ void AutoBoost::Start(const struct AutoBoostConfig_t* config,
             m_Internal.ModeInfo.Mode) {
             m_Internal.ManageSuperBoost();
             for (int i = 0; i < m_Internal.BoostInfos.size(); i++) {
-                m_Internal.ManageFanBoost(m_alienfan.fans[i]);
+                m_Internal.ManageFanBoost(&m_alienfan.fans[i]);
             }
         }
 
@@ -69,3 +69,184 @@ void AutoBoost::Start(const struct AutoBoostConfig_t* config,
             std::chrono::seconds(m_Internal.Config->TemperatureCheckInterval));
     }
 }
+const AWCCFanConfig_t* Internal::m_GetFanConfig(
+    const AutoBoostConfig_t* config, const AlienFan_SDK::ALIENFAN_FAN* fan) {
+    if (!config || !fan) {
+        return nullptr;
+    }
+
+    auto it = std::find_if(config->FanConfigs.begin(), config->FanConfigs.end(),
+                           [fan](const AWCCFanConfig_t& fanConfig) {
+                               // Adjust member comparison if ALIENFAN_FAN
+                               // requires ID matching (e.g., fanConfig.Fan.id
+                               // == fan->id)
+                               return fanConfig.Fan.id == fan->id;
+                           });
+
+    return (it != config->FanConfigs.end()) ? &(*it) : nullptr;
+}
+BoostInfo* Internal::m_GetBoostInfo(const AlienFan_SDK::ALIENFAN_FAN* fan) {
+    if (!fan) return nullptr;
+
+    auto it = std::find_if(
+        BoostInfos.begin(), BoostInfos.end(), [fan](const BoostInfo* info) {
+            return info && info->Fan.id == fan->id;  // Assumes operator== is
+                                                     // defined for ALIENFAN_FAN
+        });
+
+    return (it != BoostInfos.end()) ? *it : nullptr;
+}
+
+const AWCCSuperBoostConfig_t* Internal::m_GetSuperBoostConfig(
+    const AutoBoostConfig_t* config, const AlienFan_SDK::ALIENFAN_FAN* fan) {
+    if (!config || !fan) return nullptr;
+
+    auto it = std::find_if(config->SuperBoostConfig.begin(),
+                           config->SuperBoostConfig.end(),
+                           [fan](const AWCCSuperBoostConfig_t& superBoost) {
+                               if (!superBoost.fan) return false;
+
+                               // 1. Address comparison (if pointers point to
+                               // the exact same fan instance)
+                               if (superBoost.fan == fan) return true;
+
+                               // 2. Value/ID comparison (if pointers point to
+                               // different copies of the same fan) Replace
+                               // '.id' with your ALIENFAN_FAN struct's ID or
+                               // type member if needed
+                               return superBoost.fan->id == fan->id;
+                           });
+
+    if (it != config->SuperBoostConfig.end()) {
+        LOG_F(1, "Found SuperBoostConfig for fan");
+        return &(*it);
+    }
+
+    LOG_F(1, "No SuperBoostConfig found for fan");
+    return nullptr;
+}
+void Internal::ManageFanBoost(const AlienFan_SDK::ALIENFAN_FAN* fan) {
+    auto* currBoostInfo = m_GetBoostInfo(fan);
+    auto* currFanConfig = m_GetFanConfig(Config, fan);
+    auto* currSuperBoostConfig = m_GetSuperBoostConfig(Config, fan);
+    if (currBoostInfo == nullptr || currFanConfig == nullptr) {
+        LOG_F(FATAL, "currBoostInfo or currFanConfigs not found");
+    }
+    if (currBoostInfo->Auto == true) {
+        return;
+    }
+    bool pending = false;
+    bool pendingShiftToLower = false;
+    if (AWCCBoostPhase_t::AWCCBoostPhaseInitial == currBoostInfo->BoostPhase) {
+        SetFanBoost(fan, currBoostInfo->BoostIntervalToSet,
+                    AWCCBoostPhase_t::AWCCBoostPhaseUpShift);
+    } else if (AWCCBoostPhase_t::AWCCBoostPhaseHelping ==
+               currBoostInfo->BoostPhase) {
+        if (currBoostInfo->BoostIntervalCurrent !=
+            currBoostInfo->BoostIntervalToSet) {
+            SetFanBoost(fan, currBoostInfo->BoostIntervalToSet,
+                        AWCCBoostPhase_t::AWCCBoostPhaseHelping);
+        }
+    } else if (currBoostInfo->BoostIntervalToSet >
+               currBoostInfo->BoostIntervalCurrent) {
+        pending = true;
+
+        if (BoostInfo::PendingState::Up == currBoostInfo->BoostPendingState) {
+            if (difftime(CurrentTime, currBoostInfo->BoostPendingTime) >=
+                currFanConfig->PendingTime) {
+                SetFanBoost(fan, currBoostInfo->BoostIntervalToSet,
+                            AWCCBoostPhase_t::AWCCBoostPhaseUpShift);
+            }
+        } else {
+            currBoostInfo->BoostPendingState = BoostInfo::PendingState::Up;
+            currBoostInfo->BoostPendingTime = CurrentTime;
+        }
+    } else if (AWCCBoostPhase_t::AWCCBoostPhaseShiftToLower ==
+                   currBoostInfo->BoostPhase &&
+               difftime(CurrentTime, currBoostInfo->ShiftToLowerTime) >
+                   currSuperBoostConfig->ShiftToLower.Time) {
+        // FIXME: avoid this big jump
+        SetFanBoost(fan, currBoostInfo->BoostIntervalToSet,
+                    AWCCBoostPhase_t::AWCCBoostPhaseNormal);
+    } else if (AWCCBoostPhase_t::AWCCBoostPhaseUpShift ==
+                   currBoostInfo->BoostPhase &&
+               currBoostInfo->BoostIntervalToSet <=
+                   currBoostInfo->BoostIntervalCurrent  // alway true if
+                                                        // reached this check
+    ) {
+        if (BoostInfo::PendingState::None == currBoostInfo->BoostPendingState) {
+            if (difftime(CurrentTime, currBoostInfo->BoostSetTime) >=
+                currFanConfig->UpBoostShiftTime) {
+                SetFanBoost(fan, currBoostInfo->BoostIntervalCurrent,
+                            AWCCBoostPhase_t::AWCCBoostPhaseNormal);
+            }
+        }
+    } else if (AWCCBoostPhase_t::AWCCBoostPhaseNormal ==
+                   currBoostInfo->BoostPhase &&
+               currBoostInfo->BoostIntervalToSet <
+                   currBoostInfo->BoostIntervalCurrent) {
+        pending = true;
+
+        if (BoostInfo::PendingState::Down == currBoostInfo->BoostPendingState) {
+            if (difftime(CurrentTime, currBoostInfo->BoostPendingTime) >=
+                currFanConfig->PendingTime) {
+                if (
+                    // difftime (currentTime, BoostInfos
+                    // [fan].LastTimeInCurrentTemperatureInterval)
+                    difftime(CurrentTime, currBoostInfo->BoostSetTime) >=
+                    currFanConfig->MinTimeBeforeBoostDown /
+                        (float)(currBoostInfo->BoostIntervalCurrent -
+                                currBoostInfo->BoostIntervalToSet)) {
+                    if (difftime(CurrentTime, currBoostInfo->UpShiftDownTime) >=
+                        currFanConfig->MinTimeAfterShiftDown) {
+                        if (currBoostInfo->Temperature <=
+                            currFanConfig
+                                    ->BoostIntervals[currBoostInfo
+                                                         ->BoostIntervalCurrent]
+                                    .TemperatureRange.Min -
+                                currFanConfig->BoostDownHysteresis) {
+                            SetFanBoost(fan,
+                                        currBoostInfo->BoostIntervalCurrent - 1,
+                                        AWCCBoostPhase_t::AWCCBoostPhaseNormal);
+                        } else {
+                            if (currBoostInfo->PendingHysteresis) {
+                                if (difftime(
+                                        CurrentTime,
+                                        currBoostInfo->PendingHysteresisTime) >=
+                                    currSuperBoostConfig->ShiftToLower
+                                        .PendingTime) {
+                                    SetFanBoost(
+                                        fan, currBoostInfo->BoostIntervalToSet,
+                                        AWCCBoostPhase_t::
+                                            AWCCBoostPhaseShiftToLower);
+                                }
+                            } else {
+                                pendingShiftToLower = true;
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            currBoostInfo->BoostPendingState = BoostInfo::PendingState::Down;
+            currBoostInfo->BoostPendingTime = CurrentTime;
+        }
+    }
+
+    if (1 == pendingShiftToLower && 0 == currBoostInfo->PendingHysteresis) {
+        currBoostInfo->PendingHysteresis = true;
+        currBoostInfo->PendingHysteresisTime = CurrentTime;
+    } else if (0 == pendingShiftToLower &&
+               1 == currBoostInfo->PendingHysteresis) {
+        currBoostInfo->PendingHysteresis = false;
+    }
+
+    if (pending) {
+        currBoostInfo->BoostPendingState = BoostInfo::PendingState::None;
+    }
+}
+void Internal::ResetBoostInfo(const AlienFan_SDK::ALIENFAN_FAN* fan) {}
+void Internal::ResetModeInfo() {}
+void Internal::HandleControl() {}
+void Internal::ManageMode() {}
+void Internal::ManageSuperBoost() {}
