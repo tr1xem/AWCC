@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.20.0](https://github.com/tr1xem/AWCC/compare/v1.19.0...v1.20.0) (2026-08-31)
+
+
+### 🚀 New Features
+
+* add flake for NixOS support ([cc67060](https://github.com/tr1xem/AWCC/commit/cc670604b4dc10c4419f73c18236c6469acb44bc))
+* **device:** add Alienware x14 ([8eec83d](https://github.com/tr1xem/AWCC/commit/8eec83d05144f20e8c9e676631caecef38fc1330))
+* **device:** add support for Alienware x17 R2 ([075e4fb](https://github.com/tr1xem/AWCC/commit/075e4fb7e60c39df4f0d3ede8890e293255c3b15))
+* **device:** add support for Aurora R11 ([ca6e107](https://github.com/tr1xem/AWCC/commit/ca6e107b104200aa44761cd1f45032100f9956e9))
+* **device:** add support for aurora r13 ([c74483e](https://github.com/tr1xem/AWCC/commit/c74483e281818d732acde5e3ca5f0f7708f376e0))
+* **device:** support G5 5505 ([8357cff](https://github.com/tr1xem/AWCC/commit/8357cff1a8f781b4524d9e71eec5b3a9139f05b1))
+* **device:** support x17 r2 ([7763387](https://github.com/tr1xem/AWCC/commit/7763387a009835992a05e4f1a29f43d8ec9e5f9b))
+* **device:** tweaks for Alienware x14 ([25076ec](https://github.com/tr1xem/AWCC/commit/25076ec11966131aa215c1541a02b114092ebf53))
+
+
+### 🐛 Bug Fixes
+
+* **daemon:** Permissions ([fb3c4ec](https://github.com/tr1xem/AWCC/commit/fb3c4ec2473d773ca05fc8fc97bf9be52db82d54))
+* **device:** correct ACPI prefix for Alienware m15 R6 ([#160](https://github.com/tr1xem/AWCC/issues/160)) ([0e396b9](https://github.com/tr1xem/AWCC/commit/0e396b9aca6ebddaacf7c57597dcb933f149d14c))
+* **device:** Prefix for aurora r13 ([ffb562b](https://github.com/tr1xem/AWCC/commit/ffb562b2fb12492aac5aeae76943a0fd22bc5ac6))
+
+
+### ⚙️ Chores
+
+* **version:** bump to v1.19.0 ([df7be32](https://github.com/tr1xem/AWCC/commit/df7be32393d844ade6416c47b234526d71ef7fb2))
+
 ## [1.19.0](https://github.com/tr1xem/AWCC/compare/v1.18.1...v1.19.0) (2026-06-04)
 
 
