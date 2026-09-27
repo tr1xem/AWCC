@@ -8,15 +8,30 @@
 #include "loguru.hpp"
 
 AutoBoost::AutoBoost() : m_Internal(&m_alienfan) {
-#if DEBUG
+#ifdef DEBUG
     LOG_F(INFO,
           "Intializing autoboost and probing devices for fans and sensors");
 #endif
     m_alienfan.Probe();
+    for (auto& fan : m_alienfan.fans) {
+        auto* info = new BoostInfo();
+        info->Fan = fan;
+        info->Auto = false;
+        m_Internal.BoostInfos.push_back(info);
+    }
 }
 void AutoBoost::Start(const struct AutoBoostConfig_t* config,
+                      // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
                       struct AutoBoostConfig_t* config_ac,
                       struct AutoBoostConfig_t* config_bat) {
+    for (const auto& fan : m_alienfan.fans) {
+        auto it = std::find_if(
+            config->FanConfigs.begin(), config->FanConfigs.end(),
+            [&](const AWCCFanConfig_t& fc) { return fc.Fan.id == fan.id; });
+        if (it == config->FanConfigs.end()) {
+            // No config for this fan — could log a warning
+        }
+    }
     m_Internal.PowerState = Helper::PowerState();
     // TODO: is there a better way to have ac and bat config?
     m_Internal.ConfigsForPowerModes[AWCCPowerStateAC] = config_ac;
@@ -24,13 +39,16 @@ void AutoBoost::Start(const struct AutoBoostConfig_t* config,
     m_Internal.Config = m_Internal.ConfigsForPowerModes[m_Internal.PowerState];
 
     for (int i = 0; i < m_Internal.BoostInfos.size(); i++) {
-        if (i < m_Internal.Config->FanConfigs.size()) {
-            m_Internal.BoostInfos[i]->MaxBoost =
-                m_Internal.Config->FanConfigs[i]._BoostIntervalCount - 1;
-        }
+        const auto* fanConfig = m_Internal.m_GetFanConfig(
+            m_Internal.Config, &m_Internal.BoostInfos[i]->Fan);
+        if (fanConfig)
+            if (i < m_Internal.Config->FanConfigs.size()) {
+                m_Internal.BoostInfos[i]->MaxBoost =
+                    m_Internal.Config->FanConfigs[i]._BoostIntervalCount - 1;
+            }
     }
 
-#if DEBUG
+#ifdef DEBUG
     LOG_F(INFO, "Starting autoboost for all fans");
 #endif
 
@@ -44,13 +62,13 @@ void AutoBoost::Start(const struct AutoBoostConfig_t* config,
                          m_Internal.BoostInfos[i]->Temperature);
         }
 
-#if DEBUG
+#ifdef DEBUG
         LOG_F(INFO, "Max temperature: %d", m_Internal.ModeInfo.MaxTemp);
 #endif
         const enum AWCCPowerState_t powerState = Helper::PowerState();
         if (powerState != m_Internal.PowerState) {
             m_Internal.Config = m_Internal.ConfigsForPowerModes[powerState];
-#if DEBUG
+#ifdef DEBUG
             LOG_F(INFO, "Power state changed from %d to %d",
                   m_Internal.PowerState, powerState);
 #endif
@@ -66,7 +84,7 @@ void AutoBoost::Start(const struct AutoBoostConfig_t* config,
         m_Internal.CurrentTime = time(nullptr);
         m_Internal.HandleControl();
         m_Internal.ManageMode();
-#if DEBUG
+#ifdef DEBUG
         LOG_F(INFO, "Mode after ManageMode: %d, Phase: %d",
               m_Internal.ModeInfo.Mode, m_Internal.ModeInfo.ModePhase);
 #endif
@@ -76,23 +94,24 @@ void AutoBoost::Start(const struct AutoBoostConfig_t* config,
             m_Internal.ManageSuperBoost();
             for (int i = 0; i < m_Internal.BoostInfos.size(); i++) {
                 m_Internal.ManageFanBoost(&m_alienfan.fans[i]);
-#if DEBUG
+                // #ifdef DEBUG
                 LOG_F(INFO,
                       "Fan %d - Current interval: %d, Target interval: %d, "
                       "Boost: %d",
                       i, m_Internal.BoostInfos[i]->BoostIntervalCurrent,
                       m_Internal.BoostInfos[i]->BoostIntervalToSet,
                       m_Internal.BoostInfos[i]->Boost);
+                // #endif
             }
-#endif
         }
-    }
 
-    LOG_F(INFO, "Sleeping for %d seconds",
-          m_Internal.Config->TemperatureCheckInterval);
-    std::this_thread::sleep_for(
-        std::chrono::seconds(m_Internal.Config->TemperatureCheckInterval));
-}
+#ifdef DEBUG
+        LOG_F(INFO, "Sleeping for %d seconds",
+              m_Internal.Config->TemperatureCheckInterval);
+#endif
+        std::this_thread::sleep_for(
+            std::chrono::seconds(m_Internal.Config->TemperatureCheckInterval));
+    }
 }
 const AWCCFanConfig_t* Internal::m_GetFanConfig(
     const AutoBoostConfig_t* config, const AlienFan_SDK::ALIENFAN_FAN* fan) {
@@ -131,23 +150,26 @@ const AWCCSuperBoostConfig_t* Internal::m_GetSuperBoostConfig(
                            [fan](const AWCCSuperBoostConfig_t& superBoost) {
                                if (!superBoost.fan) return false;
 
-                               // 1. Address comparison (if pointers point to
-                               // the exact same fan instance)
+                               // 1. Address comparison (if pointers point
+                               // to the exact same fan instance)
                                if (superBoost.fan == fan) return true;
 
-                               // 2. Value/ID comparison (if pointers point to
-                               // different copies of the same fan) Replace
-                               // '.id' with your ALIENFAN_FAN struct's ID or
-                               // type member if needed
+                               // 2. Value/ID comparison (if pointers point
+                               // to different copies of the same fan)
+                               // Replace
+                               // '.id' with your ALIENFAN_FAN struct's ID
+                               // or type member if needed
                                return superBoost.fan->id == fan->id;
                            });
 
     if (it != config->SuperBoostConfig.end()) {
-        LOG_F(ERROR, "Found SuperBoostConfig for fan");
+        LOG_F(INFO, "Found SuperBoostConfig for fan");
         return &(*it);
     }
 
+#ifdef DEBUG
     LOG_F(ERROR, "No SuperBoostConfig found for fan");
+#endif
     return nullptr;
 }
 void Internal::ManageFanBoost(const AlienFan_SDK::ALIENFAN_FAN* fan) {
@@ -318,8 +340,10 @@ void Internal::SetMode(int modeInterval) {
 
     if (mode != AlienFan_SDK::ALIENFAN_PROFILE::PERFORMANCE) {
         for (int i = 0; i < BoostInfos.size(); i++) {
-            Control->SetFanBoost(Config->FanConfigs[i].Fan,
-                                 BoostInfos[i]->Boost);
+            const auto* fanConfig = m_GetFanConfig(Config, &BoostInfos[i]->Fan);
+            if (fanConfig) {
+                Control->SetFanBoost(fanConfig->Fan, BoostInfos[i]->Boost);
+            }
         }
     }
 
@@ -334,6 +358,7 @@ void Internal::SetMode(int modeInterval) {
 void Internal::ResetBoostInfo(const AlienFan_SDK::ALIENFAN_FAN* fan) {
     auto* currBoostInfo = m_GetBoostInfo(fan);
     const auto* currFanConfig = m_GetFanConfig(Config, fan);
+    if (!currBoostInfo || !currFanConfig) return;
 
     currBoostInfo->BoostPhase = AWCCBoostPhase_t::AWCCBoostPhaseInitial;
     currBoostInfo->BoostPendingState = BoostInfo::PendingState::None;

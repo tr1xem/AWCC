@@ -158,7 +158,9 @@ class Internal {
    public:
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-explicit-conversions,hicpp-member-init)
     Internal(AlienFan_SDK::Control* Control) : Control(Control) {
-        BoostInfos.reserve(Control->fans.size());
+        ModeInfo = {};
+        ModeInfo.ModeInterval = -1;
+        ModeInfo.ModePhase = ModeInfo::AWCCModePhaseInitial;
     };
     AlienFan_SDK::Control* Control;
     const AutoBoostConfig_t* Config = nullptr;
@@ -177,6 +179,9 @@ class Internal {
     void SetFanBoost(const AlienFan_SDK::ALIENFAN_FAN* fan, int boostInterval,
                      enum AWCCBoostPhase_t boostPhase);
     void SetMode(int modeInterval);
+    // TODO: Name change
+    const AWCCFanConfig_t* m_GetFanConfig(
+        const AutoBoostConfig_t* config, const AlienFan_SDK::ALIENFAN_FAN* fan);
 
    private:
     const std::vector<std::pair<AWCCBoostPhase_t, const char*>>
@@ -188,8 +193,6 @@ class Internal {
             {AWCCBoostPhase_t::AWCCBoostPhaseUpShift, "UpShift"},
         };
     BoostInfo* m_GetBoostInfo(const AlienFan_SDK::ALIENFAN_FAN* fan);
-    const AWCCFanConfig_t* m_GetFanConfig(
-        const AutoBoostConfig_t* config, const AlienFan_SDK::ALIENFAN_FAN* fan);
     const AWCCSuperBoostConfig_t* m_GetSuperBoostConfig(
         const AutoBoostConfig_t* config, const AlienFan_SDK::ALIENFAN_FAN* fan);
 };
@@ -205,4 +208,7 @@ class AutoBoost {
     void Start(const struct AutoBoostConfig_t* config,
                struct AutoBoostConfig_t* config_ac,
                struct AutoBoostConfig_t* config_bat);
+    const std::vector<AlienFan_SDK::ALIENFAN_FAN>& DetectedFans() const {
+        return m_alienfan.fans;
+    }
 };

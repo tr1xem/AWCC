@@ -12,6 +12,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_definitions(VERSION="${PROJECT_VERSION}")
 set(CMAKE_BUILD_TYPE Debug)
+add_compile_definitions(DEBUG)
 set(ALIENFX_BUILD_CLI
     OFF
     CACHE BOOL "" FORCE)
