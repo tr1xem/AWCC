@@ -1,6 +1,7 @@
 #pragma once
 #include "EffectController.h"
 #include "KeyBinder.h"
+#include <atomic>
 #include <string>
 #include <functional>
 #include <loguru.hpp>
@@ -9,6 +10,7 @@
 class Daemon {
   private:
     bool m_running;
+    std::atomic<bool> m_stopped{false};
     int m_server_fd;
     std::string m_socket_path;
     std::thread m_keybinderThread;

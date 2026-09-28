@@ -61,6 +61,11 @@ void Daemon::m_StopBinder() {
 void Daemon::stop() {
     if (!m_running)
         return;
+    // stop() can be entered concurrently (e.g. systemd sends SIGTERM twice:
+    // ExecStop= and then its own stop signal), so only the first caller runs
+    // the cleanup; otherwise m_binder gets deleted twice.
+    if (m_stopped.exchange(true))
+        return;
     if (m_server_fd != -1)
         close(m_server_fd);
     unlink(m_socket_path.c_str());
