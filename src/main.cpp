@@ -11,6 +11,7 @@
 #include <iostream>
 #include <loguru.hpp>
 #include <string>
+#include <vector>
 #include <unistd.h> // for geteuid()
 
 // TODO: Added checks for various lightparts
@@ -108,46 +109,52 @@ static inline uint32_t parseHexColor(const std::string &hex) {
 
 static int handleCliCommands(std::span<char *> args, EffectController &effects,
                              Thermals &thermals, AcpiUtils &acpiUtils) {
-    if (args.size() < 2) {
+    // --test-mode and -v are flags. They can sit in front of the command so
+    // help and the other verbs work on a machine that is not in the database.
+    std::vector<std::string_view> words;
+    for (char *arg : args.subspan(1)) {
+        std::string_view word{arg};
+        if (word == "--test-mode" || word == "-v")
+            continue;
+        words.push_back(word);
+    }
+    if (words.empty() || words[0] == "-h" || words[0] == "--help" ||
+        words[0] == "help") {
         printHelp();
         return 0;
     }
-    std::string_view cmd = args[1];
-
-    // Help
-    if (cmd == "-h" || cmd == "--help" || cmd == "help") {
-        printHelp();
-        return 0;
-    }
+    std::string_view cmd = words[0];
+    const bool hasArg = words.size() > 1;
+    const std::string extra = hasArg ? std::string(words[1]) : std::string();
 
     // Lighting Controls
-    if (cmd == "static" && args.size() > 2) {
-        uint32_t color = parseHexColor(args[2]);
+    if (cmd == "static" && hasArg) {
+        uint32_t color = parseHexColor(extra);
         effects.StaticColor(color);
-        std::cout << "Set static color: " << args[2] << "\n";
+        std::cout << "Set static color: " << extra << "\n";
         return 0;
     }
-    if (cmd == "breathe" && args.size() > 2) {
-        uint32_t color = parseHexColor(args[2]);
+    if (cmd == "breathe" && hasArg) {
+        uint32_t color = parseHexColor(extra);
         effects.Breathe(color);
-        std::cout << "Set breathe color: " << args[2] << "\n";
+        std::cout << "Set breathe color: " << extra << "\n";
         return 0;
     }
-    if (cmd == "wave" && args.size() > 2) {
-        uint32_t color = parseHexColor(args[2]);
+    if (cmd == "wave" && hasArg) {
+        uint32_t color = parseHexColor(extra);
         effects.Wave(color);
-        std::cout << "Set wave color: " << args[2] << "\n";
+        std::cout << "Set wave color: " << extra << "\n";
         return 0;
     }
-    if (cmd == "bkf" && args.size() > 2) {
-        uint32_t color = parseHexColor(args[2]);
+    if (cmd == "bkf" && hasArg) {
+        uint32_t color = parseHexColor(extra);
         effects.BackAndForth(color);
-        std::cout << "Set back and forth color: " << args[2] << "\n";
+        std::cout << "Set back and forth color: " << extra << "\n";
         return 0;
     }
-    if (cmd == "brightness" && args.size() > 2) {
-        effects.Brightness(std::stoi(args[2]));
-        std::cout << "Set brightness to " << args[2] << "\n";
+    if (cmd == "brightness" && hasArg) {
+        effects.Brightness(std::stoi(extra));
+        std::cout << "Set brightness to " << extra << "\n";
         return 0;
     }
     if (cmd == "spectrum") {
@@ -221,9 +228,9 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
         std::cout << "Cpu Boost: " << thermals.getCpuBoost() << "\n";
         return 0;
     }
-    if (cmd == "scb" && args.size() > 2) {
-        thermals.setCpuBoost(std::stoi(args[2]));
-        std::cout << "Set CPU fan boost: " << args[2] << "\n";
+    if (cmd == "scb" && hasArg) {
+        thermals.setCpuBoost(std::stoi(extra));
+        std::cout << "Set CPU fan boost: " << extra << "\n";
         return 0;
     }
     if (cmd == "gb") {
@@ -231,16 +238,16 @@ static int handleCliCommands(std::span<char *> args, EffectController &effects,
         std::cout << "Get GPU fan boost." << "\n";
         return 0;
     }
-    if (cmd == "sgb" && args.size() > 2) {
-        thermals.setGpuBoost(std::stoi(args[2]));
-        std::cout << "Set GPU fan boost: " << args[2] << "\n";
+    if (cmd == "sgb" && hasArg) {
+        thermals.setGpuBoost(std::stoi(extra));
+        std::cout << "Set GPU fan boost: " << extra << "\n";
         return 0;
     }
 
-    if (cmd == "setturbo" || cmd == "st" && args.size() > 2) {
-        acpiUtils.setTurboBoost(std::stoi(args[2]) != 0);
+    if (cmd == "setturbo" || cmd == "st" && hasArg) {
+        acpiUtils.setTurboBoost(std::stoi(extra) != 0);
         std::cout << "Set Turbo Boost to: " << std::boolalpha
-                  << std::stoi(args[2]) << "\n";
+                  << std::stoi(extra) << "\n";
         return 0;
     }
 
