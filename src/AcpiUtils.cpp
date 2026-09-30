@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <string>
 
 #include <filesystem>
@@ -86,7 +87,10 @@ const char *AcpiUtils::getPrefix() {
 
 int AcpiUtils::m_resolveDevicefromDatabase() {
     m_deviceName = Helper::getDeviceName();
-    std::string path = "/etc/awcc/database.json";
+    const char *databaseEnv = std::getenv("AWCC_DATABASE");
+    std::string path = (databaseEnv != nullptr && databaseEnv[0] != '\0')
+                           ? databaseEnv
+                           : "/etc/awcc/database.json";
     std::ifstream file(path);
     if (m_testMode) {
         return 0;

@@ -30,7 +30,7 @@ light effects, g-mode, and autoboost.
 - 🔥 **Supports All modes** that your device has
 - 💻 **Supports all of Alienware device** in including keyboard,mouse,monitors etc
 - 🕵️ \*_No Telemetry and Open Source_
-- 📈 **Custom Fan Curve** (Soon)
+- 📈 **Software fan curve** in the GUI. It runs while the window is open or hidden, and it stops when you Quit AWCC.
 
 ---
 
@@ -149,6 +149,37 @@ and now edit game's launch command to use gamemode `gamemoderun ./game` (or `gam
 ## Support and Feedback
 
 Need support or want this project to support your device ? Join our [Discord community](https://discord.gg/EMWUTgegDm) or open a [Github Discussion](https://github.com/tr1xem/AWCC/discussions)
+
+## Lighting
+
+The device list below is the upstream thermal and feature test list. It does not mean every light works on every model.
+
+AWCC does not link the AlienFX SDK. The GUI runs `alienfx_cli` directly, with no shell. It uses `AWCC_ALIENFX_CLI` when that path is set and executable, otherwise `alienfx_cli` on `PATH`, otherwise `~/.local/bin/alienfx_cli`. `AWCC_DATABASE` selects `database.json`. When it is unset, the GUI reads `/etc/awcc/database.json`.
+
+On the Alienware 16 Area-51 AA16250 the lights are two devices:
+
+- Darfon keyboard `0d62:1bbc`. Per-key color, keyboard effects, and keyboard brightness go through `setkeys`, `keyboardeffect`, and `keyboarddim`.
+- AW-ELC `187c:0551` (also `0550`). The lightbar, logo, speakers, trackpad, and power button stay on AWCC's EffectController. The power button is zone `0x1b`. Static colors use `powerbutton`. Rainbow uses `powerrainbow`, because that one LED keeps its own hardware profile and a chassis rainbow on it strobes.
+
+Those keyboard commands are selected by USB id. Other keyboards keep the upstream `alienfx_cli` protocol. The Alienware 18 Area-51 AA18250 is in the thermal list and is not verified for keyboard lights.
+
+The keyboard page draws the AA16250 deck, including the power button and the trackpad. Apply on Keyboard covers the keys, the power button, and the trackpad. The Power page and the Trackpad page can override just those parts afterward. Effect menus show a simple preview of the selected effect. The preview is not locked to the firmware's timing. The last successful Apply is stored in `$XDG_CONFIG_HOME/awcc/lighting.json`, or `~/.config/awcc/lighting.json`. A change made only with `alienfx_cli` is not shown until the next Apply in AWCC.
+
+On other models, the AWCC command line and All lighting still use that model's `keyboardZones`. The separate Logo, Lightbar, Speakers, Trackpad, and Power pages split zones with the AA16250 ranges, so those pages can be empty on another model. The on-screen keyboard is an AA16250 picture.
+
+`app/70-awcc.rules` grants the desktop user the ELC and Darfon hidraw nodes. The file is named `70-` so it is applied before systemd's seat rules. Install still needs `udevadm control --reload-rules` and `udevadm trigger`.
+
+If `alienfx_cli` is missing, the sidebar can download the latest `tr1xem/alienfx-linux` release into `~/.local/bin`. That release does not include `setkeys`, `keyboardeffect`, `keyboarddim`, `powerbutton`, or `powerrainbow` until those commands are in a published release. Point `AWCC_ALIENFX_CLI` at a build of this fork until then.
+
+## GUI
+
+The window has no OS title bar. The top bar has Launch on startup, Hide to background, and Quit AWCC. The window X and Hide to background only hide the window, so a software fan curve can keep running. Quit AWCC stops the process. A second launch shows the window that is already running.
+
+The left navbar stays on screen. Its selection slides to the new item, and the page fades when you change section. Lighting pages are Keyboard, Logo, Lightbar, Speakers, Trackpad, Power, and All lighting.
+
+Performance shows the thermal modes with a sliding highlight and a short tooltip on each mode. Fan Extra is a boost on top of the thermal mode, not a percent of maximum fan speed. At 0 the thermal mode still runs the fans. The optional fan curve replaces Extra while it is enabled. It is saved under `~/.config/awcc/fan-curve.json`.
+
+Color pickers commit with OK and restore the previous color with Cancel or a click away. Key legends are black or white against the key color. Each lighting page says whether AWCC has applied a setting yet. Until then the deck is gray, not a default red.
 
 ## Device Tested
 

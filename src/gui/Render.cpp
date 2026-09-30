@@ -1,4 +1,5 @@
 #include "EffectController.h"
+#include "FanCurve.h"
 #include "Gui.h"
 #include "Renderui.h"
 #include "helper.h"
@@ -28,6 +29,9 @@ static void keepWindowSizeFixed(GLFWwindow *window, int bufferWidth,
 }
 bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
                     EffectController &effects) {
+    if (NotifyRunningInstance())
+        return false;
+
     glfwSetErrorCallback(glfw_error_callback);
     glfwInitHint(GLFW_WAYLAND_LIBDECOR, GLFW_WAYLAND_DISABLE_LIBDECOR);
     if (glfwInit() == 0)
@@ -36,15 +40,21 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
     const char *glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     std::string title =
         std::format("Alienware Command Centre - {}", Helper::getDeviceName());
     GLFWwindow *window =
-        glfwCreateWindow(600, 900, title.c_str(), nullptr, nullptr);
+        glfwCreateWindow(1180, 780, title.c_str(), nullptr, nullptr);
     if (window == nullptr)
         return true;
+    glfwSetWindowSizeLimits(window, 980, 640, GLFW_DONT_CARE, GLFW_DONT_CARE);
+    glfwSetWindowCloseCallback(window, [](GLFWwindow *closing) {
+        glfwSetWindowShouldClose(closing, GLFW_FALSE);
+        glfwHideWindow(closing);
+    });
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
+    StartInstanceServer();
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -92,15 +102,23 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
     static int brightness{effects.getBrightness()};
 
     static bool turbo{acpiUtils.getTurboBoost()};
+    FanCurve curve;
+    curve.load();
+    bool requestQuit = false;
+    bool requestHide = false;
 
     static int h, w;
     // glfwGetFramebufferSize(window, &w, &h);
     // keepWindowSizeFixed(window, w, h);
     // Main loop
-    while (glfwWindowShouldClose(window) == 0) {
+    while (glfwWindowShouldClose(window) == 0 && !requestQuit) {
         glfwPollEvents();
-        if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0) {
-            ImGui_ImplGlfw_Sleep(10);
+        PollInstanceServer(window);
+        curve.tick(thermals, cpuBoost, gpuBoost);
+        const bool visible = glfwGetWindowAttrib(window, GLFW_VISIBLE) != 0;
+        const bool iconified = glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0;
+        if (!visible || iconified) {
+            ImGui_ImplGlfw_Sleep(50);
             continue;
         }
 
@@ -114,7 +132,12 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
 
         // LOG_S(INFO) << "Rendering" << h << w;
         Gui::App(h, w, thermals, acpiUtils, selected, gpuBoost, cpuBoost,
-                 *smallFont, *fontbold, brightness, effects, turbo);
+                 *smallFont, *fontbold, brightness, effects, turbo, curve,
+                 requestQuit, requestHide);
+        if (requestHide) {
+            requestHide = false;
+            glfwHideWindow(window);
+        }
 
         // Rendering
         ImGui::Render();
@@ -142,6 +165,7 @@ bool RenderUi::Init(Thermals &thermals, AcpiUtils &acpiUtils,
         glfwSwapBuffers(window);
     }
     // Cleanup
+    StopInstanceServer();
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
