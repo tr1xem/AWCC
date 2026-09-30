@@ -67,33 +67,6 @@ int ReadSysInt(const std::filesystem::path &path) {
     return value;
 }
 
-int ExtraFor(const FanCurvePoint *points, int tempC) {
-    FanCurvePoint sorted[4];
-    std::copy(points, points + 4, sorted);
-    std::sort(sorted, sorted + 4,
-              [](const FanCurvePoint &a, const FanCurvePoint &b) {
-                  return a.tempC < b.tempC;
-              });
-    if (tempC <= sorted[0].tempC)
-        return std::clamp(sorted[0].extra, 0, 100);
-    if (tempC >= sorted[3].tempC)
-        return std::clamp(sorted[3].extra, 0, 100);
-    for (int i = 0; i < 3; ++i) {
-        if (tempC > sorted[i + 1].tempC)
-            continue;
-        const int span = sorted[i + 1].tempC - sorted[i].tempC;
-        if (span <= 0)
-            return std::clamp(sorted[i + 1].extra, 0, 100);
-        const float t =
-            static_cast<float>(tempC - sorted[i].tempC) / static_cast<float>(span);
-        const float extra =
-            static_cast<float>(sorted[i].extra) +
-            t * static_cast<float>(sorted[i + 1].extra - sorted[i].extra);
-        return std::clamp(static_cast<int>(extra + 0.5F), 0, 100);
-    }
-    return std::clamp(sorted[3].extra, 0, 100);
-}
-
 int gListenFd = -1;
 
 } // namespace

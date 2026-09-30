@@ -190,6 +190,16 @@ set(AWCC_CONFIG_DIR
     "/etc/awcc"
     CACHE PATH "Directory for configuration files")
 
+option(AWCC_BUILD_TESTS "Run the pipe and lint tests" ON)
+if(AWCC_BUILD_TESTS)
+  enable_testing()
+  find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  add_test(NAME pipe COMMAND ${Python3_EXECUTABLE}
+           ${CMAKE_SOURCE_DIR}/tests/pipe_tests.py $<TARGET_FILE:${APP_NAME}>)
+  add_test(NAME lint COMMAND ${Python3_EXECUTABLE}
+           ${CMAKE_SOURCE_DIR}/tests/lint_sources.py ${CMAKE_SOURCE_DIR})
+endif()
+
 install(TARGETS ${APP_NAME} RUNTIME DESTINATION /usr/bin)
 
 install(

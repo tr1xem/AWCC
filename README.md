@@ -40,6 +40,12 @@ light effects, g-mode, and autoboost.
 
 ---
 
+## Testing
+
+`cmake -S . -B build -G Ninja -DAWCC_BUILD_TESTS=ON`, then `cmake --build build` and `ctest --test-dir build --output-on-failure`.
+
+`pipe` starts `awcc`, writes to its stdin, and checks stdout, stderr, and the exit code. The cases are `--test-mode` with `-h`, `--help`, no command, and an unknown command. `--test-mode` is a flag, so those cases pass on a machine that is not listed in `database.json`. `lint` walks the C and C++ sources for trailing whitespace, CR bytes, a missing final newline, and conflict markers. Neither test names a laptop or opens a USB device. GitHub Actions runs both on every pull request, and once more on each push to `main`.
+
 ## 🛠️ Building And Installation
 
 #### 🗿 For Arch-Based Distros

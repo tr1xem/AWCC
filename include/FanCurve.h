@@ -11,10 +11,7 @@ struct FanSensors {
     int gpuRpm = -1;
 };
 
-struct FanCurvePoint {
-    int tempC = 40;
-    int extra = 0;
-};
+#include "FanCurveMath.h"
 
 struct FanCurve {
     bool enabled = false;

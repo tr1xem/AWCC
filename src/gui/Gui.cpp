@@ -2,6 +2,7 @@
 #include "AcpiUtils.h"
 #include "EffectController.h"
 #include "FanCurve.h"
+#include "LightingPlan.h"
 #include "database.h"
 #include "imgui.h"
 #include "resource.h"
@@ -798,31 +799,6 @@ struct ChassisPane {
     std::string status;
 };
 
-static std::vector<uint8_t> ZonesInRange(const std::vector<uint8_t> &all,
-                                         uint8_t lo, uint8_t hi) {
-    std::vector<uint8_t> out;
-    for (uint8_t zone : all) {
-        if (zone >= lo && zone <= hi)
-            out.push_back(zone);
-    }
-    return out;
-}
-
-static std::vector<uint8_t> ZonesForEffect(const std::vector<uint8_t> &zones,
-                                          int mode) {
-    if (mode != 4)
-        return zones;
-    // Zone 0x1b is the power button. A chassis rainbow on that one LED runs
-    // on its own clock and strobes. Rainbow for it is powerrainbow instead.
-    std::vector<uint8_t> out;
-    out.reserve(zones.size());
-    for (uint8_t zone : zones) {
-        if (zone != 0x1b)
-            out.push_back(zone);
-    }
-    return out;
-}
-
 static void ApplyConfigured(EffectController &effects,
                             const std::vector<ChassisPane> &panes) {
     std::vector<ChassisProgram> programs;
@@ -1589,25 +1565,6 @@ static void KeyboardTakesDeck(EffectController &effects,
     }
 }
 
-static const char *KeyboardCliEffect(int effect) {
-    switch (effect) {
-    case 1:
-        return "breathe";
-    case 2:
-        return "spectrum";
-    case 3:
-        return "wave";
-    case 4:
-        return "rainbow";
-    case 5:
-        return "wave";
-    case 7:
-        return "pulse";
-    default:
-        return nullptr;
-    }
-}
-
 static void DrawKeyboardPage(ImFont &fontbold, ImFont &smallFont,
                              EffectController &effects,
                              std::vector<ChassisPane> &panes) {
@@ -1959,35 +1916,28 @@ static std::vector<ChassisPane> &ChassisPanes(AcpiUtils &acpiUtils,
     if (ready)
         return panes;
     const std::vector<uint8_t> all = acpiUtils.getKeyboardZones();
-    auto add = [&](const char *name, const char *detail, uint8_t lo,
-                   uint8_t hi) {
+    const ChassisSplit split = SplitChassisZones(all);
+    auto add = [&](const char *name, const char *detail,
+                   const std::vector<uint8_t> &zones) {
         ChassisPane pane;
         pane.name = name;
         pane.detail = detail;
-        pane.zones = ZonesInRange(all, lo, hi);
+        pane.zones = zones;
         pane.bright = brightness;
         pane.brightLast = brightness;
         panes.push_back(std::move(pane));
     };
-    add("Lightbar", "Rear light bar.", 0x02, 0x1A);
-    add("Logo", "Alienware logo on the back of the display.", 0x1C, 0x1C);
-    add("Speakers", "Left and right speaker lights.", 0x1D, 0x1E);
+    add("Lightbar", "Rear light bar.", split.lightbar);
+    add("Logo", "Alienware logo on the back of the display.", split.logo);
+    add("Speakers", "Left and right speaker lights.", split.speakers);
     add("Trackpad",
         "Sets only the trackpad. The keys stay as they are. A later keyboard "
         "Apply replaces this.",
-        0x1F, 0x28);
-    std::vector<uint8_t> rest;
-    for (uint8_t zone : all) {
-        const bool named = (zone >= 0x02 && zone <= 0x1A) || zone == 0x1C ||
-                           (zone >= 0x1D && zone <= 0x1E) ||
-                           (zone >= 0x1F && zone <= 0x28);
-        if (!named)
-            rest.push_back(zone);
-    }
+        split.trackpad);
     ChassisPane other;
     other.name = "Other";
     other.detail = "";
-    other.zones = std::move(rest);
+    other.zones = split.other;
     other.bright = brightness;
     other.brightLast = brightness;
     panes.push_back(std::move(other));
