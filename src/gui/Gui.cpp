@@ -110,12 +110,13 @@ void Gui::SetupImGuiStyle() {
         0.0784313753247261F, 0.08627451211214066F, 0.1019607856869698F, 1.0F);
     style.Colors[ImGuiCol_TabHovered] = ImVec4(
         0.1176470592617989F, 0.1333333402872086F, 0.1490196138620377F, 1.0F);
-    style.Colors[ImGuiCol_TabActive] = ImVec4(
+    style.Colors[ImGuiCol_HeaderActive] = ImVec4(
         0.1176470592617989F, 0.1333333402872086F, 0.1490196138620377F, 1.0F);
-    style.Colors[ImGuiCol_TabUnfocused] = ImVec4(
-        0.0784313753247261F, 0.08627451211214066F, 0.1019607856869698F, 1.0F);
-    style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(
-        0.125490203499794F, 0.2745098173618317F, 0.572549045085907F, 1.0F);
+    // style.Colors[ImGuiCol_TabUnfocused] = ImVec4(
+    //     0.0784313753247261F, 0.08627451211214066F,
+    //     0.1019607856869698F, 1.0F);
+    // style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(
+    // 0.125490203499794F, 0.2745098173618317F, 0.572549045085907F, 1.0F);
     style.Colors[ImGuiCol_PlotLines] = ImVec4(
         0.5215686559677124F, 0.6000000238418579F, 0.7019608020782471F, 1.0F);
     style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(
@@ -548,7 +549,7 @@ void Gui::App(int h, int w, Thermals &thermals, AcpiUtils &acpiUtils,
         ImGui::SetCursorPosX(ImGui::GetWindowWidth() -
                              ImGui::CalcTextSize("Support").x - 10.0F);
         if (ImGui::Selectable("Support", false,
-                              ImGuiSelectableFlags_DontClosePopups)) {
+                              ImGuiSelectableFlags_NoAutoClosePopups)) {
             system("xdg-open "
                    "https://github.com/tr1xem/"
                    "AWCC?tab=readme-ov-file#support-and-feedback &");
