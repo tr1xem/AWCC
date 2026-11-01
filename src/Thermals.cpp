@@ -2,7 +2,9 @@
 #include "database.h"
 #include "helper.h"
 #include <bitset>
+#include <cmath>
 #include <cstring>
+#include <filesystem>
 #include <format>
 #include <iostream>
 #include <loguru.hpp>
@@ -10,8 +12,44 @@
 
 using std::strcmp;
 
+// AWCC thermal ids follow the same mapping as alienware-wmi's
+// awcc_profile_to_pprof(); G-Mode is toggled by the driver on "performance"
+static const char *modeToPlatformProfile(ThermalModes mode) {
+    switch (mode) {
+    case ThermalModes::Quiet:
+        return "quiet";
+    case ThermalModes::Balanced:
+        return "balanced";
+    case ThermalModes::Performance:
+        return "balanced-performance";
+    case ThermalModes::Cool:
+        return "cool";
+    case ThermalModes::BatterySaver:
+        return "low-power";
+    case ThermalModes::FullSpeed:
+    case ThermalModes::Gmode:
+        return "performance";
+    default:
+        return "custom";
+    }
+}
+
+static int percentToRawBoost(int percent) {
+    return static_cast<int>(std::lround(percent * 255.0 / 100.0));
+}
+
+static int rawToPercentBoost(int raw) {
+    if (raw < 0)
+        return raw;
+    return static_cast<int>(std::lround(raw * 100.0 / 255.0));
+}
+
 Thermals::~Thermals() { LOG_S(INFO) << "Thermals Module deinitialized"; }
 Thermals::Thermals(AcpiUtils &acpiUtils) : m_acpiUtils(acpiUtils) {
+    m_useKernel = m_acpiUtils.hasKernelThermal() &&
+                  !std::filesystem::exists("/proc/acpi/call");
+    if (m_useKernel)
+        LOG_S(INFO) << "acpi_call not loaded, using alienware-wmi backend";
     initializeThermalModes();
     patchModes(Helper::getDeviceName());
     m_currentMode = queryThermalMode();
@@ -23,6 +61,15 @@ void Thermals::setThermalMode(ThermalModes mode) {
         LOG_S(ERROR) << m_thermalModeToName(mode)
                      << " mode not supported by device, aborting";
         return;
+    } else if (m_useKernel) {
+        if (mode == queryThermalMode()) {
+            LOG_S(WARNING) << "Current thermal mode is already set to: "
+                           << m_thermalModeToName(mode);
+            return;
+        }
+        LOG_S(INFO) << "Setting thermal mode to: " << m_thermalModeToName(mode);
+        if (m_acpiUtils.setPlatformProfile(modeToPlatformProfile(mode)))
+            m_currentMode = mode;
     } else {
 
         // NOTE: GMODE handle
@@ -51,6 +98,9 @@ void Thermals::setThermalMode(ThermalModes mode) {
 
 bool Thermals::supportsThemeralMode(ThermalModes mode) {
     ThermalModeSet bit = m_mapToBitset(mode);
+    if (m_useKernel &&
+        !m_acpiUtils.hasPlatformProfile(modeToPlatformProfile(mode)))
+        return false;
     return m_acpiUtils.hasThermalMode(bit);
 }
 
@@ -86,6 +136,30 @@ ThermalModeSet Thermals::m_mapToBitset(ThermalModes mode) {
 }
 
 ThermalModes Thermals::queryThermalMode() {
+    if (m_useKernel) {
+        std::string profile = m_acpiUtils.getPlatformProfile();
+        static const std::unordered_map<std::string, ThermalModes>
+            profileToMode = {
+                {"quiet", ThermalModes::Quiet},
+                {"balanced", ThermalModes::Balanced},
+                {"balanced-performance", ThermalModes::Performance},
+                {"cool", ThermalModes::Cool},
+                {"low-power", ThermalModes::BatterySaver},
+                {"custom", ThermalModes::Manual}};
+        if (profile == "performance") {
+            m_currentMode = m_acpiUtils.hasThermalMode(ThermalModeSet::GMode)
+                                ? ThermalModes::Gmode
+                                : ThermalModes::FullSpeed;
+        } else if (auto it = profileToMode.find(profile);
+                   it != profileToMode.end()) {
+            m_currentMode = it->second;
+        } else {
+            LOG_S(ERROR) << "Unknown platform profile: " << profile;
+            m_currentMode = ThermalModes::Manual;
+        }
+        return m_currentMode;
+    }
+
     int result = m_acpiUtils.executeAcpiCommand(0x14, 0x0b, 0x00);
 
     // Use our map to look up the mode by code
@@ -116,17 +190,26 @@ void Thermals::toggleGmode() {
 }
 
 int Thermals::getCpuBoost() {
+    if (m_useKernel)
+        return rawToPercentBoost(m_acpiUtils.getFanBoost("CPU"));
     return m_acpiUtils.executeAcpiCommand(0x14, 0x0c, 0x32);
 }
 int Thermals::getGpuBoost() {
+    if (m_useKernel)
+        return rawToPercentBoost(m_acpiUtils.getFanBoost("GPU"));
     return m_acpiUtils.executeAcpiCommand(0x14, 0x0c, 0x33);
 }
 void Thermals::setCpuBoost(int boost) {
-    m_acpiUtils.executeAcpiCommand(0x15, 0x02, 0x32, boost);
+    if (m_useKernel)
+        m_acpiUtils.setFanBoost("CPU", percentToRawBoost(boost));
+    else
+        m_acpiUtils.executeAcpiCommand(0x15, 0x02, 0x32, boost);
     LOG_S(INFO) << "Set CPU Boost to: " << boost << "%";
 }
 void Thermals::setGpuBoost(int boost) {
-    if (strcmp(Helper::getDeviceName(), "Alienware Aurora R11") == 0) {
+    if (m_useKernel) {
+        m_acpiUtils.setFanBoost("GPU", percentToRawBoost(boost));
+    } else if (strcmp(Helper::getDeviceName(), "Alienware Aurora R11") == 0) {
         // FIXME: Hacky fix for Aurora R11 as it have fans at 0x36 and 0x3a
         m_acpiUtils.executeAcpiCommand(0x15, 0x02, 0x36, boost);
         m_acpiUtils.executeAcpiCommand(0x15, 0x02, 0x3a, boost);
