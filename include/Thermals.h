@@ -17,6 +17,8 @@ class Thermals {
     void patchModes(const std::string &deviceName);
 
     AcpiUtils &m_acpiUtils; // reference to external AcpiUtils
+    // Use the alienware-wmi kernel driver instead of acpi_call
+    bool m_useKernel{false};
     ThermalModes m_currentMode;
     ThermalModes m_defaultMode{ThermalModes::Balanced};
 

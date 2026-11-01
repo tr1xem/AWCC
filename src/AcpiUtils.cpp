@@ -1,11 +1,13 @@
 #include <string>
 
+#include <algorithm>
 #include <filesystem>
 #include <format>
 #include <fstream>
 #include <iostream>
 #include <loguru.hpp>
 #include <nlohmann/json.hpp>
+#include <unistd.h>
 
 #include "AcpiUtils.h"
 #include "helper.h"
@@ -187,6 +189,7 @@ AcpiUtils::AcpiUtils(Daemon &daemon, bool testMode)
     LOG_S(INFO) << "Initializing ACPIUtils Module";
     m_acpiPrefix = getPrefix();
     int resolveStatus = m_resolveDevicefromDatabase();
+    m_discoverKernelThermal();
 
     if (!m_deviceResolved || resolveStatus == -1) {
         if (!m_testMode) {
@@ -433,5 +436,122 @@ bool AcpiUtils::setTurboBoost(bool enable) {
 
     // Assume m_daemon.executeFromDaemon(cmd) returns true on success
     m_daemon.executeFromDaemon(cmd.c_str());
+    return true;
+}
+
+static std::string readFirstLine(const std::filesystem::path &path) {
+    std::ifstream file(path);
+    std::string line;
+    std::getline(file, line);
+    return line;
+}
+
+void AcpiUtils::m_discoverKernelThermal() {
+    namespace fs = std::filesystem;
+    std::error_code ec;
+
+    for (const auto &entry :
+         fs::directory_iterator("/sys/class/platform-profile", ec)) {
+        if (readFirstLine(entry.path() / "name") == "alienware-wmi") {
+            m_platformProfileDir = entry.path();
+            break;
+        }
+    }
+    for (const auto &entry : fs::directory_iterator("/sys/class/hwmon", ec)) {
+        if (readFirstLine(entry.path() / "name") == "alienware_wmi") {
+            m_hwmonDir = entry.path();
+            break;
+        }
+    }
+    if (hasKernelThermal())
+        LOG_S(INFO) << "Found alienware-wmi kernel driver: "
+                    << m_platformProfileDir << ", " << m_hwmonDir;
+}
+
+bool AcpiUtils::hasKernelThermal() const {
+    return !m_platformProfileDir.empty();
+}
+
+bool AcpiUtils::hasPlatformProfile(const std::string &profile) const {
+    if (!hasKernelThermal())
+        return false;
+    std::ifstream file(m_platformProfileDir + "/choices");
+    std::string choice;
+    while (file >> choice) {
+        if (choice == profile)
+            return true;
+    }
+    return false;
+}
+
+std::string AcpiUtils::getPlatformProfile() const {
+    if (!hasKernelThermal())
+        return "";
+    return readFirstLine(m_platformProfileDir + "/profile");
+}
+
+bool AcpiUtils::setPlatformProfile(const std::string &profile) {
+    if (!hasPlatformProfile(profile)) {
+        LOG_S(ERROR) << "Platform profile not available: " << profile;
+        return false;
+    }
+    return m_writeSysfs(m_platformProfileDir + "/profile", profile);
+}
+
+std::string AcpiUtils::m_fanBoostPath(const std::string &fan) const {
+    if (m_hwmonDir.empty())
+        return "";
+    for (int i = 1; i <= 4; ++i) {
+        std::string label =
+            readFirstLine(std::format("{}/fan{}_label", m_hwmonDir, i));
+        if (label.contains(fan))
+            return std::format("{}/fan{}_boost", m_hwmonDir, i);
+    }
+    return "";
+}
+
+int AcpiUtils::getFanBoost(const std::string &fan) const {
+    std::string path = m_fanBoostPath(fan);
+    std::ifstream file(path);
+    int value = -1;
+    if (path.empty() || !(file >> value)) {
+        LOG_S(ERROR) << "Failed to read " << fan << " fan boost";
+        return -1;
+    }
+    return value;
+}
+
+bool AcpiUtils::setFanBoost(const std::string &fan, int value) {
+    std::string path = m_fanBoostPath(fan);
+    if (path.empty()) {
+        LOG_S(ERROR) << "No " << fan << " fan found in " << m_hwmonDir;
+        return false;
+    }
+    return m_writeSysfs(path, std::to_string(std::clamp(value, 0, 255)));
+}
+
+// Writes directly when running as root (daemon or sudo), otherwise asks the
+// daemon, which only accepts the platform_profile and fan boost patterns
+bool AcpiUtils::m_writeSysfs(const std::string &path,
+                             const std::string &value) {
+    if (geteuid() == 0) {
+        std::ofstream file(path);
+        if (!(file << value << std::flush)) {
+            LOG_S(ERROR) << "Failed to write " << value << " to " << path;
+            return false;
+        }
+        return true;
+    }
+    if (!m_daemon.isDaemonRunning()) {
+        LOG_S(ERROR) << "Writing " << path
+                     << " requires root or the daemon to be running";
+        return false;
+    }
+    std::string cmd = std::format("echo {} > {}", value, path);
+    std::string result = m_daemon.executeFromDaemon(cmd.c_str());
+    if (result.contains("Rejected") || result.contains("error")) {
+        LOG_S(ERROR) << "Daemon failed to write " << path << ": " << result;
+        return false;
+    }
     return true;
 }
