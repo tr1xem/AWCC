@@ -84,11 +84,45 @@ const char *AcpiUtils::getPrefix() {
     return "";
 }
 
+static void loadKeyboardZones(const json &device, const char *deviceName,
+                              std::vector<uint8_t> &zones) {
+    if (!device.contains("keyboardZones"))
+        return;
+    if (device["keyboardZones"].is_array()) {
+        zones.clear();
+        for (const auto &zone : device["keyboardZones"]) {
+            if (zone.is_string()) {
+                zones.push_back(
+                    std::stoul(zone.get<std::string>(), nullptr, 16));
+            }
+        }
+#ifndef NDEBUG
+        LOG_S(INFO) << "Mapped " << zones.size() << " dynamic keyboard zones";
+#endif
+    } else {
+#ifndef NDEBUG
+        LOG_S(WARNING)
+            << "keyboardZones exists but is not an array for device: "
+            << deviceName;
+#endif
+    }
+}
+
 int AcpiUtils::m_resolveDevicefromDatabase() {
     m_deviceName = Helper::getDeviceName();
     std::string path = "/etc/awcc/database.json";
     std::ifstream file(path);
     if (m_testMode) {
+        // Test mode bypasses feature detection, but lighting still needs the
+        // device's real zone ids (the daemon always runs in test mode)
+        if (file) {
+            json jsonHandel = json::parse(file, nullptr, false);
+            if (!jsonHandel.is_discarded() &&
+                jsonHandel.contains(m_deviceName)) {
+                loadKeyboardZones(jsonHandel[m_deviceName], m_deviceName,
+                                  m_keyboardZones);
+            }
+        }
         return 0;
     }
 
@@ -129,27 +163,7 @@ int AcpiUtils::m_resolveDevicefromDatabase() {
             found = true;
         }
 
-        if (device.contains("keyboardZones")) {
-            if (device["keyboardZones"].is_array()) {
-                m_keyboardZones.clear();
-                for (const auto &zone : device["keyboardZones"]) {
-                    if (zone.is_string()) {
-                        m_keyboardZones.push_back(
-                            std::stoul(zone.get<std::string>(), nullptr, 16));
-                    }
-                }
-#ifndef NDEBUG
-                LOG_S(INFO) << "Mapped " << m_keyboardZones.size()
-                            << " dynamic keyboard zones";
-#endif
-            } else {
-#ifndef NDEBUG
-                LOG_S(WARNING)
-                    << "keyboardZones exists but is not an array for device: "
-                    << m_deviceName;
-#endif
-            }
-        }
+        loadKeyboardZones(device, m_deviceName, m_keyboardZones);
 
         if (!found) {
             deviceInfo(true);
