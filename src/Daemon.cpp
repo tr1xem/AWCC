@@ -61,6 +61,9 @@ void Daemon::m_StopBinder() {
 void Daemon::stop() {
     if (!m_running)
         return;
+    // NOTE: Fix double free
+    if (m_stopped.exchange(true))
+        return;
     if (m_server_fd != -1)
         close(m_server_fd);
     unlink(m_socket_path.c_str());
