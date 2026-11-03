@@ -238,7 +238,13 @@ bool Daemon::m_CommandAllowed(const std::string &cmd) {
             R"(echo [01] \| sudo tee /sys/devices/system/cpu/intel_pstate/no_turbo)"},
         // AMD turbo
         std::regex{
-            R"(echo [01] \| sudo tee /sys/devices/system/cpu/cpufreq/boost)"}};
+            R"(echo [01] \| sudo tee /sys/devices/system/cpu/cpufreq/boost)"},
+        // alienware-wmi platform profile
+        std::regex{
+            R"(echo (quiet|balanced|balanced-performance|performance|cool|low-power|custom) > /sys/class/platform-profile/platform-profile-[0-9]+/profile)"},
+        // alienware-wmi fan boost
+        std::regex{
+            R"(echo [0-9]{1,3} > /sys/class/hwmon/hwmon[0-9]+/fan[1-4]_boost)"}};
 
     for (const auto &pat : allowed_patterns) {
         if (std::regex_match(cmd, pat))
